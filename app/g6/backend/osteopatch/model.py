@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import hashlib
 from dataclasses import dataclass
+from typing import Any
 from pathlib import Path
 
 from . import config
@@ -38,8 +39,11 @@ class BundleHashMismatch(RuntimeError):
 
 @dataclass
 class LoadedModel:
-    model: object            # torch.nn.Module in eval mode
-    eval_transform: object   # torchvision v2 transform
+    # torch.nn.Module in eval mode. Typed as Any because torch is imported
+    # lazily and must not be a hard type dependency for the torch-free
+    # serve path.
+    model: Any
+    eval_transform: Any      # torchvision v2 transform
     classes: list[str]
     bundle_hash: str
     model_version: str

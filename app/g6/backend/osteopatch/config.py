@@ -154,8 +154,10 @@ def load_image_allowlist() -> frozenset[str] | None:
     """Return the frozenset of allowed image_ids, or None when no allowlist is
     configured (meaning: do not restrict). Loaded once and cached."""
     global _IMAGE_ALLOWLIST_CACHE
-    if "_IMAGE_ALLOWLIST_CACHE" in globals() and _IMAGE_ALLOWLIST_CACHE is not _ALLOWLIST_UNSET:
-        return _IMAGE_ALLOWLIST_CACHE
+    cached = _IMAGE_ALLOWLIST_CACHE
+    if cached is not _ALLOWLIST_UNSET:
+        assert cached is None or isinstance(cached, frozenset)
+        return cached
     result: frozenset[str] | None = None
     if IMAGE_ALLOWLIST_PATH:
         p = Path(IMAGE_ALLOWLIST_PATH)
@@ -172,8 +174,8 @@ def load_image_allowlist() -> frozenset[str] | None:
     return result
 
 
-_ALLOWLIST_UNSET = object()
-_IMAGE_ALLOWLIST_CACHE = _ALLOWLIST_UNSET
+_ALLOWLIST_UNSET: object = object()
+_IMAGE_ALLOWLIST_CACHE: object = _ALLOWLIST_UNSET
 
 # Thumbnail long edge (px) for gallery; full image served separately.
 THUMBNAIL_SIZE = 256
