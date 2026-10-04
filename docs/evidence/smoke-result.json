@@ -1,0 +1,581 @@
+{
+  "banner": "OsteoPatch local tester \u2014 educational research prototype. NOT for diagnosis, treatment decisions, or predicting treatment response.",
+  "generated_at": "2026-10-04T17:56:34+00:00",
+  "g6_url": "http://127.0.0.1:63356",
+  "enterprise_url": "http://127.0.0.1:63357",
+  "canonical_db_sha256": "705ce5c5858ca56c70d3027b74e4094df18bb42926d4755d3ca54e5e294acbab",
+  "passed": 95,
+  "total": 95,
+  "checks": [
+    {
+      "group": "G6",
+      "name": "health 200",
+      "ok": true,
+      "detail": "status=200"
+    },
+    {
+      "group": "G6",
+      "name": "model_version is the frozen G4 bundle",
+      "ok": true,
+      "detail": "actual='baseline-frozen-g4' expected='baseline-frozen-g4'"
+    },
+    {
+      "group": "G6",
+      "name": "bundle sha256 matches the frozen contract",
+      "ok": true,
+      "detail": "actual='01727fb832f9d5518bbe2e33b901e7041020929c94b89cdb7a5e5195b544df63' expected='01727fb832f9d5518bbe2e33b901e7041020929c94b89cdb7a5e5195b544df63'"
+    },
+    {
+      "group": "G6",
+      "name": "1,144 images indexed",
+      "ok": true,
+      "detail": "actual=1144 expected=1144"
+    },
+    {
+      "group": "G6",
+      "name": "1,144 immutable predictions",
+      "ok": true,
+      "detail": "actual=1144 expected=1144"
+    },
+    {
+      "group": "G6",
+      "name": "no subset scoping when no allowlist is set",
+      "ok": true,
+      "detail": "actual=False expected=False"
+    },
+    {
+      "group": "G6",
+      "name": "gallery 200",
+      "ok": true,
+      "detail": "status=200"
+    },
+    {
+      "group": "G6",
+      "name": "gallery total = 1,144",
+      "ok": true,
+      "detail": "actual=1144 expected=1144"
+    },
+    {
+      "group": "G6",
+      "name": "5 items on the page",
+      "ok": true,
+      "detail": "actual=5 expected=5"
+    },
+    {
+      "group": "G6",
+      "name": "review-priority rank is 1..5 (uncertainty first)",
+      "ok": true,
+      "detail": "actual=[1, 2, 3, 4, 5] expected=[1, 2, 3, 4, 5]"
+    },
+    {
+      "group": "G6",
+      "name": "patch detail 200",
+      "ok": true,
+      "detail": "status=200"
+    },
+    {
+      "group": "G6",
+      "name": "exactly 3 class scores (never a 4th class)",
+      "ok": true,
+      "detail": "actual=3 expected=3"
+    },
+    {
+      "group": "G6",
+      "name": "scores are labelled uncalibrated",
+      "ok": true,
+      "detail": "prediction keys=['inference_kind', 'model_bundle_hash', 'model_version', 'normalized_entropy', 'predicted_class', 'prediction_id', 'score_label', 'scores', 'top1_score', 'top_two_margin']"
+    },
+    {
+      "group": "G6",
+      "name": "thumbnail serves REAL pixels (image/png)",
+      "ok": true,
+      "detail": "status=200 bytes=138010 ct='image/png'"
+    },
+    {
+      "group": "G6",
+      "name": "unknown image_id -> 404",
+      "ok": true,
+      "detail": "actual=404 expected=404"
+    },
+    {
+      "group": "G6",
+      "name": "ACCEPT creates a review event (201)",
+      "ok": true,
+      "detail": "actual=201 expected=201"
+    },
+    {
+      "group": "G6",
+      "name": "created flag true",
+      "ok": true,
+      "detail": "actual=True expected=True"
+    },
+    {
+      "group": "G6",
+      "name": "revision advanced to 1",
+      "ok": true,
+      "detail": "actual=1 expected=1"
+    },
+    {
+      "group": "G6",
+      "name": "replayed idempotency key -> 200 (not a new event)",
+      "ok": true,
+      "detail": "actual=200 expected=200"
+    },
+    {
+      "group": "G6",
+      "name": "replay reports created=false",
+      "ok": true,
+      "detail": "actual=False expected=False"
+    },
+    {
+      "group": "G6",
+      "name": "replay does not bump the revision",
+      "ok": true,
+      "detail": "actual=1 expected=1"
+    },
+    {
+      "group": "G6",
+      "name": "stale expected_revision -> 409",
+      "ok": true,
+      "detail": "actual=409 expected=409"
+    },
+    {
+      "group": "G6",
+      "name": "review history 200",
+      "ok": true,
+      "detail": "status=200"
+    },
+    {
+      "group": "G6",
+      "name": "exactly one event after replay",
+      "ok": true,
+      "detail": "actual=1 expected=1"
+    },
+    {
+      "group": "G6",
+      "name": "review status flips to reviewed",
+      "ok": true,
+      "detail": "actual='reviewed' expected='reviewed'"
+    },
+    {
+      "group": "G6",
+      "name": "prediction is IMMUTABLE after a human review",
+      "ok": true,
+      "detail": "before={'NON_TUMOR': 0.499687522649765, 'VIABLE_TUMOR': 0.000882806139998138, 'NECROSIS': 0.49942976236343384} after={'NON_TUMOR': 0.499687522649765, 'VIABLE_TUMOR': 0.000882806139998138, 'NECROSIS': 0.49942976236343384}"
+    },
+    {
+      "group": "G6",
+      "name": "export 200",
+      "ok": true,
+      "detail": "status=200"
+    },
+    {
+      "group": "G6",
+      "name": "export keeps all 1,144 predictions",
+      "ok": true,
+      "detail": "actual=1144 expected=1144"
+    },
+    {
+      "group": "G6",
+      "name": "export carries the disclaimer",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "G6",
+      "name": "export row present for the reviewed patch",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "G6",
+      "name": "export preserves BOTH model prediction and human action",
+      "ok": true,
+      "detail": "model_predicted_class='NON_TUMOR' human_latest_action='ACCEPT'"
+    },
+    {
+      "group": "G6",
+      "name": "export keeps model scores and the human label in separate columns",
+      "ok": true,
+      "detail": "keys=['disclaimer', 'human_corrected_class', 'human_defer_reason', 'human_latest_action', 'human_note', 'human_review_status', 'human_reviewer', 'human_revision_number', 'image_id', 'inference_kind', 'model_bundle_hash', 'model_predicted_class', 'model_score_NECROSIS', 'model_score_NON_TUMOR', 'model_score_VIABLE_TUMOR', 'model_score_label', 'model_version', 'normalized_entropy', 'qc_primary_statu"
+    },
+    {
+      "group": "G6",
+      "name": "csv export served as text/csv",
+      "ok": true,
+      "detail": "status=200 ct='text/csv; charset=utf-8' bytes=578862"
+    },
+    {
+      "group": "G6",
+      "name": "attribution is real or honestly refuses (never a fabricated map)",
+      "ok": true,
+      "detail": "status=503 body='{\"error\":\"attribution runtime unavailable (torch not installed)\",\"detail\":\"No module named \\'torch\\'\"}'"
+    },
+    {
+      "group": "E1-E6",
+      "name": "enterprise health 200",
+      "ok": true,
+      "detail": "status=200"
+    },
+    {
+      "group": "E1-E6",
+      "name": "review backend (G6) reachable in-process",
+      "ok": true,
+      "detail": "review_backend={'available': True}"
+    },
+    {
+      "group": "E1-E6",
+      "name": "audit chain verifies on boot",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "E1-E6",
+      "name": "all 6 seeded roles can log in",
+      "ok": true,
+      "detail": "tokens=6/6"
+    },
+    {
+      "group": "E1-E6",
+      "name": "unknown user cannot auto-provision on login",
+      "ok": true,
+      "detail": "actual=401 expected=401"
+    },
+    {
+      "group": "E1-E6",
+      "name": "no bearer token at all -> 401",
+      "ok": true,
+      "detail": "actual=401 expected=401"
+    },
+    {
+      "group": "E1-E6",
+      "name": "forged token -> 401",
+      "ok": true,
+      "detail": "actual=401 expected=401"
+    },
+    {
+      "group": "E1-E6",
+      "name": "whoami returns the caller's membership",
+      "ok": true,
+      "detail": "actual=1 expected=1"
+    },
+    {
+      "group": "E1-E6",
+      "name": "demo project id resolved",
+      "ok": true,
+      "detail": "pid=prj_af42f4a26b20"
+    },
+    {
+      "group": "E1-E6",
+      "name": "missing X-Project-Id -> 400 (project scoping is mandatory)",
+      "ok": true,
+      "detail": "actual=400 expected=400"
+    },
+    {
+      "group": "E1-E6",
+      "name": "non-member project -> 404 (does not leak existence)",
+      "ok": true,
+      "detail": "actual=404 expected=404"
+    },
+    {
+      "group": "E1-E6",
+      "name": "admin grants 30 real images into the project",
+      "ok": true,
+      "detail": "actual=30 expected=30"
+    },
+    {
+      "group": "E1-E6",
+      "name": "unknown image_ids rejected (fail-closed scope)",
+      "ok": true,
+      "detail": "actual=400 expected=400"
+    },
+    {
+      "group": "E1-E6",
+      "name": "scoped gallery 200",
+      "ok": true,
+      "detail": "status=200"
+    },
+    {
+      "group": "E1-E6",
+      "name": "gallery is scoped to the granted 30",
+      "ok": true,
+      "detail": "actual=30 expected=30"
+    },
+    {
+      "group": "E1-E6",
+      "name": "every scoped item is a real G6 prediction",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "E1-E6",
+      "name": "real-but-out-of-scope patch -> 404 (tenancy boundary)",
+      "ok": true,
+      "detail": "actual=404 expected=404"
+    },
+    {
+      "group": "E1-E6",
+      "name": "in-scope patch detail resolves",
+      "ok": true,
+      "detail": "actual=200 expected=200"
+    },
+    {
+      "group": "E1-E6",
+      "name": "reviewer cannot adjudicate -> 403",
+      "ok": true,
+      "detail": "actual=403 expected=403"
+    },
+    {
+      "group": "E1-E6",
+      "name": "student cannot adjudicate -> 403",
+      "ok": true,
+      "detail": "actual=403 expected=403"
+    },
+    {
+      "group": "E1-E6",
+      "name": "reviewer cannot create projects -> 403",
+      "ok": true,
+      "detail": "actual=403 expected=403"
+    },
+    {
+      "group": "E1-E6",
+      "name": "reviewer cannot read the audit log -> 403",
+      "ok": true,
+      "detail": "actual=403 expected=403"
+    },
+    {
+      "group": "E1-E6",
+      "name": "reviewer cannot touch the model registry -> 403",
+      "ok": true,
+      "detail": "actual=403 expected=403"
+    },
+    {
+      "group": "E1-E6",
+      "name": "CORRECT accepted through the RBAC gate",
+      "ok": true,
+      "detail": "status=200"
+    },
+    {
+      "group": "E1-E6",
+      "name": "CORRECT recorded as a new event",
+      "ok": true,
+      "detail": "actual=True expected=True"
+    },
+    {
+      "group": "E1-E6",
+      "name": "review survives a reload (status flips to reviewed)",
+      "ok": true,
+      "detail": "actual='reviewed' expected='reviewed'"
+    },
+    {
+      "group": "E1-E6",
+      "name": "the human CORRECT label is recorded separately from the model",
+      "ok": true,
+      "detail": "actual='NECROSIS' expected='NECROSIS'"
+    },
+    {
+      "group": "E1-E6",
+      "name": "model prediction unchanged by the human correction",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "E1-E6",
+      "name": "history length 1 after the correction",
+      "ok": true,
+      "detail": "actual=1 expected=1"
+    },
+    {
+      "group": "E1-E6",
+      "name": "E2 dataset registered",
+      "ok": true,
+      "detail": "status=200"
+    },
+    {
+      "group": "E1-E6",
+      "name": "E2 valid manifest indexed",
+      "ok": true,
+      "detail": "status=200"
+    },
+    {
+      "group": "E1-E6",
+      "name": "E2 fails closed on a non-canonical label",
+      "ok": true,
+      "detail": "actual=400 expected=400"
+    },
+    {
+      "group": "E1-E6",
+      "name": "E3 enqueue creates tasks",
+      "ok": true,
+      "detail": "actual=5 expected=5"
+    },
+    {
+      "group": "E1-E6",
+      "name": "E3 enqueue is idempotent (re-enqueue adds nothing)",
+      "ok": true,
+      "detail": "actual=0 expected=0"
+    },
+    {
+      "group": "E1-E6",
+      "name": "pathologist adjudicates",
+      "ok": true,
+      "detail": "status=200"
+    },
+    {
+      "group": "E1-E6",
+      "name": "correction captured",
+      "ok": true,
+      "detail": "status=200"
+    },
+    {
+      "group": "E1-E6",
+      "name": "corrections are capture-only (never auto-retrain)",
+      "ok": true,
+      "detail": "actual=False expected=False"
+    },
+    {
+      "group": "E1-E6",
+      "name": "batch sign-off accepted",
+      "ok": true,
+      "detail": "status=200"
+    },
+    {
+      "group": "E1-E6",
+      "name": "sign-off batch is locked (tamper-evident)",
+      "ok": true,
+      "detail": "actual=True expected=True"
+    },
+    {
+      "group": "E1-E6",
+      "name": "sign-off carries a content hash",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "E1-E6",
+      "name": "E5 registers the frozen bundle",
+      "ok": true,
+      "detail": "status=200"
+    },
+    {
+      "group": "E1-E6",
+      "name": "E5 promote candidate",
+      "ok": true,
+      "detail": "status=200"
+    },
+    {
+      "group": "E1-E6",
+      "name": "E5 promote shadow",
+      "ok": true,
+      "detail": "status=200"
+    },
+    {
+      "group": "E1-E6",
+      "name": "E5 promotes to serving with eval gate",
+      "ok": true,
+      "detail": "status=200"
+    },
+    {
+      "group": "E1-E6",
+      "name": "serving state is 'serving'",
+      "ok": true,
+      "detail": "actual='serving' expected='serving'"
+    },
+    {
+      "group": "E1-E6",
+      "name": "E5 refuses to serve a model whose eval did not pass",
+      "ok": true,
+      "detail": "actual=400 expected=400"
+    },
+    {
+      "group": "E1-E6",
+      "name": "serving model is the frozen G4 bundle",
+      "ok": true,
+      "detail": "actual='baseline-frozen-g4' expected='baseline-frozen-g4'"
+    },
+    {
+      "group": "E1-E6",
+      "name": "a second bundle takes over serving",
+      "ok": true,
+      "detail": "status=200"
+    },
+    {
+      "group": "E1-E6",
+      "name": "single-serving invariant: serving is now candidate-v2 only",
+      "ok": true,
+      "detail": "actual='candidate-v2' expected='candidate-v2'"
+    },
+    {
+      "group": "E1-E6",
+      "name": "E5 one-click rollback works",
+      "ok": true,
+      "detail": "status=200 body={\"bundle_sha256\":\"01727fb832f9d5518bbe2e33b901e7041020929c94b89cdb7a5e5195b544df63\",\"model_id\":\"baseline-frozen-g4\",\"sta"
+    },
+    {
+      "group": "E1-E6",
+      "name": "rollback restores the frozen G4 bundle",
+      "ok": true,
+      "detail": "actual='baseline-frozen-g4' expected='baseline-frozen-g4'"
+    },
+    {
+      "group": "E1-E6",
+      "name": "exactly one serving model after rollback",
+      "ok": true,
+      "detail": "actual='baseline-frozen-g4' expected='baseline-frozen-g4'"
+    },
+    {
+      "group": "E1-E6",
+      "name": "E6 drift report returned",
+      "ok": true,
+      "detail": "status=200"
+    },
+    {
+      "group": "E1-E6",
+      "name": "drift is computed over the scoped project predictions",
+      "ok": true,
+      "detail": "n_predictions=30 n_reviewed=1"
+    },
+    {
+      "group": "E1-E6",
+      "name": "drift reports an alert list",
+      "ok": true,
+      "detail": "alerts=['correction_rate 1.00 > 0.3']"
+    },
+    {
+      "group": "E1-E6",
+      "name": "reviewer cannot read drift -> 403",
+      "ok": true,
+      "detail": "actual=403 expected=403"
+    },
+    {
+      "group": "E1-E6",
+      "name": "auditor reads the audit log",
+      "ok": true,
+      "detail": "status=200"
+    },
+    {
+      "group": "E1-E6",
+      "name": "hash chain verifies",
+      "ok": true,
+      "detail": "actual=True expected=True"
+    },
+    {
+      "group": "E1-E6",
+      "name": "audit entries were written",
+      "ok": true,
+      "detail": "entries=28"
+    },
+    {
+      "group": "E1-E6",
+      "name": "every mutation kind is audited",
+      "ok": true,
+      "detail": "kinds=['auth.login', 'govern.adjudicate', 'govern.capture_correction', 'govern.signoff', 'infer.enqueue', 'ingest.index_manifest', 'ingest.register_dataset', 'model.promote', 'model.register', 'model.rollback', 'obs.drift_report', 'project.set_scope', 'review.submit']"
+    },
+    {
+      "group": "safety",
+      "name": "canonical review store is byte-identical after the run",
+      "ok": true,
+      "detail": "before=705ce5c5858ca56c\u2026 after=705ce5c5858ca56c\u2026"
+    }
+  ]
+}
