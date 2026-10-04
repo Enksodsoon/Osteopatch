@@ -11,6 +11,13 @@ executed during the audit. Where a claim could not be checked, it is listed
 explicitly under [Claims I could not verify](#claims-i-could-not-verify) rather
 than repeated as fact.
 
+> **Update (same day, after bootstrap).** Two findings below were superseded by
+> the dependency bootstrap and are annotated inline: OpenSlide **is** available
+> locally (`1.4.3 | lib 4.0.1`, via `openslide-bin`), and all six test gates are
+> now green. See [`evidence/step02-baseline.md`](evidence/step02-baseline.md).
+> The rest of this document stands as the point-in-time record it was written to
+> be — the state *before* any refactoring.
+
 ---
 
 ## 1. Git baseline
@@ -189,6 +196,7 @@ All `torch not installed in this venv`:
 - **Torch-dependent tests** — `torch` is not installed; no venv exists.
 - **`npm run build` (both frontends)** — the TypeScript compile gate is
   **unverified**. Frontend *tests* pass; the build gate has not been executed.
+  **SUPERSEDED:** both build clean (exit 0, 0 TypeScript errors).
 
 ### 5.4 No test evidence is committed
 
@@ -331,12 +339,14 @@ clone cannot build the image.
    current failures are environmental; the suite's true state is unknown until
    bootstrapped.
 3. **`npm run build` (both frontends)** — the TypeScript compile gate was not
-   executed.
+   executed. **SUPERSEDED:** both build clean (exit 0, 0 TypeScript errors).
 4. **TIAToolbox model-weights license** — the code is BSD-3-Clause, but the
    weights carry a separate license that was not resolved.
 5. **OpenSlide runtime** — `openslide-python` is installed but
    `import openslide` fails: `Couldn't locate OpenSlide DLL`. The error itself
    suggests `pip install openslide-bin` as the Windows remedy; untested.
+   **SUPERSEDED:** the `wsi` extra now carries `openslide-bin` and the import
+   succeeds (`1.4.3 | lib 4.0.1`).
 
 ---
 
