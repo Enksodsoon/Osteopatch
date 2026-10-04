@@ -46,6 +46,17 @@ COPY deploy/_bake/models/g4-behavioral-recovery-r1.pt "${LAMBDA_TASK_ROOT}/runti
 # detail / export reads restrict to these ids (no prediction/label changed).
 COPY deploy/_bake/g8-subset-image-ids.json "${LAMBDA_TASK_ROOT}/runtime/g8-subset-image-ids.json"
 
+# ---- Fail closed on artifact drift ------------------------------------------
+# The three artifacts above are identified by HASH, not by filename. A rebuilt
+# or substituted database carrying the right name would otherwise produce an
+# image that is not the one that was certified. Rebuild the context with
+# scripts/prepare_bake.py, which verifies every source before copying.
+COPY deploy/runtime-artifacts.expected.json "${LAMBDA_TASK_ROOT}/runtime/expected.json"
+COPY deploy/verify_bake.py "${LAMBDA_TASK_ROOT}/verify_bake.py"
+RUN python "${LAMBDA_TASK_ROOT}/verify_bake.py" \
+        "${LAMBDA_TASK_ROOT}/runtime" "${LAMBDA_TASK_ROOT}/runtime/expected.json" && \
+    rm -f "${LAMBDA_TASK_ROOT}/verify_bake.py" "${LAMBDA_TASK_ROOT}/runtime/expected.json"
+
 # ---- Bake the ImageNet backbone weights (offline attribution) --------------
 # The attribution model is mobilenet_v3_small(IMAGENET1K_V1) + the recovered
 # head. torchvision would otherwise DOWNLOAD the backbone weights at request

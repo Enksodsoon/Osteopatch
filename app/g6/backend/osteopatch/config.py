@@ -74,26 +74,43 @@ PROJECT_ROOT = _env_path(
     _default_project_root(),  # .../OsteoPatch_Kiro_Handoff
 )
 
-# Runtime data root (NOT in git) — SQLite db, thumbnails, prediction cache.
-SCRATCH_ROOT = _env_path(
-    "OSTEOPATCH_SCRATCH",
-    r"C:\Users\enkso\.kiro\crew\scratch\runtime-0a306834\osteopatch_g6",
-)
+# Runtime data root. Resolution is env var -> repo/runtime-artifacts ->
+# app/runtime-artifacts. There are deliberately NO machine-specific defaults
+# here: the previous hardcoded `C:\Users\enkso\.kiro\crew\scratch\...` paths
+# pointed at a directory that has since been reclaimed, so every consumer
+# silently fell back to a non-existent location.
+def _runtime_root() -> Path:
+    env = os.environ.get("OSTEOPATCH_RUNTIME_ARTIFACTS", "").strip()
+    if env:
+        return Path(env).resolve()
+    for candidate in (PROJECT_ROOT / "runtime-artifacts", APP_DIR / "runtime-artifacts"):
+        if candidate.is_dir():
+            return candidate.resolve()
+    # Not an error at import: the app must still start so /health can explain
+    # what is missing. scripts/prepare_runtime.py reports this properly.
+    return (PROJECT_ROOT / "runtime-artifacts").resolve()
 
-DB_PATH = _env_path("OSTEOPATCH_DB", str(SCRATCH_ROOT / "osteopatch_g6.sqlite3"))
-THUMBS_DIR = _env_path("OSTEOPATCH_THUMBS", str(SCRATCH_ROOT / "thumbnails"))
 
-# Frozen G4 bundle (scratch, out of git).
+RUNTIME_ARTIFACTS_ROOT = _runtime_root()
+
+# Legacy scratch override, retained so existing local runbooks keep working.
+SCRATCH_ROOT = _env_path("OSTEOPATCH_SCRATCH", str(RUNTIME_ARTIFACTS_ROOT / "scratch"))
+
+DB_PATH = _env_path("OSTEOPATCH_DB", str(RUNTIME_ARTIFACTS_ROOT / "db" / "osteopatch_g6.sqlite3"))
+THUMBS_DIR = _env_path("OSTEOPATCH_THUMBS", str(RUNTIME_ARTIFACTS_ROOT / "thumbnails"))
+
+# The ORIGINAL frozen G4 bundle. This file no longer exists on disk (the
+# reclaimable scratch that held it was lost); it is kept as a path so the
+# loader's hash guard and its tests still have a target, and so a restored
+# copy is picked up without a code change. Its 1,144 immutable predictions
+# remain keyed to EXPECTED_BUNDLE_SHA256 and are never rewritten.
 BUNDLE_PATH = _env_path(
     "OSTEOPATCH_BUNDLE",
-    r"C:\Users\enkso\.kiro\crew\scratch\runtime-0a306834\osteopatch_g4\final_bundle\osteopatch_g4_baseline_bundle.pt",
+    str(RUNTIME_ARTIFACTS_ROOT / "models" / "osteopatch_g4_baseline_bundle.pt"),
 )
 
-# Decoded TIFF patches (scratch, out of git) — the only pixel source.
-TIFFS_DIR = _env_path(
-    "OSTEOPATCH_TIFFS",
-    r"C:\Users\enkso\.kiro\crew\scratch\runtime-0a306834\osteopatch_full_ingestion\tiffs",
-)
+# Decoded TIFF patches — the only pixel source.
+TIFFS_DIR = _env_path("OSTEOPATCH_TIFFS", str(RUNTIME_ARTIFACTS_ROOT / "images"))
 
 # Source/QC metadata CSVs (durable, read-only).
 QC_DIR = _env_path(
@@ -110,24 +127,24 @@ MODEL_CARD_DIR = _env_path(
     str(PROJECT_ROOT / "aidlc-docs" / "inception" / "model" / "g4"),
 )
 
-# ---------------------------------------------------------------------------
-# Recovered model + attribution (G7 / R1-C2) — DURABLE under runtime-artifacts/
-# ---------------------------------------------------------------------------
-# The behaviorally-recovered head bundle (g4-behavioral-recovery-r1), produced
+# The behaviourally-recovered head bundle (g4-behavioral-recovery-r1), produced
 # by R1-C2. Distinct identity + hash from the original baseline-frozen-g4; the
 # original 01727fb8... hash is NEVER reassigned to this file.
-RUNTIME_ARTIFACTS = _env_path(
-    "OSTEOPATCH_RUNTIME_ARTIFACTS", str(PROJECT_ROOT / "runtime-artifacts")
-)
+RUNTIME_ARTIFACTS = RUNTIME_ARTIFACTS_ROOT
 RECOVERED_MODEL_PATH = _env_path(
     "OSTEOPATCH_RECOVERED_MODEL",
-    str(RUNTIME_ARTIFACTS / "models" / "g4-behavioral-recovery-r1.pt"),
+    str(RUNTIME_ARTIFACTS_ROOT / "models" / "g4-behavioral-recovery-r1.pt"),
 )
 RECOVERED_MODEL_ID = "g4-behavioral-recovery-r1"
 
+# The recovered head was previously referenced BY PATH ONLY — its hash appeared
+# nowhere in code, so a swapped file would have been attributed silently. This
+# pins it. Attribution refuses to run on mismatch.
+RECOVERED_MODEL_SHA256 = "ffff1282f533758d7d7c8370ee6092f97f553da69918c5ee7e83632428176a73"
+
 # Attribution image source: the durable verified TIFFs (R1-A/R1-B).
 ATTRIB_IMAGES_DIR = _env_path(
-    "OSTEOPATCH_ATTRIB_IMAGES", str(RUNTIME_ARTIFACTS / "images")
+    "OSTEOPATCH_ATTRIB_IMAGES", str(RUNTIME_ARTIFACTS_ROOT / "images")
 )
 # Deterministic Grad-CAM cache (rebuildable; kept under scratch, out of git).
 ATTRIB_CACHE_DIR = _env_path(

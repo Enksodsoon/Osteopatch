@@ -1,0 +1,50 @@
+{
+  "_comment": [
+    "Expected hashes of load-bearing runtime artifacts. This file is DURABLE",
+    "SOURCE EVIDENCE and is committed; the artifacts it describes are NOT.",
+    "",
+    "rationale: raw pathology pixels, model binaries and generated databases",
+    "must never enter git. But reproducibility requires that a clean clone can",
+    "verify what it reconstructs. This file is that anchor: scripts/prepare_runtime.py",
+    "recomputes each hash and FAILS on mismatch; scripts/prepare_bake.py copies",
+    "only artifacts that pass; the Dockerfile refuses to build without them.",
+    "",
+    "Regenerate deliberately after a model change, and say so in the commit.",
+    "Never regenerate to make a verification pass."
+  ],
+  "artifacts": {
+    "database": {
+      "description": "Frozen read model: source_qc (1,144) + immutable predictions (1,144)",
+      "relative_path": "db/osteopatch_g6.sqlite3",
+      "sha256": "705ce5c5858ca56c70d3027b74e4094df18bb42926d4755d3ca54e5e294acbab",
+      "bytes": 749568,
+      "rows": {
+        "source_qc": 1144,
+        "prediction": 1144,
+        "review_event": 0
+      }
+    },
+    "recovered_model": {
+      "description": "Behaviourally-recovered G4 head used for contrastive Grad-CAM",
+      "model_id": "g4-behavioral-recovery-r1",
+      "relative_path": "models/g4-behavioral-recovery-r1.pt",
+      "sha256": "ffff1282f533758d7d7c8370ee6092f97f553da69918c5ee7e83632428176a73",
+      "bytes": 21785,
+      "_identity_note": [
+        "DISTINCT identity from the original frozen bundle.",
+        "The original baseline-frozen-g4 bundle sha256 is",
+        "01727fb832f9d5518bbe2e33b901e7041020929c94b89cdb7a5e5195b544df63",
+        "and is NEVER reassigned to this file.",
+        "The original bundle file no longer exists on disk; the 1,144 immutable",
+        "predictions in the database remain keyed to its hash and are unchanged."
+      ]
+    },
+    "g8_subset": {
+      "description": "Deterministic 50-image representative subset for the cloud demo",
+      "relative_path": "recovery/g8-subset-image-ids.json",
+      "sha256": "78ecd2f703913cef8d3c5f298489f741cc96f9d99a8a9c526290ec85c6ef005f",
+      "bytes": 15869,
+      "image_count": 50
+    }
+  }
+}

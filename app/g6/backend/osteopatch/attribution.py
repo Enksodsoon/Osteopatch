@@ -67,7 +67,24 @@ def _build_state() -> dict:
 
     if not RECOVERED_BUNDLE.exists():
         raise AttributionError(
-            f"recovered model bundle missing: {RECOVERED_BUNDLE} (run R1-C2 recovery first)"
+            f"recovered model bundle missing: {RECOVERED_BUNDLE} "
+            f"(run scripts/prepare_runtime.py to see what is expected)"
+        )
+    # Hash guard BEFORE torch.load: loading a bundle executes pickled code, so
+    # the file must be proven to be the artifact we expect first. This was a
+    # real gap — the recovered head was referenced by path only, meaning a
+    # swapped file would have been attributed silently.
+    actual_sha = _sha256_file(RECOVERED_BUNDLE)
+    expected_sha = config.RECOVERED_MODEL_SHA256
+    if actual_sha != expected_sha:
+        raise AttributionError(
+            f"recovered model hash mismatch for {RECOVERED_BUNDLE}:\n"
+            f"  expected {expected_sha}\n"
+            f"  actual   {actual_sha}\n"
+            "Refusing to load. The recovered head is identified by hash; the "
+            "original frozen bundle hash "
+            f"({config.EXPECTED_BUNDLE_SHA256}) is a DIFFERENT model and is "
+            "never reassigned to this file."
         )
     bundle = torch.load(str(RECOVERED_BUNDLE), map_location="cpu", weights_only=False)
     if bundle.get("model_id") != RECOVERED_MODEL_ID:
