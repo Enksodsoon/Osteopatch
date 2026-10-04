@@ -1,9 +1,9 @@
 {
   "banner": "OsteoPatch local tester \u2014 educational research prototype. NOT for diagnosis, treatment decisions, or predicting treatment response.",
-  "generated_at": "2026-10-04T17:56:34+00:00",
-  "g6_url": "http://127.0.0.1:63356",
-  "enterprise_url": "http://127.0.0.1:63357",
-  "canonical_db_sha256": "705ce5c5858ca56c70d3027b74e4094df18bb42926d4755d3ca54e5e294acbab",
+  "generated_at": "2026-10-04T18:11:41+00:00",
+  "g6_url": "http://127.0.0.1:55046",
+  "enterprise_url": "http://127.0.0.1:55047",
+  "canonical_db_sha256": "0e4524db91f7a6e22dfbdc3395cf0fce6b7bf1b5628ac4cd1198be291d01ac40",
   "passed": 95,
   "total": 95,
   "checks": [
@@ -263,7 +263,7 @@
       "group": "E1-E6",
       "name": "demo project id resolved",
       "ok": true,
-      "detail": "pid=prj_af42f4a26b20"
+      "detail": "pid=prj_a0f2cd9541ba"
     },
     {
       "group": "E1-E6",
@@ -575,7 +575,7 @@
       "group": "safety",
       "name": "canonical review store is byte-identical after the run",
       "ok": true,
-      "detail": "before=705ce5c5858ca56c\u2026 after=705ce5c5858ca56c\u2026"
+      "detail": "before=0e4524db91f7a6e2\u2026 after=0e4524db91f7a6e2\u2026"
     }
   ]
 }

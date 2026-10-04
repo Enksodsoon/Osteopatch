@@ -52,4 +52,28 @@ def run_migrations(conn: sqlite3.Connection) -> list[int]:
         )
         conn.commit()
         newly.append(version)
+
+    _post_migrate(conn)
     return newly
+
+
+def _post_migrate(conn: sqlite3.Connection) -> None:
+    """Idempotent data work that belongs after the schema is in place.
+
+    The legacy project backfill lives here rather than in SQL so the default
+    project id is defined once, in ``projects.DEFAULT_PROJECT_ID``, instead of
+    being hardcoded into a migration file.
+
+    Deliberately NOT gated on "this call applied a migration". A database that
+    already recorded the migration but was interrupted before the backfill — or
+    one whose rows were added before the column existed — would otherwise be
+    skipped forever, leaving rows permanently unscoped.
+    """
+    applied = _applied_versions(conn)
+    if 2 not in applied:
+        return
+    from . import projects
+
+    rows = projects.assign_legacy_project(conn)
+    if rows:
+        print(f"[db] backfilled project scope on {rows} pre-existing rows")
