@@ -1,8 +1,8 @@
 {
   "banner": "OsteoPatch local tester \u2014 educational research prototype. NOT for diagnosis, treatment decisions, or predicting treatment response.",
-  "generated_at": "2026-10-04T18:11:41+00:00",
-  "g6_url": "http://127.0.0.1:55046",
-  "enterprise_url": "http://127.0.0.1:55047",
+  "generated_at": "2026-10-04T18:20:19+00:00",
+  "g6_url": "http://127.0.0.1:53253",
+  "enterprise_url": "http://127.0.0.1:53254",
   "canonical_db_sha256": "0e4524db91f7a6e22dfbdc3395cf0fce6b7bf1b5628ac4cd1198be291d01ac40",
   "passed": 95,
   "total": 95,
@@ -263,7 +263,7 @@
       "group": "E1-E6",
       "name": "demo project id resolved",
       "ok": true,
-      "detail": "pid=prj_a0f2cd9541ba"
+      "detail": "pid=prj_04d8025c82c8"
     },
     {
       "group": "E1-E6",

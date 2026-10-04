@@ -25,6 +25,28 @@ from dataclasses import dataclass
 from .config import CANONICAL_CLASSES
 
 
+def softmax(logits: list[float]) -> list[float]:
+    """Numerically-stable softmax over a 3-vector of logits.
+
+    The single canonical definition. It previously existed as two private copies
+    (attribution.py and enterprise/cpu_worker.py). Both callers now use this, so
+    a change to numeric handling happens in exactly one place.
+
+    Subtracting the max before exponentiating keeps this stable for large logits.
+    """
+    if not logits:
+        raise ValueError("softmax requires at least one logit")
+    m = max(logits)
+    exps = [math.exp(v - m) for v in logits]
+    total = sum(exps)
+    if total <= 0.0:
+        # Degenerate input (all logits -inf). Return a uniform distribution
+        # rather than dividing by zero; the caller still sees 3 finite scores.
+        n = len(logits)
+        return [1.0 / n] * n
+    return [e / total for e in exps]
+
+
 def top1_index(scores: list[float]) -> int:
     """Argmax; ties broken by lowest index (canonical order) for determinism.
 
