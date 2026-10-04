@@ -1,0 +1,10 @@
+# Enterprise layer — never commit build artifacts, venvs, or deps
+backend/.webvenv/
+backend/**/__pycache__/
+backend/.pytest_cache/
+frontend/node_modules/
+frontend/dist/
+frontend/*.tsbuildinfo
+*.sqlite3
+audit_chain.jsonl
+project_scopes/

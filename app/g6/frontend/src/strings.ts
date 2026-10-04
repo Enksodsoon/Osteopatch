@@ -15,6 +15,9 @@ const en = {
   "disclaimer.short":
     "Educational / research prototype — NOT for diagnosis, treatment decisions, treatment-response prediction, or prognosis.",
 
+  "subset.banner":
+    "The deployed hackathon demo contains a deterministic 50-image representative subset. The complete locally verified collection contains 1,144 patches.",
+
   "workbench.cta": "Review ambiguous patches first",
   "workbench.sort": "Sort",
   "workbench.sort.priority": "Review priority",

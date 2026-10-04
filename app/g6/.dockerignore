@@ -1,0 +1,14 @@
+# Docker build context = app/g6. Only backend/osteopatch + deploy/ are COPYed.
+# Keep everything heavy/irrelevant out of the context.
+backend/.venv/
+backend/.pytest_cache/
+backend/tests/
+backend/precompute.py
+backend/requirements.txt
+**/__pycache__/
+**/*.pyc
+frontend/
+README.md
+.gitignore
+deploy/cdk/.venv/
+deploy/cdk/cdk.out/

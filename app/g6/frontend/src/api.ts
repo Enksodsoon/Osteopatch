@@ -30,6 +30,10 @@ export async function getMeta(): Promise<Meta> {
   return j<Meta>(await fetch("/v1/meta"));
 }
 
+export async function getHealth(): Promise<import("./types").Health> {
+  return j<import("./types").Health>(await fetch("/v1/health"));
+}
+
 export async function listImages(params: {
   sort?: string;
   filter?: string;

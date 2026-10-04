@@ -30,3 +30,7 @@ runtime-artifacts/
 # Logs
 server.log
 server.log.err
+
+# Freebuff agent runtime scratch — editor session state, npm cache, host
+# PowerShell profile data. Machine-local tooling noise, never project content.
+.freebuff/

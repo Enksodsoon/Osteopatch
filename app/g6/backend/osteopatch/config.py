@@ -55,9 +55,23 @@ def _env_path(var: str, default: str) -> Path:
 # ---------------------------------------------------------------------------
 # Durable project app dir (this package lives under app/g6/backend/osteopatch).
 APP_DIR = Path(__file__).resolve().parent.parent  # .../app/g6/backend
+
+
+def _default_project_root() -> str:
+    """.../OsteoPatch_Kiro_Handoff locally; but in the Lambda the package lives
+    at /var/task/osteopatch (only 2 parents), so parents[4] would IndexError.
+    Fall back to the deepest available parent rather than crash at import — the
+    env var OSTEOPATCH_PROJECT_ROOT overrides this anyway on Lambda."""
+    p = Path(__file__).resolve()
+    try:
+        return str(p.parents[4])
+    except IndexError:
+        return str(p.parents[len(p.parents) - 1])
+
+
 PROJECT_ROOT = _env_path(
     "OSTEOPATCH_PROJECT_ROOT",
-    str(Path(__file__).resolve().parents[4]),  # .../OsteoPatch_Kiro_Handoff
+    _default_project_root(),  # .../OsteoPatch_Kiro_Handoff
 )
 
 # Runtime data root (NOT in git) — SQLite db, thumbnails, prediction cache.
@@ -120,6 +134,46 @@ ATTRIB_CACHE_DIR = _env_path(
     "OSTEOPATCH_ATTRIB_CACHE",
     str(SCRATCH_ROOT / "attribution-cache"),
 )
+
+# ---------------------------------------------------------------------------
+# Image allowlist (G8 deployed-demo scope) — OPTIONAL, no-op when unset.
+# ---------------------------------------------------------------------------
+# When OSTEOPATCH_IMAGE_ALLOWLIST points to a JSON file, the gallery / detail /
+# export / rank reads are RESTRICTED to exactly the listed image_ids. This does
+# NOT change any prediction, score, or label — the immutable read model is
+# untouched; it only scopes WHICH rows the deployed demo surfaces (the 50-image
+# representative subset). Unset (local dev) => full 1,144-row behaviour, so the
+# local app and every existing test are unaffected.
+#
+# Accepted file shapes: a bare JSON array of ids, or an object with a
+# "subset_image_ids" (preferred) or "image_ids"/"ids" key.
+IMAGE_ALLOWLIST_PATH = os.environ.get("OSTEOPATCH_IMAGE_ALLOWLIST", "").strip()
+
+
+def load_image_allowlist() -> frozenset[str] | None:
+    """Return the frozenset of allowed image_ids, or None when no allowlist is
+    configured (meaning: do not restrict). Loaded once and cached."""
+    global _IMAGE_ALLOWLIST_CACHE
+    if "_IMAGE_ALLOWLIST_CACHE" in globals() and _IMAGE_ALLOWLIST_CACHE is not _ALLOWLIST_UNSET:
+        return _IMAGE_ALLOWLIST_CACHE
+    result: frozenset[str] | None = None
+    if IMAGE_ALLOWLIST_PATH:
+        p = Path(IMAGE_ALLOWLIST_PATH)
+        if p.exists():
+            import json
+
+            data = json.loads(p.read_text(encoding="utf-8"))
+            if isinstance(data, dict):
+                ids = data.get("subset_image_ids") or data.get("image_ids") or data.get("ids") or []
+            else:
+                ids = data
+            result = frozenset(str(i) for i in ids)
+    _IMAGE_ALLOWLIST_CACHE = result
+    return result
+
+
+_ALLOWLIST_UNSET = object()
+_IMAGE_ALLOWLIST_CACHE = _ALLOWLIST_UNSET
 
 # Thumbnail long edge (px) for gallery; full image served separately.
 THUMBNAIL_SIZE = 256

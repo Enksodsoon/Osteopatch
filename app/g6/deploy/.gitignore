@@ -1,0 +1,6 @@
+# G8 deploy build artifacts — reproducible, not committed
+_bake/
+cdk/cdk.out/
+cdk/.venv/
+*.pyc
+__pycache__/

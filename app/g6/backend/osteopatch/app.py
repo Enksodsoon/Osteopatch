@@ -14,7 +14,7 @@ from fastapi import FastAPI, Query, Request, Response
 from fastapi.responses import JSONResponse, StreamingResponse
 from pydantic import BaseModel, Field
 
-from . import config, db, images, modelcard, queries, repo
+from . import config, db, images, modelcard, queries, repo, review_store
 
 # ---------------------------------------------------------------------------
 # App + per-request connection
@@ -75,12 +75,25 @@ def health():
     conn = get_conn()
     n_img = conn.execute("SELECT COUNT(*) FROM source_qc").fetchone()[0]
     n_pred = conn.execute("SELECT COUNT(*) FROM prediction").fetchone()[0]
+    allow = config.load_image_allowlist()
+    if allow is not None:
+        n_img = conn.execute(
+            "SELECT COUNT(*) FROM source_qc WHERE image_id IN (%s)"
+            % ",".join("?" for _ in allow),
+            sorted(allow),
+        ).fetchone()[0]
+        n_pred = conn.execute(
+            "SELECT COUNT(*) FROM prediction WHERE image_id IN (%s)"
+            % ",".join("?" for _ in allow),
+            sorted(allow),
+        ).fetchone()[0]
     return {
         "status": "ok",
         "model_version": config.MODEL_VERSION,
         "model_bundle_sha256": config.EXPECTED_BUNDLE_SHA256,
         "images_indexed": n_img,
         "predictions": n_pred,
+        "image_subset_scoped": allow is not None,
         "disclaimer": config.DISCLAIMER,
     }
 
@@ -341,20 +354,20 @@ def get_review(image_id: str):
         "SELECT 1 FROM source_qc WHERE image_id = ?", (image_id,)
     ).fetchone() is None:
         return JSONResponse(status_code=404, content={"error": "unknown image_id"})
-    latest = repo.latest_event(conn, image_id)
+    latest = review_store.latest_event(conn, image_id)
     return {
         "image_id": image_id,
-        "revision": repo.current_revision(conn, image_id),
-        "status": repo._review_status(latest),
+        "revision": review_store.current_revision(conn, image_id),
+        "status": review_store.review_status(latest),
         "latest": None if latest is None else queries._event_dict(latest),
-        "history": [queries._event_dict(e) for e in repo.event_history(conn, image_id)],
+        "history": [queries._event_dict(e) for e in review_store.event_history(conn, image_id)],
     }
 
 
 @app.post("/v1/images/{image_id}/reviews")
 def post_review(image_id: str, body: ReviewSubmission):
     conn = get_conn()
-    event, created = repo.submit_review(
+    event, created = review_store.submit_review(
         conn,
         image_id=image_id,
         prediction_id=body.prediction_id,
@@ -368,7 +381,7 @@ def post_review(image_id: str, body: ReviewSubmission):
     )
     payload = queries._event_dict(event)
     payload["created"] = created
-    payload["current_revision"] = repo.current_revision(conn, image_id)
+    payload["current_revision"] = review_store.current_revision(conn, image_id)
     return JSONResponse(status_code=201 if created else 200, content=payload)
 
 

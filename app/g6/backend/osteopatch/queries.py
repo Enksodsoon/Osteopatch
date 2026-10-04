@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import sqlite3
 
-from . import config, repo
+from . import config, repo, review_store
 
 SORTABLE = {"priority", "predicted_class", "image_id"}
 FILTERS = {
@@ -23,9 +23,15 @@ FILTERS = {
 }
 
 
-def _row_to_image(conn: sqlite3.Connection, r: sqlite3.Row) -> dict:
-    latest = repo.latest_event(conn, r["image_id"])
-    status = repo._review_status(latest)
+def _row_to_image(conn: sqlite3.Connection, r: sqlite3.Row, review_index: dict | None = None) -> dict:
+    if review_index is not None:
+        st_entry = review_index.get(r["image_id"])
+        latest = st_entry["latest"] if st_entry else None
+        revision = st_entry["revision"] if st_entry else 0
+    else:
+        latest = review_store.latest_event(conn, r["image_id"])
+        revision = review_store.current_revision(conn, r["image_id"])
+    status = review_store.review_status(latest)
     return {
         "image_id": r["image_id"],
         "source_group": r["source_group"],
@@ -54,7 +60,7 @@ def _row_to_image(conn: sqlite3.Connection, r: sqlite3.Row) -> dict:
         },
         "review_state": {
             "status": status,
-            "revision": repo.current_revision(conn, r["image_id"]),
+            "revision": revision,
             "latest_action": None if latest is None else latest["action"],
             "selected_class": None if latest is None else latest["selected_class"],
         },
@@ -115,8 +121,17 @@ def list_images(
         sql += " AND s.image_id LIKE ? "
         params.append(f"%{q}%")
 
+    # G8 deployed-demo scope: restrict to the allowlisted subset when configured
+    # (no-op locally). Applied in SQL so paging/total reflect the subset only.
+    allow = config.load_image_allowlist()
+    if allow is not None:
+        placeholders = ",".join("?" for _ in allow)
+        sql += f" AND s.image_id IN ({placeholders}) "
+        params.extend(sorted(allow))
+
     rows = list(conn.execute(sql, params))
-    images = [_row_to_image(conn, r) for r in rows]
+    review_index = review_store.load_all_review_state(conn)
+    images = [_row_to_image(conn, r, review_index) for r in rows]
 
     # review-status filters apply post-join (depend on latest event)
     if filt in ("unreviewed", "reviewed", "deferred"):
@@ -163,14 +178,18 @@ def list_images(
 
 
 def _priority_rank_map(conn: sqlite3.Connection) -> dict[str, int]:
-    """Global deterministic review-priority rank over all predicted images."""
+    """Global deterministic review-priority rank over all predicted images
+    (restricted to the allowlisted subset when configured)."""
     from .scoring import review_priority_key
 
+    allow = config.load_image_allowlist()
     rows = list(
         conn.execute(
             "SELECT image_id, top_two_margin, normalized_entropy FROM prediction"
         )
     )
+    if allow is not None:
+        rows = [r for r in rows if r["image_id"] in allow]
     rows.sort(
         key=lambda r: review_priority_key(
             r["top_two_margin"], r["normalized_entropy"], r["image_id"]
@@ -180,6 +199,9 @@ def _priority_rank_map(conn: sqlite3.Connection) -> dict[str, int]:
 
 
 def get_image(conn: sqlite3.Connection, image_id: str) -> dict | None:
+    allow = config.load_image_allowlist()
+    if allow is not None and image_id not in allow:
+        return None
     sql = _base_select() + " WHERE s.image_id = ? "
     r = conn.execute(sql, [image_id]).fetchone()
     if r is None:
@@ -187,7 +209,7 @@ def get_image(conn: sqlite3.Connection, image_id: str) -> dict | None:
     image = _row_to_image(conn, r)
     image["review_priority_rank"] = _priority_rank_map(conn).get(image_id)
     image["history"] = [
-        _event_dict(e) for e in repo.event_history(conn, image_id)
+        _event_dict(e) for e in review_store.event_history(conn, image_id)
     ]
     return image
 
@@ -213,11 +235,14 @@ def export_rows(conn: sqlite3.Connection) -> list[dict]:
     rows = list(
         conn.execute(_base_select() + " WHERE p.prediction_id IS NOT NULL ORDER BY s.image_id")
     )
+    allow = config.load_image_allowlist()
+    if allow is not None:
+        rows = [r for r in rows if r["image_id"] in allow]
     out = []
     for r in rows:
-        latest = repo.latest_event(conn, r["image_id"])
-        status = repo._review_status(latest)
-        history = repo.event_history(conn, r["image_id"])
+        latest = review_store.latest_event(conn, r["image_id"])
+        status = review_store.review_status(latest)
+        history = review_store.event_history(conn, r["image_id"])
         out.append(
             {
                 "image_id": r["image_id"],
