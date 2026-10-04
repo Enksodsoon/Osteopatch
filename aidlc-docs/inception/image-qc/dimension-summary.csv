@@ -1,0 +1,5 @@
+dimension_or_property,value,count
+dimension,1024x1024,31
+channels,3,31
+mode,RGB,31
+bitdepth,8,31

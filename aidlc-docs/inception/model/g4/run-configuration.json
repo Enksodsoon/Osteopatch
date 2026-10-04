@@ -1,0 +1,65 @@
+{
+  "unit": "G4 — Local LOGO Baseline Training",
+  "run_ids": {
+    "logo": "g4-logo-baseline-seed42",
+    "final": "g4-final-alldata-seed42"
+  },
+  "device": "cpu",
+  "cuda_available": false,
+  "cuda_fallback_reason": "Installed torch is the CPU wheel (2.14.1+cpu); torch.cuda.is_available()==false. Per brief, CPU is the sanctioned fallback; no second CUDA stack was attempted, no AWS used.",
+  "seed": 42,
+  "determinism": "random/numpy/torch seeded; cudnn.deterministic=True, benchmark=False; torch.use_deterministic_algorithms(warn_only=True)",
+  "environment": {
+    "python": "3.12.10",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "torch": "2.14.1+cpu",
+    "torchvision": "0.29.1+cpu",
+    "numpy": "2.5.3",
+    "scikit_learn": "1.9.1",
+    "pillow": "12.3.0"
+  },
+  "pretrained_weights_enum": "MobileNet_V3_Small_Weights.IMAGENET1K_V1",
+  "model": {
+    "architecture": "mobilenet_v3_small",
+    "encoder": "frozen (requires_grad=False, BatchNorm eval)",
+    "head": "Linear(1024 -> 3)",
+    "canonical_output_order": ["NON_TUMOR", "VIABLE_TUMOR", "NECROSIS"]
+  },
+  "preprocessing": {
+    "resize": [384, 384],
+    "interpolation": "bilinear",
+    "antialias": true,
+    "crop": "none",
+    "normalize_mean": [0.485, 0.456, 0.406],
+    "normalize_std": [0.229, 0.224, 0.225]
+  },
+  "train_only_augmentation": ["hflip", "vflip", "rot90_multiples"],
+  "augmentation_implementation_note": "The permitted aug family (hflip/vflip/90-rot) is the dihedral group D4 = 8 views. Because the encoder is frozen, each view's embedding is fixed, so the 8 D4-view frozen-encoder embeddings were precomputed once per image and the head trained on a random D4 view per image per epoch. Mathematically identical to augmenting pixels through the frozen encoder each step; eval uses the identity view. Not a contract deviation of substance.",
+  "optimizer": "AdamW",
+  "lr": 0.001,
+  "weight_decay": 0.0001,
+  "batch_size": 16,
+  "max_epochs": 10,
+  "early_stopping": "none (a-priori-frozen hyperparameters; no leaky inner val; outer test never used for tuning)",
+  "loss": "cross_entropy, inverse-frequency train-only class weights normalized to mean 1 over classes present in the fold's training rows",
+  "evaluation": "Leave-One-Group-Out (4 folds: Case-3, Case-4, Case-48, P9); pooled out-of-fold aggregate + per-fold table; absent-class metrics marked UNAVAILABLE",
+  "training_manifest": "aidlc-docs/inception/model/g4/g4-training-manifest.csv",
+  "training_manifest_sha256": "8b462ead87d0ffa3617e2d2afadbbf6ca685b85240e3349432408f352cf7e9ba",
+  "eligible_counts": {"total": 1028, "NON_TUMOR": 484, "VIABLE_TUMOR": 290, "NECROSIS": 254},
+  "held_excluded": 116,
+  "fold_checkpoints_scratch": {
+    "Case-3": "ff5ad17a0b62bfa2eafbbb9d249e185570b466337693fdf9f8b9297d3d70a0e6",
+    "Case-4": "2888445ff6365a083d1c10d0a7e7dca73efdadffea066ff40dd87f30ff6a7d9d",
+    "Case-48": "4b0e0fc18f17dc42f96d69e6d6efc74c1be30dc88595b5c1fe72d5492a18127c",
+    "P9": "444ff1bbee0ee983343ec15c707b25dcdb2ff56348c2c92c8a66eb1b972c209c"
+  },
+  "final_bundle_scratch": {
+    "path": "C:/Users/enkso/.kiro/crew/scratch/runtime-0a306834/osteopatch_g4/final_bundle/osteopatch_g4_baseline_bundle.pt",
+    "sha256": "01727fb832f9d5518bbe2e33b901e7041020929c94b89cdb7a5e5195b544df63"
+  },
+  "scratch_source_dir": "C:/Users/enkso/.kiro/crew/scratch/runtime-0a306834/osteopatch_g4",
+  "pixels_dir": "C:/Users/enkso/.kiro/crew/scratch/runtime-0a306834/osteopatch_full_ingestion/tiffs",
+  "venv": "C:/Users/enkso/.kiro/crew/scratch/runtime-0a306834/osteopatch_full_ingestion/.venv",
+  "calibration_status": "uncalibrated (no temperature scaling; G3 defines no leakage-safe calibration at 4 groups)",
+  "oom_retry_fallback_events": "none (CPU run; no OOM, no batch-size reduction needed)"
+}

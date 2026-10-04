@@ -1,0 +1,18 @@
+{
+  "Case-3": {
+    "path": "C:\\Users\\enkso\\.kiro\\crew\\scratch\\runtime-0a306834\\osteopatch_g5\\checkpoints\\fold_Case-3.pt",
+    "sha256": "85f1ad8e3b5bd81dfd78276355fbd420531b8fe7b5f2053697af8a930686e49a"
+  },
+  "Case-4": {
+    "path": "C:\\Users\\enkso\\.kiro\\crew\\scratch\\runtime-0a306834\\osteopatch_g5\\checkpoints\\fold_Case-4.pt",
+    "sha256": "33e26000ef4dde548377435ecb48766e1324ac0ff49ed44d89433596d5ca6816"
+  },
+  "Case-48": {
+    "path": "C:\\Users\\enkso\\.kiro\\crew\\scratch\\runtime-0a306834\\osteopatch_g5\\checkpoints\\fold_Case-48.pt",
+    "sha256": "9823eab61d3f5c5e49647adfc0510d4688e36fdd68580c3aae257f3906c83bc0"
+  },
+  "P9": {
+    "path": "C:\\Users\\enkso\\.kiro\\crew\\scratch\\runtime-0a306834\\osteopatch_g5\\checkpoints\\fold_P9.pt",
+    "sha256": "5c3723c1042a3971dc7c881dabd67539e8242a28384f3eddf3e9ed84276ceabb"
+  }
+}

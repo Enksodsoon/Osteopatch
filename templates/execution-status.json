@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "project": "OsteoPatch Review",
+  "prepared_at": "2026-10-03",
+  "artifact_type": "planning_template_not_runtime_state",
+  "data_source_approved": false,
+  "dataset_downloaded": false,
+  "patient_mapping_verified": false,
+  "split_approved": false,
+  "model_trained": false,
+  "application_implemented": false,
+  "application_tests_executed": false,
+  "cloud_resources_created": false,
+  "paid_jobs_authorized": false,
+  "approved_spend_amount": null,
+  "approved_spend_currency": null,
+  "approved_max_model_jobs": null,
+  "approved_job_walltime_seconds": null,
+  "actual_account_expiration": null,
+  "submission_deadline": null,
+  "timezone_for_owner_questions": "Asia/Bangkok"
+}

@@ -1,0 +1,132 @@
+{
+  "unit": "G5 pre-run verification",
+  "manifest": "C:\\Users\\enkso\\.kiro\\crew\\workspace\\osteopatch\\OsteoPatch_Kiro_Handoff\\aidlc-docs\\inception\\model\\g4\\g4-training-manifest.csv",
+  "manifest_sha256": "8b462ead87d0ffa3617e2d2afadbbf6ca685b85240e3349432408f352cf7e9ba",
+  "all_pass": true,
+  "n_tests": 15,
+  "n_hard_failures": 0,
+  "trainable_param_inventory": {
+    "final_feature_index": 12,
+    "expected_trainable_prefixes": [
+      "features.12.",
+      "classifier."
+    ],
+    "trainable_param_names": [
+      "features.12.0.weight",
+      "features.12.1.weight",
+      "features.12.1.bias",
+      "classifier.0.weight",
+      "classifier.0.bias",
+      "classifier.3.weight",
+      "classifier.3.bias"
+    ],
+    "trainable_param_counts": {
+      "features.12.0.weight": 55296,
+      "features.12.1.weight": 576,
+      "features.12.1.bias": 576,
+      "classifier.0.weight": 589824,
+      "classifier.0.bias": 1024,
+      "classifier.3.weight": 3072,
+      "classifier.3.bias": 3
+    },
+    "n_trainable_tensors": 7,
+    "n_trainable_params": 650371,
+    "n_frozen_tensors": 135,
+    "n_frozen_params": 870560,
+    "assertion_only_finalstage_and_head_trainable": true,
+    "unexpected_trainable": [],
+    "expected_but_frozen": []
+  },
+  "results": [
+    {
+      "test": "manifest_hash_match",
+      "hard": true,
+      "pass": true,
+      "detail": "8b462ead87d0ffa3617e2d2afadbbf6ca685b85240e3349432408f352cf7e9ba"
+    },
+    {
+      "test": "canonical_class_order",
+      "hard": true,
+      "pass": true,
+      "detail": "['NON_TUMOR', 'VIABLE_TUMOR', 'NECROSIS']"
+    },
+    {
+      "test": "only_eligible_rows_load",
+      "hard": true,
+      "pass": true,
+      "detail": "total=1028 counts={'NON_TUMOR': 484, 'VIABLE_TUMOR': 290, 'NECROSIS': 254}"
+    },
+    {
+      "test": "exact_four_groups_and_support",
+      "hard": true,
+      "pass": true,
+      "detail": "{\"groups\": [\"Case-3\", \"Case-4\", \"Case-48\", \"P9\"], \"support_match\": true}"
+    },
+    {
+      "test": "logo_zero_outer_group_contamination",
+      "hard": true,
+      "pass": true,
+      "detail": "{\"Case-3\": {\"n_test\": 264, \"n_train\": 764, \"overlap\": 0}, \"Case-4\": {\"n_test\": 243, \"n_train\": 785, \"overlap\": 0}, \"Case-48\": {\"n_test\": 330, \"n_train\": 698, \"overlap\": 0}, \"P9\": {\"n_test\": 191, \"n_train\": 837, \"overlap\": 0}}"
+    },
+    {
+      "test": "each_image_outer_test_exactly_once",
+      "hard": true,
+      "pass": true,
+      "detail": "assigned=1028 of 1028; max_count=1"
+    },
+    {
+      "test": "fold_weights_training_only",
+      "hard": true,
+      "pass": true,
+      "detail": "{\"Case-3\": {\"train_counts\": {\"NON_TUMOR\": 389, \"VIABLE_TUMOR\": 287, \"NECROSIS\": 88}, \"weights\": [0.442749, 0.600102, 1.95715]}, \"Case-4\": {\"train_counts\": {\"NON_TUMOR\": 412, \"VIABLE_TUMOR\": 205, \"NECROSIS\": 168}, \"weights\": [0.549236, 1.10383, 1.346935]}, \"Case-48\": {\"train_counts\": {\"NON_TUMOR\": 358, \"VIABLE_TUMOR\": 88, \"NECROSIS\": 252}, \"weights\": [0.462334, 1.880858, 0.656808]}, \"P9\": {\"train_counts\": {\"NON_TUMOR\": 293, \"VIABLE_TUMOR\": 290, \"NECROSIS\": 254}, \"weights\": [0.9482, 0.958009, 1.09379]}}"
+    },
+    {
+      "test": "train_eval_transforms_differ",
+      "hard": true,
+      "pass": true,
+      "detail": "eval_det=True train_varies=True"
+    },
+    {
+      "test": "eval_matches_inference_contract",
+      "hard": true,
+      "pass": true,
+      "detail": "(3, 384, 384)"
+    },
+    {
+      "test": "excluded_qc_rows_stay_excluded",
+      "hard": true,
+      "pass": true,
+      "detail": "n_leaked=0 sample=[]"
+    },
+    {
+      "test": "no_cross_group_leakage_flag",
+      "hard": true,
+      "pass": true,
+      "detail": "n_flagged=0"
+    },
+    {
+      "test": "model_three_finite_logits",
+      "hard": true,
+      "pass": true,
+      "detail": "(2, 3)"
+    },
+    {
+      "test": "probs_finite_sum_to_one",
+      "hard": true,
+      "pass": true,
+      "detail": "[1.0, 1.0]"
+    },
+    {
+      "test": "only_finalstage_and_head_trainable",
+      "hard": true,
+      "pass": true,
+      "detail": "{\"final_feature_index\": 12, \"trainable_param_names\": [\"features.12.0.weight\", \"features.12.1.weight\", \"features.12.1.bias\", \"classifier.0.weight\", \"classifier.0.bias\", \"classifier.3.weight\", \"classifier.3.bias\"], \"n_trainable_params\": 650371, \"unexpected_trainable\": [], \"expected_but_frozen\": []}"
+    },
+    {
+      "test": "absent_class_marked_unavailable",
+      "hard": true,
+      "pass": true,
+      "detail": "{\"NON_TUMOR\": {\"precision\": 1.0, \"recall\": 1.0, \"f1\": 1.0, \"support\": 191}, \"VIABLE_TUMOR\": {\"precision\": \"UNAVAILABLE\", \"recall\": \"UNAVAILABLE\", \"f1\": \"UNAVAILABLE\", \"support\": 0}, \"NECROSIS\": {\"precision\": \"UNAVAILABLE\", \"recall\": \"UNAVAILABLE\", \"f1\": \"UNAVAILABLE\", \"support\": 0}}"
+    }
+  ]
+}

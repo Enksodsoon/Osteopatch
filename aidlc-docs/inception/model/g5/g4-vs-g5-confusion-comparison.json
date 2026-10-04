@@ -1,0 +1,58 @@
+{
+  "class_order": [
+    "NON_TUMOR",
+    "VIABLE_TUMOR",
+    "NECROSIS"
+  ],
+  "g4_confusion_rows_true_cols_pred": [
+    [
+      437,
+      13,
+      34
+    ],
+    [
+      105,
+      32,
+      153
+    ],
+    [
+      12,
+      22,
+      220
+    ]
+  ],
+  "g5_confusion_rows_true_cols_pred": [
+    [
+      424,
+      17,
+      43
+    ],
+    [
+      161,
+      13,
+      116
+    ],
+    [
+      4,
+      26,
+      224
+    ]
+  ],
+  "cell_delta_g5_minus_g4": [
+    [
+      -13,
+      4,
+      9
+    ],
+    [
+      56,
+      -19,
+      -37
+    ],
+    [
+      -8,
+      4,
+      4
+    ]
+  ]
+}

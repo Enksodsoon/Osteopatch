@@ -1,0 +1,130 @@
+{
+  "Case-3": [
+    {
+      "epoch": 0,
+      "train_loss": 0.762466,
+      "batch_size": 16,
+      "n_train": 764
+    },
+    {
+      "epoch": 1,
+      "train_loss": 0.423172,
+      "batch_size": 16,
+      "n_train": 764
+    },
+    {
+      "epoch": 2,
+      "train_loss": 0.308639,
+      "batch_size": 16,
+      "n_train": 764
+    },
+    {
+      "epoch": 3,
+      "train_loss": 0.259174,
+      "batch_size": 16,
+      "n_train": 764
+    },
+    {
+      "epoch": 4,
+      "train_loss": 0.221331,
+      "batch_size": 16,
+      "n_train": 764
+    }
+  ],
+  "Case-4": [
+    {
+      "epoch": 0,
+      "train_loss": 0.701846,
+      "batch_size": 16,
+      "n_train": 785
+    },
+    {
+      "epoch": 1,
+      "train_loss": 0.386488,
+      "batch_size": 16,
+      "n_train": 785
+    },
+    {
+      "epoch": 2,
+      "train_loss": 0.308157,
+      "batch_size": 16,
+      "n_train": 785
+    },
+    {
+      "epoch": 3,
+      "train_loss": 0.272962,
+      "batch_size": 16,
+      "n_train": 785
+    },
+    {
+      "epoch": 4,
+      "train_loss": 0.245654,
+      "batch_size": 16,
+      "n_train": 785
+    }
+  ],
+  "Case-48": [
+    {
+      "epoch": 0,
+      "train_loss": 0.763525,
+      "batch_size": 16,
+      "n_train": 698
+    },
+    {
+      "epoch": 1,
+      "train_loss": 0.438937,
+      "batch_size": 16,
+      "n_train": 698
+    },
+    {
+      "epoch": 2,
+      "train_loss": 0.338595,
+      "batch_size": 16,
+      "n_train": 698
+    },
+    {
+      "epoch": 3,
+      "train_loss": 0.282584,
+      "batch_size": 16,
+      "n_train": 698
+    },
+    {
+      "epoch": 4,
+      "train_loss": 0.249436,
+      "batch_size": 16,
+      "n_train": 698
+    }
+  ],
+  "P9": [
+    {
+      "epoch": 0,
+      "train_loss": 0.797874,
+      "batch_size": 16,
+      "n_train": 837
+    },
+    {
+      "epoch": 1,
+      "train_loss": 0.520939,
+      "batch_size": 16,
+      "n_train": 837
+    },
+    {
+      "epoch": 2,
+      "train_loss": 0.402919,
+      "batch_size": 16,
+      "n_train": 837
+    },
+    {
+      "epoch": 3,
+      "train_loss": 0.335173,
+      "batch_size": 16,
+      "n_train": 837
+    },
+    {
+      "epoch": 4,
+      "train_loss": 0.298647,
+      "batch_size": 16,
+      "n_train": 837
+    }
+  ]
+}

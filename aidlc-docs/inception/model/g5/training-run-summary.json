@@ -1,0 +1,19 @@
+{
+  "run_id": "g5-logo-laststage-finetune-seed42",
+  "device": "cpu",
+  "fold_times_sec": {
+    "Case-3": 89.15,
+    "Case-4": 172.67,
+    "Case-48": 271.75,
+    "P9": 218.41
+  },
+  "base_tensor_cache_sec": 21.89,
+  "total_train_eval_sec": 751.97,
+  "oom_events": [],
+  "n_oof_rows": 1028,
+  "max_epochs": 5,
+  "batch_size": 16,
+  "lr_final_stage": 1e-05,
+  "lr_head": 0.0001,
+  "weight_decay": 0.0001
+}

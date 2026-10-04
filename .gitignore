@@ -1,0 +1,32 @@
+# OsteoPatch — repo-root ignore rules.
+#
+# Load-bearing frozen runtime artifacts (recovered source TIFFs, recovered model
+# bundles, thumbnails) live under runtime-artifacts/ as a DURABLE RUNTIME
+# DEPENDENCY, but they are large/binary and are NEVER committed to git. They are
+# reproducible from the frozen manifest (images) + frozen recipe (model); the
+# recovery EVIDENCE under runtime-artifacts/recovery/ is small and may be copied
+# into aidlc-docs if durable evidence is wanted in-tree.
+
+# Durable runtime data (raw TIFFs, model binaries, thumbnails) — never commit.
+runtime-artifacts/
+
+# Python
+**/.venv/
+**/.webvenv/
+**/__pycache__/
+**/.pytest_cache/
+*.pyc
+
+# Node / Vite
+**/node_modules/
+**/dist/
+*.tsbuildinfo
+
+# SQLite runtime db
+*.sqlite3
+*.sqlite3-wal
+*.sqlite3-shm
+
+# Logs
+server.log
+server.log.err

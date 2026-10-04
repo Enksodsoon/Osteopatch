@@ -1,0 +1,12 @@
+{
+  "viable_support_total": 290,
+  "g4_viable_to_necrosis": 153,
+  "g5_viable_to_necrosis": 116,
+  "g4_viable_to_non_tumor": 105,
+  "g5_viable_to_non_tumor": 161,
+  "g4_viable_correct": 32,
+  "g5_viable_correct": 13,
+  "viable_to_necrosis_delta_g5_minus_g4": -37,
+  "viable_to_non_tumor_delta_g5_minus_g4": 56,
+  "viable_correct_delta_g5_minus_g4": -19
+}

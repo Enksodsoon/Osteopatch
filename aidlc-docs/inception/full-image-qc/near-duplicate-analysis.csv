@@ -1,0 +1,4 @@
+image_id_a,image_id_b,group_a,group_b,label_a,label_b,phash_hamming,byte_identical,pixel_identical,cross_group,cross_label,pixel_mad,review_priority
+Case-3-A12-12706-7126,Case-3-A16-12753-7173,Case-3,Case-3,NECROSIS,NECROSIS,10,False,False,False,False,not_confirmed_stage,SAME_GROUP_HIGH_SIM
+Case-4-C24-36061-11151,Case-4-C28-36010-11166,Case-4,Case-4,VIABLE_TUMOR,VIABLE_TUMOR,10,False,False,False,False,not_confirmed_stage,SAME_GROUP_HIGH_SIM
+Case-48-P5-C25-44980-18952,P9-B27-21147-30384,Case-48,P9,NON_TUMOR,NON_TUMOR,10,False,False,True,False,18.844,CROSS_GROUP

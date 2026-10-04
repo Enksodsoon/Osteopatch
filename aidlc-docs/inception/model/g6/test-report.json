@@ -1,0 +1,66 @@
+{
+  "gate": "G6 — Local OsteoPatch Review MVP",
+  "verified_by": "parent (default) — worker bc7dd1d9 process-killed at teardown (provider shutdown) AFTER all source + DB + builds were written; parent certified live from disk, not from the worker's report",
+  "verification_date": "2026-10-03 (Asia/Bangkok)",
+  "environments": {
+    "torch_venv": "C:\\Users\\enkso\\.kiro\\crew\\scratch\\runtime-0a306834\\osteopatch_full_ingestion\\.venv (python 3.12.10, torch 2.14.1+cpu, torchvision 0.29.1) — used by precompute.py and real-bundle tests",
+    "web_venv": "C:\\Users\\enkso\\.kiro\\crew\\scratch\\runtime-0a306834\\osteopatch_g6\\webvenv (fastapi 0.115.6, uvicorn 0.34.0, pydantic 2.10.4, pillow 11.0.0, numpy, pytest 8.3.4, httpx 0.28.1 — NO torch) — created by parent to replace the transient web venv the kill destroyed; server + API tests run here",
+    "frontend": "node + npm; vite 6, vitest 2.1.9, react 18.3"
+  },
+  "backend_tests": {
+    "torch_real_bundle": {
+      "command": "<torch_venv python> -m pytest -q tests/test_real_bundle.py  (cwd=app/g6/backend)",
+      "result": "5 passed",
+      "covers": ["real G4 bundle SHA-256 matches", "hash-mismatch refuses to load", "3 outputs in canonical order", "preprocessing matches bundle spec", "3 finite scores sum to one"]
+    },
+    "api_safety_scoring": {
+      "command": "<web_venv python> -m pytest -q tests/test_api_export.py tests/test_review_safety.py tests/test_scoring_contract.py  (cwd=app/g6/backend)",
+      "result": "29 passed, 1 warning",
+      "covers": ["gallery filter/sort by priority", "health+meta", "model-card served", "review 201/409/422/404", "history shows original prediction unchanged", "idempotent replay returns original", "ACCEPT/CORRECT/DEFER validation", "append-only history grows", "stale revision 409", "prediction immutable after correction", "export preserves prediction+correction", "canonical class order frozen", "exactly 3 outputs no 4th class", "metadata not a model class", "normalized entropy bounds", "prediction dedup by image+bundle", "review priority deterministic margin->entropy->id", "top-two margin + predicted class"]
+    },
+    "combined_backend_total": "34/34 passed (5 torch + 29 web)"
+  },
+  "frontend_tests": {
+    "command": "npm run test  (vitest run)  (cwd=app/g6/frontend)",
+    "result": "9 passed (1 file src/test/ui.test.tsx)",
+    "covers": ["gallery loads", "sort by review priority", "open a patch", "view all three model scores", "accept", "correct", "defer", "history updates / next-patch nav", "disclaimer stays visible"]
+  },
+  "frontend_build": {
+    "command": "npm run build  (tsc -b && vite build)",
+    "result": "SUCCESS — dist/ produced"
+  },
+  "e2e_acceptance": {
+    "command": "<web_venv python> _e2e_g6.py  (real FastAPI app via TestClient against a COPY of the real precomputed DB)",
+    "result": "ALL 12 STEPS PASS",
+    "evidence_file": "e2e-acceptance-evidence.json",
+    "steps": {
+      "1_2_sort_priority": "top-5 unreviewed by non-decreasing top_two_margin; rank1 margin 0.00026 (NON_TUMOR 0.4997 vs NECROSIS 0.4994 — genuinely ambiguous)",
+      "3_4_open_inspect": "3 scores returned; inference_kind=prototype_inference; score_label='Model score — uncalibrated'",
+      "5_6_correct": "POST CORRECT NON_TUMOR->VIABLE_TUMOR -> HTTP 201",
+      "7_8_persist": "status=reviewed, revision=1, correction persisted=true after navigate-away/return",
+      "9_prediction_immutable": "prediction predicted_class still NON_TUMOR, scores identical -> unchanged=true; review history grows separately",
+      "10_defer": "POST DEFER (mixed_tissue, no class) on a different patch -> HTTP 201",
+      "11_12_export": "export count=1144; corrected + deferred images both present; each row carries BOTH original model prediction (model_predicted_class + 3 model_score_*) AND human action (human_latest_action/human_corrected_class/human_defer_reason); model_bundle_hash + disclaimer embedded",
+      "bonus_idempotent_replay": "same idempotency_key -> HTTP 200 (no duplicate)",
+      "bonus_stale_revision": "reused stale expected_revision -> HTTP 409"
+    }
+  },
+  "db_probe": {
+    "db_path": "C:\\Users\\enkso\\.kiro\\crew\\scratch\\runtime-0a306834\\osteopatch_g6\\osteopatch_g6.sqlite3",
+    "source_qc_rows": 1144,
+    "prediction_rows": 1144,
+    "review_event_rows": 0,
+    "duplicate_prediction_groups_by_image_and_bundle": 0,
+    "distinct_bundle_hashes": ["01727fb832f9d5518bbe2e33b901e7041020929c94b89cdb7a5e5195b544df63"],
+    "prediction_class_distribution": {"NON_TUMOR": 510, "VIABLE_TUMOR": 330, "NECROSIS": 304},
+    "note": "class distribution is PROTOTYPE INFERENCE over all 1,144 patches, NOT held-out evaluation — kept separate from the frozen G4 OOF evidence"
+  },
+  "hard_stop_checks": {
+    "g4_bundle_hash_match": "PASS (01727fb8… at load; mismatch-refuses test green)",
+    "canonical_class_order": "PASS (NON_TUMOR, VIABLE_TUMOR, NECROSIS)",
+    "exactly_three_model_outputs": "PASS (MIXED/training_eligible never a 4th class)",
+    "prediction_immutable_after_correction": "PASS (E2E step 9 + unit test)",
+    "no_calibrated_uncertainty_invented": "PASS (deterministic review-priority ranking; raw margin/entropy exposed; scores labelled uncalibrated)",
+    "server_binds_localhost_only": "PASS (127.0.0.1:8137, HOST hardcoded, never 0.0.0.0)"
+  }
+}

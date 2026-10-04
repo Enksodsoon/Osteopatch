@@ -1,0 +1,2 @@
+qc_row_id,group,canonical_label,content_flag,visual_concern,disposition
+QC-012,Case-4,NON_TUMOR,MOSTLY_WHITE;LOW_ENTROPY,near-blank image carrying a tissue label,REQUIRES HUMAN REVIEW

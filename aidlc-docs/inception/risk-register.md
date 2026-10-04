@@ -1,0 +1,22 @@
+# Risk register — OsteoPatch Review (Inception)
+
+**Status:** proposed. Likelihood/Impact are L/M/H planning estimates, not measurements. Each risk names its owner-facing trigger and the gate that controls it.
+
+| ID | Risk | L | I | Mitigation | Gate / owner |
+|---|---|---|---|---|---|
+| RK-01 | **Source mismatch** — IDC holds DICOM, not the labelled JPG patches; the exact collection + three-class labels may not be retrievable from IDC. | H | H | Resolve Q1 before any download; bounded object check; if only unlabelled DICOM exists, treat annotation/patch-extraction as new approved scope. Never substitute silently. | G1 |
+| RK-02 | **No AWS access configured** — AWS CLI absent, no credentials; cannot verify account/region/permissions or run even no-sign-request checks. | H (now) | H | Q7: user installs/configures CLI in their own terminal, or runs read-only checks and pastes output; else local-only. No agent-installed credentials, no account switch. | G1 / G6A |
+| RK-03 | **Patient-level leakage inflates metrics** — tile-level eval looks strong, patient-level is much weaker (Jan-2026 preprint warns of exactly this [S06]). | H | H | Patient-grouped split with verified IDs; assert zero patient overlap; display "Patient-level independence unverified" when IDs are not trustworthy; never bootstrap images as patients. | G2 / G3 |
+| RK-04 | **Unverifiable patient IDs** — folder names / numeric fragments mistaken for patients. | M | H | IDs only from documented metadata or verified filename convention with evidence/examples; missing → `null`; do not claim patient-independent performance without a map. | G2 |
+| RK-05 | **Unknown-label fail-open** — copying the RadiomicsOS loader that defaults unknown strings to "Viable" [S06]. | M | H | Fail-closed importer; explicit approved alias table; reject unknown/blank. | G2 |
+| RK-06 | **Fabricated evidence** — invented metrics, stock heatmaps, morphology narratives, cached "success" examples. | M | H | Report real metrics incl. a failed baseline; Grad-CAM with gradients only, else "Attribution unavailable"; no image-specific morphology from a label. | G3 / G5 |
+| RK-07 | **Overclaiming** — 4-patient cohort presented as general/clinical validation; score read as patient risk. | M | H | Hard disclaimers (R-SAF-01/02); label limitations on model card; "review priority, not medical urgency". | all |
+| RK-08 | **Uncontrolled cloud spend** — training job / endpoint / NAT / Bedrock added without budget. | M | H | No paid resource until Q3 answered + G6A; budget table required pre-mutation; app admission limits + runtime bounds; budget alerts are not a hard cap [S15]. | G6A |
+| RK-09 | **Disk exhaustion** — 75 GB free; torch/CUDA + Docker image + node_modules + data can overrun. | M | M | Re-check free space before download/Docker build; byte-limited download; prune build caches; keep raw data out of Git. | U1/U2/U5 |
+| RK-10 | **Modest GPU** — P2000 ~5 GB VRAM may OOM at batch 16. | M | M | Memory-profile first (U2); reduce batch size; head-only training first; CPU fallback acceptable for a small run. | U2 |
+| RK-11 | **Workflow mixing** — v1.0.1 install steps mixed with 2.x commands or native Specs; or `--trust-all-tools` on a personal machine. | L | M | One controller only (R-WF-01); inspect official release before install; no trust-all-tools. | G0-W |
+| RK-12 | **Access expires mid-build** — workshop account/credits lapse before export. | M | H | Q2 deadline/expiry; local slice stays usable; tested portable export before expiry (R-OPS-02); independent backup, not just the expiring host. | G7A |
+| RK-13 | **API Gateway 30s timeout vs PyTorch cold start** — synchronous call times out. | M | M | Async job-ID + polling with bounded backoff; separate predict/attribute jobs; idempotent worker. | U5 |
+| RK-14 | **License/attribution loss** — CC BY 3.0 attribution/DOI dropped, or a mirror's different license label used. | L | M | Preserve TCIA citation + DOI if B is chosen; use source's current attribution; per-dependency reuse log; a lib license ≠ dataset/weight rights. | G1/U1 |
+| RK-15 | **Concurrent-save corruption** — two reviewers overwrite each other / duplicate events on retry. | M | M | Optimistic revision checks; atomic state+event write; idempotency key; 409 on conflict. | U3 |
+| RK-16 | **Credit/charge confusion** — Kiro credits vs AWS service charges vs data-transfer charges conflated. | M | M | Separate all four in the budget table; none assumed free; prices checked only after region/services/usage are fixed. | G6A |

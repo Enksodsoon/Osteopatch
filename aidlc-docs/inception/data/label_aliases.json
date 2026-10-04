@@ -1,0 +1,45 @@
+{
+  "_schema": "RATIFIED owner label policy. source_label -> {canonical_label|review_state, trainable, reason}. Fail-closed: no source string is auto-mapped; unknown strings cause import failure.",
+  "_status": "RATIFIED",
+  "_canonical_order": {
+    "NON_TUMOR": 0,
+    "VIABLE_TUMOR": 1,
+    "NECROSIS": 2
+  },
+  "_primary_classes": [
+    "NON_TUMOR",
+    "VIABLE_TUMOR",
+    "NECROSIS"
+  ],
+  "_no_fourth_learned_class": true,
+  "_source": "ML_Features_1144.csv column 'classification'",
+  "_ratified_utc": "2026-10-03T09:29:37.296300+00:00",
+  "resolved": {
+    "Non-Tumor": {
+      "source_label": "Non-Tumor",
+      "canonical_label": "NON_TUMOR",
+      "trainable": true,
+      "reason": "Ratified owner policy. Direct resolved mapping; matches published Non-Tumor count 536."
+    },
+    "Viable": {
+      "source_label": "Viable",
+      "canonical_label": "VIABLE_TUMOR",
+      "trainable": true,
+      "reason": "Ratified owner policy. Direct resolved mapping to viable tumor tissue."
+    },
+    "Non-Viable-Tumor": {
+      "source_label": "Non-Viable-Tumor",
+      "canonical_label": "NECROSIS",
+      "trainable": true,
+      "reason": "Ratified owner policy. Non-viable tumor tissue == necrosis; count 263 matches published Necrosis 263."
+    }
+  },
+  "review_only": {
+    "viable: non-viable": {
+      "source_label": "viable: non-viable",
+      "review_state": "MIXED_VIABLE_NECROTIC",
+      "trainable": false,
+      "reason": "Ratified owner policy. Mixed viable AND non-viable in one patch; EXCLUDED from primary 3-class labels, RETAINED in manifest. No 4th learned class."
+    }
+  }
+}

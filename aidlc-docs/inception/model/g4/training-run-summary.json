@@ -1,0 +1,14 @@
+{
+  "run_id": "g4-logo-baseline-seed42",
+  "device": "cpu",
+  "embedding_cache": "C:\\Users\\enkso\\.kiro\\crew\\scratch\\runtime-0a306834\\osteopatch_g4\\emb_d4_cache.npz",
+  "fold_times_sec": {
+    "Case-3": 0.55,
+    "Case-4": 0.56,
+    "Case-48": 0.68,
+    "P9": 0.75
+  },
+  "total_time_sec": 2.55,
+  "oom_events": [],
+  "n_oof_rows": 1028
+}

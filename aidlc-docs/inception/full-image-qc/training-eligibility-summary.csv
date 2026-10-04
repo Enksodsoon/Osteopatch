@@ -1,0 +1,10 @@
+category,class,count
+eligible,NON_TUMOR,484
+eligible,VIABLE_TUMOR,290
+eligible,NECROSIS,254
+eligible,TOTAL,1028
+excluded,MIXED_VIABLE_NECROTIC,53
+excluded,QC_FAILURE(corrupt/retrieval),0
+excluded,UNRESOLVED_REVIEW,59
+excluded,NEAR_DUP_CANDIDATE,4
+excluded,TOTAL,116

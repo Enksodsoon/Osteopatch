@@ -1,0 +1,130 @@
+{
+  "Case-3": {
+    "final_feature_index": 12,
+    "expected_trainable_prefixes": [
+      "features.12.",
+      "classifier."
+    ],
+    "trainable_param_names": [
+      "features.12.0.weight",
+      "features.12.1.weight",
+      "features.12.1.bias",
+      "classifier.0.weight",
+      "classifier.0.bias",
+      "classifier.3.weight",
+      "classifier.3.bias"
+    ],
+    "trainable_param_counts": {
+      "features.12.0.weight": 55296,
+      "features.12.1.weight": 576,
+      "features.12.1.bias": 576,
+      "classifier.0.weight": 589824,
+      "classifier.0.bias": 1024,
+      "classifier.3.weight": 3072,
+      "classifier.3.bias": 3
+    },
+    "n_trainable_tensors": 7,
+    "n_trainable_params": 650371,
+    "n_frozen_tensors": 135,
+    "n_frozen_params": 870560,
+    "assertion_only_finalstage_and_head_trainable": true,
+    "unexpected_trainable": [],
+    "expected_but_frozen": []
+  },
+  "Case-4": {
+    "final_feature_index": 12,
+    "expected_trainable_prefixes": [
+      "features.12.",
+      "classifier."
+    ],
+    "trainable_param_names": [
+      "features.12.0.weight",
+      "features.12.1.weight",
+      "features.12.1.bias",
+      "classifier.0.weight",
+      "classifier.0.bias",
+      "classifier.3.weight",
+      "classifier.3.bias"
+    ],
+    "trainable_param_counts": {
+      "features.12.0.weight": 55296,
+      "features.12.1.weight": 576,
+      "features.12.1.bias": 576,
+      "classifier.0.weight": 589824,
+      "classifier.0.bias": 1024,
+      "classifier.3.weight": 3072,
+      "classifier.3.bias": 3
+    },
+    "n_trainable_tensors": 7,
+    "n_trainable_params": 650371,
+    "n_frozen_tensors": 135,
+    "n_frozen_params": 870560,
+    "assertion_only_finalstage_and_head_trainable": true,
+    "unexpected_trainable": [],
+    "expected_but_frozen": []
+  },
+  "Case-48": {
+    "final_feature_index": 12,
+    "expected_trainable_prefixes": [
+      "features.12.",
+      "classifier."
+    ],
+    "trainable_param_names": [
+      "features.12.0.weight",
+      "features.12.1.weight",
+      "features.12.1.bias",
+      "classifier.0.weight",
+      "classifier.0.bias",
+      "classifier.3.weight",
+      "classifier.3.bias"
+    ],
+    "trainable_param_counts": {
+      "features.12.0.weight": 55296,
+      "features.12.1.weight": 576,
+      "features.12.1.bias": 576,
+      "classifier.0.weight": 589824,
+      "classifier.0.bias": 1024,
+      "classifier.3.weight": 3072,
+      "classifier.3.bias": 3
+    },
+    "n_trainable_tensors": 7,
+    "n_trainable_params": 650371,
+    "n_frozen_tensors": 135,
+    "n_frozen_params": 870560,
+    "assertion_only_finalstage_and_head_trainable": true,
+    "unexpected_trainable": [],
+    "expected_but_frozen": []
+  },
+  "P9": {
+    "final_feature_index": 12,
+    "expected_trainable_prefixes": [
+      "features.12.",
+      "classifier."
+    ],
+    "trainable_param_names": [
+      "features.12.0.weight",
+      "features.12.1.weight",
+      "features.12.1.bias",
+      "classifier.0.weight",
+      "classifier.0.bias",
+      "classifier.3.weight",
+      "classifier.3.bias"
+    ],
+    "trainable_param_counts": {
+      "features.12.0.weight": 55296,
+      "features.12.1.weight": 576,
+      "features.12.1.bias": 576,
+      "classifier.0.weight": 589824,
+      "classifier.0.bias": 1024,
+      "classifier.3.weight": 3072,
+      "classifier.3.bias": 3
+    },
+    "n_trainable_tensors": 7,
+    "n_trainable_params": 650371,
+    "n_frozen_tensors": 135,
+    "n_frozen_params": 870560,
+    "assertion_only_finalstage_and_head_trainable": true,
+    "unexpected_trainable": [],
+    "expected_but_frozen": []
+  }
+}

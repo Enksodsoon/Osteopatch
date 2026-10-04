@@ -1,0 +1,138 @@
+{
+  "config": {
+    "run_id": "g4-final-alldata-seed42",
+    "architecture": "mobilenet_v3_small",
+    "encoder": "frozen (requires_grad=False, BatchNorm eval)",
+    "head": "Linear(1024 -> 3)",
+    "class_map": {
+      "NON_TUMOR": 0,
+      "VIABLE_TUMOR": 1,
+      "NECROSIS": 2
+    },
+    "canonical_output_order": [
+      "NON_TUMOR",
+      "VIABLE_TUMOR",
+      "NECROSIS"
+    ],
+    "pretrained_weights_enum": "MobileNet_V3_Small_Weights.IMAGENET1K_V1",
+    "preprocessing": {
+      "color_space": "RGB",
+      "resize": [
+        384,
+        384
+      ],
+      "interpolation": "bilinear",
+      "antialias": true,
+      "crop": "none (full-field)",
+      "normalize_mean": [
+        0.485,
+        0.456,
+        0.406
+      ],
+      "normalize_std": [
+        0.229,
+        0.224,
+        0.225
+      ],
+      "order": "decode->RGB->resize(384,bilinear,antialias)->to_tensor[0,1]->normalize"
+    },
+    "train_only_augmentation": [
+      "hflip",
+      "vflip",
+      "rot90_multiples"
+    ],
+    "optimizer": "AdamW",
+    "lr": 0.001,
+    "weight_decay": 0.0001,
+    "batch_size": 16,
+    "max_epochs": 10,
+    "early_stopping": "none (a-priori-frozen hyperparameters; no leaky inner val)",
+    "loss": "cross_entropy with inverse-frequency train-only class weights normalized to mean 1",
+    "class_weights_final_alldata": {
+      "NON_TUMOR": 0.655813,
+      "VIABLE_TUMOR": 1.094529,
+      "NECROSIS": 1.249659
+    },
+    "seed": 42,
+    "seed_note": "one seed is not stability; multi-seed sensitivity is a future approval-gated step",
+    "training_manifest": "aidlc-docs/inception/model/g4/g4-training-manifest.csv",
+    "training_manifest_sha256": "8b462ead87d0ffa3617e2d2afadbbf6ca685b85240e3349432408f352cf7e9ba",
+    "training_set": "all 1028 eligible patches (NON_TUMOR 484 / VIABLE_TUMOR 290 / NECROSIS 254)",
+    "device": "cpu",
+    "dependencies": {
+      "python": "3.12.10",
+      "torch": "2.14.1+cpu",
+      "torchvision": "0.29.1+cpu",
+      "numpy": "2.5.3",
+      "sklearn": "1.9.1"
+    },
+    "calibration_status": "uncalibrated",
+    "performance_statement": "Honest performance = the frozen LOGO OOF evaluation (overall-oof-metrics.json), carried as an estimate with all limitations. The final model's own training fit is NOT an evaluation metric.",
+    "intended_use": "educational / research prototype only; NOT patient-level, NOT diagnosis, NOT treatment-response, NOT prognosis; case/slide-group-independent exploratory patch classification over 4 groups.",
+    "training_history_final": [
+      {
+        "epoch": 0,
+        "train_loss": 0.511051
+      },
+      {
+        "epoch": 1,
+        "train_loss": 0.27347
+      },
+      {
+        "epoch": 2,
+        "train_loss": 0.225197
+      },
+      {
+        "epoch": 3,
+        "train_loss": 0.204145
+      },
+      {
+        "epoch": 4,
+        "train_loss": 0.180952
+      },
+      {
+        "epoch": 5,
+        "train_loss": 0.166701
+      },
+      {
+        "epoch": 6,
+        "train_loss": 0.159471
+      },
+      {
+        "epoch": 7,
+        "train_loss": 0.146364
+      },
+      {
+        "epoch": 8,
+        "train_loss": 0.141922
+      },
+      {
+        "epoch": 9,
+        "train_loss": 0.134893
+      }
+    ],
+    "final_train_seconds": 0.86
+  },
+  "bundle_sha256": "01727fb832f9d5518bbe2e33b901e7041020929c94b89cdb7a5e5195b544df63",
+  "bundle_path": "C:\\Users\\enkso\\.kiro\\crew\\scratch\\runtime-0a306834\\osteopatch_g4\\final_bundle\\osteopatch_g4_baseline_bundle.pt",
+  "reload_test": {
+    "bundle_path": "C:\\Users\\enkso\\.kiro\\crew\\scratch\\runtime-0a306834\\osteopatch_g4\\final_bundle\\osteopatch_g4_baseline_bundle.pt",
+    "bundle_sha256": "01727fb832f9d5518bbe2e33b901e7041020929c94b89cdb7a5e5195b544df63",
+    "reload_inference_parity": true,
+    "output_finite": true,
+    "probs_sum_to_one": true,
+    "three_outputs": true,
+    "sample_image_id": "Case-3-A10-10547-25283",
+    "in_memory_probs": [
+      0.281798,
+      0.018017,
+      0.700185
+    ],
+    "reloaded_probs": [
+      0.281798,
+      0.018017,
+      0.700185
+    ],
+    "all_checks_pass": true
+  }
+}

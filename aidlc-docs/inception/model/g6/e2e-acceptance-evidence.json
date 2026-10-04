@@ -1,0 +1,131 @@
+{
+  "step1_2_top5": [
+    {
+      "image_id": "Case-3-A17-15765-20926",
+      "rank": 1,
+      "predicted": "NON_TUMOR",
+      "margin": 0.00026,
+      "entropy": 0.6368
+    },
+    {
+      "image_id": "Case-48-P5-C21-45322-31087",
+      "rank": 2,
+      "predicted": "NON_TUMOR",
+      "margin": 0.01981,
+      "entropy": 0.9722
+    },
+    {
+      "image_id": "Case-4-C22-42649-20389",
+      "rank": 3,
+      "predicted": "NECROSIS",
+      "margin": 0.02287,
+      "entropy": 0.9304
+    },
+    {
+      "image_id": "Case-4-C24-28865-8586",
+      "rank": 4,
+      "predicted": "NECROSIS",
+      "margin": 0.02785,
+      "entropy": 0.7367
+    },
+    {
+      "image_id": "Case-48-P5-C23-46857-10945",
+      "rank": 5,
+      "predicted": "NON_TUMOR",
+      "margin": 0.03141,
+      "entropy": 0.6534
+    }
+  ],
+  "priority_margins_nondecreasing": true,
+  "step3_4": {
+    "image_id": "Case-3-A17-15765-20926",
+    "prediction_id": "pred-Case-3-A17-15765-20926-01727fb832f9",
+    "predicted": "NON_TUMOR",
+    "scores": {
+      "NON_TUMOR": 0.499687522649765,
+      "VIABLE_TUMOR": 0.000882806139998138,
+      "NECROSIS": 0.49942976236343384
+    },
+    "inference_kind": "prototype_inference",
+    "score_label": "Model score \u2014 uncalibrated"
+  },
+  "step5_6_correct_http": 201,
+  "step7_8": {
+    "status": "reviewed",
+    "revision": 1,
+    "latest_action": "CORRECT",
+    "latest_selected": "VIABLE_TUMOR",
+    "persisted": true
+  },
+  "step9_prediction_immutable": {
+    "predicted_still": "NON_TUMOR",
+    "unchanged": true,
+    "history_len": 1
+  },
+  "step10_defer_http": 201,
+  "step11_12_export": {
+    "count": 1144,
+    "corrected_present": true,
+    "deferred_present": true,
+    "has_disclaimer": true,
+    "model_hash": "01727fb832f9d5518bbe2e33b901e7041020929c94b89cdb7a5e5195b544df63",
+    "corrected_row": {
+      "image_id": "Case-3-A17-15765-20926",
+      "source_group": "Case-3",
+      "qc_primary_status": "PASS",
+      "training_eligible": true,
+      "qc_review_flag": false,
+      "model_version": "baseline-frozen-g4",
+      "model_bundle_hash": "01727fb832f9d5518bbe2e33b901e7041020929c94b89cdb7a5e5195b544df63",
+      "inference_kind": "prototype_inference",
+      "model_predicted_class": "NON_TUMOR",
+      "model_score_NON_TUMOR": 0.499687522649765,
+      "model_score_VIABLE_TUMOR": 0.000882806139998138,
+      "model_score_NECROSIS": 0.49942976236343384,
+      "model_score_label": "Model score \u2014 uncalibrated",
+      "top_two_margin": 0.00025776028633117676,
+      "normalized_entropy": 0.6368269370656379,
+      "human_review_status": "reviewed",
+      "human_latest_action": "CORRECT",
+      "human_corrected_class": "VIABLE_TUMOR",
+      "human_defer_reason": null,
+      "human_note": "e2e correction",
+      "human_reviewer": "e2e",
+      "human_revision_number": 1,
+      "review_event_count": 1,
+      "review_event_ids": "rev-Case-3-A17-15765-20926-1-d7fe9c41",
+      "disclaimer": "Educational / research prototype. NOT for diagnosis, treatment decisions, treatment-response prediction, or prognosis. Model scores are uncalibrated class scores, never disease probabilities."
+    },
+    "deferred_row": {
+      "image_id": "Case-48-P5-C21-45322-31087",
+      "source_group": "Case-48",
+      "qc_primary_status": "PASS",
+      "training_eligible": true,
+      "qc_review_flag": false,
+      "model_version": "baseline-frozen-g4",
+      "model_bundle_hash": "01727fb832f9d5518bbe2e33b901e7041020929c94b89cdb7a5e5195b544df63",
+      "inference_kind": "prototype_inference",
+      "model_predicted_class": "NON_TUMOR",
+      "model_score_NON_TUMOR": 0.39922794699668884,
+      "model_score_VIABLE_TUMOR": 0.37941738963127136,
+      "model_score_NECROSIS": 0.2213546186685562,
+      "model_score_label": "Model score \u2014 uncalibrated",
+      "top_two_margin": 0.01981055736541748,
+      "normalized_entropy": 0.9722091629132938,
+      "human_review_status": "deferred",
+      "human_latest_action": "DEFER",
+      "human_corrected_class": null,
+      "human_defer_reason": "mixed_tissue",
+      "human_note": "e2e defer",
+      "human_reviewer": "e2e",
+      "human_revision_number": 1,
+      "review_event_count": 1,
+      "review_event_ids": "rev-Case-48-P5-C21-45322-31087-1-ba8647c1",
+      "disclaimer": "Educational / research prototype. NOT for diagnosis, treatment decisions, treatment-response prediction, or prognosis. Model scores are uncalibrated class scores, never disease probabilities."
+    }
+  },
+  "csv_bytes": 576660,
+  "csv_header": "image_id,source_group,qc_primary_status,training_eligible,qc_review_flag,model_version,model_bundle_hash,inference_kind,model_predicted_class,model_score_NON_TUMOR,model_score_VIABLE_TUMOR,model_score_NECROSIS,model_score_label,top_two_margin,normalized_entropy,human_review_status,human_latest_action,human_corrected_class,human_defer_reason,human_note,human_reviewer,human_revision_number,review_event_count,review_event_ids,disclaimer",
+  "idempotent_replay_http": 200,
+  "stale_revision_conflict_http": 409
+}

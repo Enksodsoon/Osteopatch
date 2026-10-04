@@ -1,0 +1,28 @@
+# G6 app — keep source in git, keep transient/build/runtime trees OUT.
+
+# Python
+backend/.venv/
+backend/.webvenv/
+**/__pycache__/
+backend/.pytest_cache/
+*.pyc
+
+# Node / Vite
+frontend/node_modules/
+frontend/dist/
+frontend/*.tsbuildinfo
+
+# Runtime data (also lives under scratch; never commit)
+*.sqlite3
+*.sqlite3-wal
+*.sqlite3-shm
+thumbnails/
+server.log
+server.log.err
+
+# Durable runtime artifacts (recovered TIFFs + model bundles) — R1 recovery.
+# Canonical location is <project-root>/runtime-artifacts/ (see repo-root
+# .gitignore); this defensive entry also covers it if the app dir is ever a repo
+# root on its own. Raw TIFFs + model binaries must NEVER be committed.
+runtime-artifacts/
+../../runtime-artifacts/

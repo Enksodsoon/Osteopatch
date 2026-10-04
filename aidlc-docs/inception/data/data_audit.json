@@ -1,0 +1,193 @@
+{
+  "generated_utc": "2026-10-03T08:43:55.549510+00:00",
+  "mcp_unavailable": [
+    "@kirocrew-computer (declared by agent spec, not configured)"
+  ],
+  "session_binding": "NOT a bound work item (work_brief -> not_bound); ran as default agent, reported in chat",
+  "csv": {
+    "url": "https://www.cancerimagingarchive.net/wp-content/uploads/ML_Features_1144.csv",
+    "http_status": 200,
+    "content_type": "text/csv",
+    "bytes": 880995,
+    "sha256": "96fc6f3789a4ae14d536057d7db8b1353d20b0b2b94ce54b80e58ef5120281f6",
+    "retrieved_utc": "2026-10-03T08:40:11.206396+00:00",
+    "row_count": 1144,
+    "col_count": 69,
+    "classification_column": "classification",
+    "columns": [
+      "Unnamed: 0",
+      "image.name",
+      "X.x",
+      "Blue.count",
+      "red.count",
+      "Blue.percentage",
+      "red.percentage",
+      "total.clusters",
+      "average.clusters.32",
+      "area",
+      "circularity",
+      "X.1",
+      "X.y",
+      "Count_Nuclei",
+      "ImageNumber",
+      "Texture_AngularSecondMoment_3_0",
+      "Texture_AngularSecondMoment_3_135",
+      "Texture_AngularSecondMoment_3_45",
+      "Texture_AngularSecondMoment_3_90",
+      "Texture_Contrast_3_0",
+      "Texture_Contrast_3_135",
+      "Texture_Contrast_3_45",
+      "Texture_Contrast_3_90",
+      "Texture_Correlation_3_0",
+      "Texture_Correlation_3_135",
+      "Texture_Correlation_3_45",
+      "Texture_Correlation_3_90",
+      "Texture_DifferenceEntropy_3_0",
+      "Texture_DifferenceEntropy_3_135",
+      "Texture_DifferenceEntropy_3_45",
+      "Texture_DifferenceEntropy_3_90",
+      "Texture_DifferenceVariance_3_0",
+      "Texture_DifferenceVariance_3_135",
+      "Texture_DifferenceVariance_3_45",
+      "Texture_DifferenceVariance_3_90",
+      "Texture_Entropy_3_0",
+      "Texture_Entropy_3_135",
+      "Texture_Entropy_3_45",
+      "Texture_Entropy_3_90",
+      "Texture_Gabor_3",
+      "Texture_InfoMeas1_3_0",
+      "Texture_InfoMeas1_3_135",
+      "Texture_InfoMeas1_3_45",
+      "Texture_InfoMeas1_3_90",
+      "Texture_InfoMeas2_3_0",
+      "Texture_InfoMeas2_3_135",
+      "Texture_InfoMeas2_3_45",
+      "Texture_InfoMeas2_3_90",
+      "Texture_InverseDifferenceMoment_3_0",
+      "Texture_InverseDifferenceMoment_3_135",
+      "Texture_InverseDifferenceMoment_3_45",
+      "Texture_InverseDifferenceMoment_3_90",
+      "Texture_SumAverage_3_0",
+      "Texture_SumAverage_3_135",
+      "Texture_SumAverage_3_45",
+      "Texture_SumAverage_3_90",
+      "Texture_SumEntropy_3_0",
+      "Texture_SumEntropy_3_135",
+      "Texture_SumEntropy_3_45",
+      "Texture_SumEntropy_3_90",
+      "Texture_SumVariance_3_0",
+      "Texture_SumVariance_3_135",
+      "Texture_SumVariance_3_45",
+      "Texture_SumVariance_3_90",
+      "Texture_Variance_3_0",
+      "Texture_Variance_3_135",
+      "Texture_Variance_3_45",
+      "Texture_Variance_3_90",
+      "classification"
+    ]
+  },
+  "labels": {
+    "distinct_raw": {
+      "Non-Tumor": 536,
+      "Viable": 292,
+      "Non-Viable-Tumor": 263,
+      "viable: non-viable": 53
+    },
+    "canonical_resolved_counts": {
+      "NON_TUMOR": 536,
+      "VIABLE_TUMOR": 292
+    },
+    "fail_closed_unresolved": {
+      "Non-Viable-Tumor": {
+        "n": 263,
+        "reason": "unknown"
+      },
+      "viable: non-viable": {
+        "n": 53,
+        "reason": "unknown"
+      }
+    },
+    "published_counts": {
+      "NON_TUMOR": 536,
+      "VIABLE_TUMOR": 345,
+      "NECROSIS": 263
+    },
+    "actual_vs_published": {
+      "NON_TUMOR": {
+        "actual": 536,
+        "published": 536,
+        "delta": 0
+      },
+      "VIABLE_TUMOR": {
+        "actual": 292,
+        "published": 345,
+        "delta": -53
+      },
+      "NECROSIS": {
+        "actual": 0,
+        "published": 263,
+        "delta": -263
+      }
+    },
+    "reconciliation_note": "Resolved NON_TUMOR 536 == published 536 (match). The remaining two raw strings are fail-closed: 'Non-Viable-Tumor'(263) == published Necrosis 263 by count; 'viable: non-viable'(53) is a mixed label; 292 Viable + 53 mixed == published Viable 345. No raw string was auto-mapped to NECROSIS or VIABLE_TUMOR without owner ratification."
+  },
+  "identifiers": {
+    "dedicated_id_column_in_csv": false,
+    "filename_column": "image.name",
+    "filename_encodes_group": true,
+    "group_tokens_counts": {
+      "Case 3": 285,
+      "Case 4": 277,
+      "Case 48 (contains P5)": 370,
+      "P9": 212
+    },
+    "group_token_count": 4,
+    "grouping_evidence": "DOCUMENTED via PathDB (imageUrl folder path Training-Set-*/set* and subjectId) + filename prefix; see patient_mapping_evidence.md",
+    "filename_regex_inferred": "^(Case\\s*\\d+(?:\\s*-\\s*P\\d+)?|P\\d+)[\\s-]+[A-Za-z]?\\d+-\\d+-\\d+$"
+  },
+  "duplicates": {
+    "duplicate_filenames": {
+      "n_duplicated_rows": 0
+    },
+    "note": "0 duplicate filenames in CSV; 1144 distinct. Image-level perceptual dedup is PENDING (images not downloaded)."
+  },
+  "pathdb": {
+    "collection": [
+      {
+        "collectionName": "Osteosarcoma-Tumor-Assessment",
+        "collectionId": 18,
+        "updated": "2023-12-01"
+      }
+    ],
+    "image_rows": 1144,
+    "distinct_subjectId": 1144,
+    "distinct_imageId": 1144,
+    "subjectId_is_per_patch_not_patient": true,
+    "join_to_csv": {
+      "raw_exact_matches": 0,
+      "normalized_matches": 1144,
+      "normalization_rule": "strip spaces around '-', whitespace->'-', collapse repeated '-'",
+      "result": "1144/1144 one-to-one join confirmed"
+    },
+    "probe_object": {
+      "url": "http://pathdb.cancerimagingarchive.net/system/files/wsi/ross/Osteosarcoma-UT/converted/Osteosarcoma-UT/Training-Set-2/set1/Case-3-A10-10547-25283.tiff",
+      "scheme": "http (NOT https; PathDB serves file objects over plain HTTP)",
+      "HEAD": {
+        "status": 200,
+        "content_type": "image/tiff",
+        "content_length": null
+      },
+      "GET": {
+        "status": 200,
+        "content_type": "image/tiff",
+        "content_length": null
+      },
+      "note": "Exactly ONE object probed. image/tiff, HTTP 200, no Content-Length (chunked). Images are .tiff converted WSI tiles (published release lists .jpg)."
+    },
+    "can_map_rows_to_images": true
+  },
+  "disk": {
+    "raw_dir_outside_project": true,
+    "note": "see audit.md execution log for byte totals"
+  }
+}

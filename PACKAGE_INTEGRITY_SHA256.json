@@ -1,0 +1,30 @@
+{
+  "scope": "Package documents only; not application runtime verification",
+  "sha256": {
+    ".kiro/steering/osteopatch-project.md": "d294cdfdadca41b57611a547b867c558edefb078bee57ad1e67a773a8ce793ac",
+    "PROJECT_BRIEF.md": "ca5aa17e5ed59730b17741dcee188d7f91103ae6f687fc60e4879a0877f7e589",
+    "README_START_HERE.md": "84c3f95efbb6f36da51f0e8c2b9f44c99dfb0c8e102a803e87cb791fd8918401",
+    "docs/00_ai_dlc_setup.md": "2a2478d9abeafe20a910212082a527cf744cb9fda84796c12d971206b15bbcdc",
+    "docs/01_evidence_and_dataset_gate.md": "f8fb5bc2ce85afda7218b2185ed2c06f426e2d26012ca65436cef185f997f321",
+    "docs/02_model_and_evaluation_plan.md": "7b224390089878e90c5d56285c74f072aaa42aeabb829504b945e2d57a99a647",
+    "docs/03_product_ux_and_acceptance.md": "5de94d307be821cea17afeb54e5b5caaf28e0e08ee3c15efab37e570bedb0eb8",
+    "docs/04_architecture_security_cost.md": "5a1fc16f4785f98f30d66e318c55b09b123c7085ed22573e659a616f872f2305",
+    "docs/05_ai_dlc_and_work_units.md": "1da89d7265c810e79c9919ef809cf4817f6150e17c5b4b2989da16aaa9f27707",
+    "docs/06_test_release_demo_plan.md": "e3bfc3849f7a8267bb39d55961965a0b9540f77cc3af1823c8e29edf979ffab0",
+    "docs/07_sources_and_reuse_register.md": "9f2278dcbeec204ba9bea0a5f1fe765520bb09509a9ece34369a25bba6fb21bd",
+    "docs/08_data_and_api_contracts.md": "859d8d0319bd9112f227c7acbbe172908a5a34a3f0b938cbf054953a5eb17d5f",
+    "prompts/00_inception_only.md": "cb357d18cd467ad496851bd858b3a28754f22a60a249b7a28e97942ec5d12a28",
+    "prompts/01_data_audit.md": "e83dfd178ee2d400e0b9a26d8b41d66b9be7ebdfaee0325875176c6cdc05159e",
+    "prompts/02_model_baseline.md": "712f1584dc53225236fda62bdea8923c3ed45cf60a6b45764a99a98e6ea63efa",
+    "prompts/03_local_vertical_slice.md": "932e17e15f92a9b7d8fa58e053e1c6eb537dc2aee30ce926b45b890cd50da4ed",
+    "prompts/04_review_and_explainability.md": "34a84c954247e6f1cba6935bd1894881c8634d48eb7211753519e7cd95bf92e4",
+    "prompts/05_deploy_after_approval.md": "7e20896b00022667ac46887aea917605c560d0c95e1d862252db9c0880d4e81a",
+    "prompts/06_demo_release_cleanup.md": "adb6c9d417eaf54d89654ba028400559270094af2a7169f9461e4ff73ebbb178",
+    "prompts/resume.md": "22a3c75e7e5677b9dd654d34f08d37923a4d867d51990410be4c6c2a8a282b3a",
+    "templates/dataset-card.md": "c82af3feaca63dfeda734c24578f46110793f254dd8d722a642328fc4c6e393b",
+    "templates/decision-and-approval-log.md": "0b7379775cd85b933f4d27c60e0783458e8c5a27c8b410a14ef5d51cb8b8f597",
+    "templates/execution-status.json": "51e45dfc6ab04c70492039b3d57287eab968c5f4772612ec80af37a4f847c9bd",
+    "templates/model-card.md": "4be01770a85ba9539af98ed2e1de2012a3a6ddc00e418b5c7b201ffc1967a92e",
+    "templates/requirement-verification-questions.md": "173d58ee9b32ab7c37220172f47d6b8eb9893dd6d859bf582552de422eae6c8b"
+  }
+}

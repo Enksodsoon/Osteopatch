@@ -1,0 +1,38 @@
+{
+  "manifest_path": "C:\\Users\\enkso\\.kiro\\crew\\workspace\\osteopatch\\OsteoPatch_Kiro_Handoff\\aidlc-docs\\inception\\model\\g4\\g4-training-manifest.csv",
+  "manifest_sha256": "8b462ead87d0ffa3617e2d2afadbbf6ca685b85240e3349432408f352cf7e9ba",
+  "total_eligible": 1028,
+  "class_counts": {
+    "NON_TUMOR": 484,
+    "VIABLE_TUMOR": 290,
+    "NECROSIS": 254
+  },
+  "held_excluded": 116,
+  "group_class_support": {
+    "Case-3": {
+      "NON_TUMOR": 95,
+      "VIABLE_TUMOR": 3,
+      "NECROSIS": 166
+    },
+    "Case-4": {
+      "NON_TUMOR": 72,
+      "VIABLE_TUMOR": 85,
+      "NECROSIS": 86
+    },
+    "Case-48": {
+      "NON_TUMOR": 126,
+      "VIABLE_TUMOR": 202,
+      "NECROSIS": 2
+    },
+    "P9": {
+      "NON_TUMOR": 191,
+      "VIABLE_TUMOR": 0,
+      "NECROSIS": 0
+    }
+  },
+  "canonical_order": [
+    "NON_TUMOR",
+    "VIABLE_TUMOR",
+    "NECROSIS"
+  ]
+}

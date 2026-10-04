@@ -1,0 +1,17 @@
+experiment,tier,description,why_tiered,gated_by
+frozen-encoder MobileNetV3-Small head (3-class),REQUIRED BASELINE,ImageNet-pretrained MobileNetV3-Small encoder frozen; train only a 3-output linear head; LOGO 4-fold eval; a-priori-frozen hyperparams,The minimal honest baseline proportional to 4 groups,none (design frozen; training is a future gate)
+uncalibrated softmax scores + margin/top-score review ranking,REQUIRED BASELINE,Default score_type UNCALIBRATED_SOFTMAX; review flag top<0.70 or margin<0.15; deterministic priority key,Already contracted in doc 02/doc 08; minimal,none
+Grad-CAM attribution (class-targeted),REQUIRED BASELINE,Gradient-enabled Grad-CAM for an explicit class; toggle; limitation text,Required by doc 02 explanation contract + doc 03 FR-06,none
+mixed-state challenge-set analysis (n=53),REQUIRED BASELINE,Run frozen 3-class model over the 53 MIXED patches; report score balance/entropy/margin/saliency/human-review behavior separately,Needed to validate uncertainty rules; separate from headline,none
+ResNet18 frozen-encoder sanity comparison,SECONDARY,One alternative encoder as a non-benchmark sanity check,More params; only if a comparison is wanted,approved experiment slot
+last-stage fine-tune (short low-LR),SECONDARY,Unfreeze last feature stage; <=5 epochs; LR 1e-5; separate run record,Risk of overfitting 4 groups; separate record,approved experiment slot + validation evidence
+temperature-scaling calibration,SECONDARY,Fit T inside an outer fold training groups; report before/after log loss + Brier,Not defensible as reliable calibrator at this scale; disclose,approved slot
+224x224 vs 384x384 input comparison,SECONDARY,Compare input resolution,Consumes one approved experiment slot (doc 02); not automatic,approved slot
+brightness/contrast jitter augmentation,SECONDARY,Small-range photometric aug,H&E intensity carries signal; post expert review only,approved slot + expert review
+hyperparameter sweep / architecture search,DO NOT DO YET,Grid/random/NAS over LR/arch,4 groups cannot support trustworthy tuning,new gate + revised compute budget
+heavy full fine-tune,DO NOT DO YET,Unfreeze whole encoder and train,Overfits 4 groups; inflates train-set performance,new gate
+ensembles,DO NOT DO YET,Multi-model averaging,Unjustified at this data scale,new gate
+stain normalization / stain-space augmentation research,DO NOT DO YET,Stain-matrix estimation + normalization,Research technique; artifact risk on 4 groups,new gate + expert review
+self-supervised pretraining (SSL),DO NOT DO YET,Domain SSL pretrain,Far beyond hackathon scope/data,new gate
+multi-task / multilabel / hierarchical (incl. a MIXED target),DO NOT DO YET,Add a sanctioned mixed/multilabel head,Requires new dataset version + fresh gate,new dataset version + gate
+multi-seed stability sensitivity,DO NOT DO YET,3-5 seeds; report macro-F1 spread,Sanctioned later check that one seed is not a lucky draw,approved slot (recommended once baseline exists)

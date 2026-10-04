@@ -1,0 +1,252 @@
+{
+  "Case-3": {
+    "held_out_group": "Case-3",
+    "n_test": 264,
+    "class_dist_test": {
+      "NON_TUMOR": 95,
+      "VIABLE_TUMOR": 3,
+      "NECROSIS": 166
+    },
+    "classes_present_test": [
+      "NON_TUMOR",
+      "VIABLE_TUMOR",
+      "NECROSIS"
+    ],
+    "confusion_matrix_rows_true_cols_pred_order_NON_VIA_NEC": [
+      [
+        62,
+        16,
+        17
+      ],
+      [
+        0,
+        1,
+        2
+      ],
+      [
+        3,
+        24,
+        139
+      ]
+    ],
+    "per_class": {
+      "NON_TUMOR": {
+        "precision": 0.953846,
+        "recall": 0.652632,
+        "f1": 0.775,
+        "support": 95
+      },
+      "VIABLE_TUMOR": {
+        "precision": 0.02439,
+        "recall": 0.333333,
+        "f1": 0.045455,
+        "support": 3
+      },
+      "NECROSIS": {
+        "precision": 0.879747,
+        "recall": 0.837349,
+        "f1": 0.858025,
+        "support": 166
+      }
+    },
+    "macro_f1": 0.559493,
+    "macro_f1_n_classes": 3,
+    "balanced_accuracy": 0.607771,
+    "balanced_accuracy_n_classes": 3,
+    "accuracy_secondary": 0.765152,
+    "log_loss": 0.605527,
+    "brier": 0.331656,
+    "class_weights_train_only": {
+      "NON_TUMOR": 0.442749,
+      "VIABLE_TUMOR": 0.600102,
+      "NECROSIS": 1.95715
+    }
+  },
+  "Case-4": {
+    "held_out_group": "Case-4",
+    "n_test": 243,
+    "class_dist_test": {
+      "NON_TUMOR": 72,
+      "VIABLE_TUMOR": 85,
+      "NECROSIS": 86
+    },
+    "classes_present_test": [
+      "NON_TUMOR",
+      "VIABLE_TUMOR",
+      "NECROSIS"
+    ],
+    "confusion_matrix_rows_true_cols_pred_order_NON_VIA_NEC": [
+      [
+        57,
+        1,
+        14
+      ],
+      [
+        5,
+        7,
+        73
+      ],
+      [
+        1,
+        2,
+        83
+      ]
+    ],
+    "per_class": {
+      "NON_TUMOR": {
+        "precision": 0.904762,
+        "recall": 0.791667,
+        "f1": 0.844444,
+        "support": 72
+      },
+      "VIABLE_TUMOR": {
+        "precision": 0.7,
+        "recall": 0.082353,
+        "f1": 0.147368,
+        "support": 85
+      },
+      "NECROSIS": {
+        "precision": 0.488235,
+        "recall": 0.965116,
+        "f1": 0.648438,
+        "support": 86
+      }
+    },
+    "macro_f1": 0.54675,
+    "macro_f1_n_classes": 3,
+    "balanced_accuracy": 0.613045,
+    "balanced_accuracy_n_classes": 3,
+    "accuracy_secondary": 0.604938,
+    "log_loss": 1.032693,
+    "brier": 0.581253,
+    "class_weights_train_only": {
+      "NON_TUMOR": 0.549236,
+      "VIABLE_TUMOR": 1.10383,
+      "NECROSIS": 1.346935
+    }
+  },
+  "Case-48": {
+    "held_out_group": "Case-48",
+    "n_test": 330,
+    "class_dist_test": {
+      "NON_TUMOR": 126,
+      "VIABLE_TUMOR": 202,
+      "NECROSIS": 2
+    },
+    "classes_present_test": [
+      "NON_TUMOR",
+      "VIABLE_TUMOR",
+      "NECROSIS"
+    ],
+    "confusion_matrix_rows_true_cols_pred_order_NON_VIA_NEC": [
+      [
+        114,
+        0,
+        12
+      ],
+      [
+        156,
+        5,
+        41
+      ],
+      [
+        0,
+        0,
+        2
+      ]
+    ],
+    "per_class": {
+      "NON_TUMOR": {
+        "precision": 0.422222,
+        "recall": 0.904762,
+        "f1": 0.575758,
+        "support": 126
+      },
+      "VIABLE_TUMOR": {
+        "precision": 1.0,
+        "recall": 0.024752,
+        "f1": 0.048309,
+        "support": 202
+      },
+      "NECROSIS": {
+        "precision": 0.036364,
+        "recall": 1.0,
+        "f1": 0.070175,
+        "support": 2
+      }
+    },
+    "macro_f1": 0.231414,
+    "macro_f1_n_classes": 3,
+    "balanced_accuracy": 0.643171,
+    "balanced_accuracy_n_classes": 3,
+    "accuracy_secondary": 0.366667,
+    "log_loss": 2.449392,
+    "brier": 1.01749,
+    "class_weights_train_only": {
+      "NON_TUMOR": 0.462334,
+      "VIABLE_TUMOR": 1.880858,
+      "NECROSIS": 0.656808
+    }
+  },
+  "P9": {
+    "held_out_group": "P9",
+    "n_test": 191,
+    "class_dist_test": {
+      "NON_TUMOR": 191,
+      "VIABLE_TUMOR": 0,
+      "NECROSIS": 0
+    },
+    "classes_present_test": [
+      "NON_TUMOR"
+    ],
+    "confusion_matrix_rows_true_cols_pred_order_NON_VIA_NEC": [
+      [
+        191,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0
+      ]
+    ],
+    "per_class": {
+      "NON_TUMOR": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 191
+      },
+      "VIABLE_TUMOR": {
+        "precision": "UNAVAILABLE",
+        "recall": "UNAVAILABLE",
+        "f1": "UNAVAILABLE",
+        "support": 0
+      },
+      "NECROSIS": {
+        "precision": "UNAVAILABLE",
+        "recall": "UNAVAILABLE",
+        "f1": "UNAVAILABLE",
+        "support": 0
+      }
+    },
+    "macro_f1": 1.0,
+    "macro_f1_n_classes": 1,
+    "balanced_accuracy": 1.0,
+    "balanced_accuracy_n_classes": 1,
+    "accuracy_secondary": 1.0,
+    "log_loss": 0.072058,
+    "brier": 0.017399,
+    "class_weights_train_only": {
+      "NON_TUMOR": 0.9482,
+      "VIABLE_TUMOR": 0.958009,
+      "NECROSIS": 1.09379
+    }
+  }
+}

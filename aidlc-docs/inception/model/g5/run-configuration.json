@@ -1,0 +1,81 @@
+{
+  "unit": "G5 — Bounded Last-Stage Encoder Fine-Tuning",
+  "run_id": "g5-logo-laststage-finetune-seed42",
+  "status": "experiment complete — FINE-TUNING REVIEW REQUIRED (no final bundle; result NO BENEFIT)",
+  "device": "cpu",
+  "cuda_available": false,
+  "cuda_fallback_reason": "Installed torch is the CPU wheel (2.14.1+cpu); torch.cuda.is_available()==false. CPU is the sanctioned fallback per brief; no CUDA stack attempted, no AWS used.",
+  "seed": 42,
+  "determinism": "random/numpy/torch seeded; cudnn.deterministic=True, benchmark=False; torch.use_deterministic_algorithms(warn_only=True); fresh seeded init per fold.",
+  "environment": {
+    "python": "3.12.10",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "torch": "2.14.1+cpu",
+    "torchvision": "0.29.1+cpu",
+    "numpy": "2.5.3",
+    "scikit_learn": "1.9.1",
+    "pillow": "12.3.0",
+    "num_threads": 6,
+    "cpu_count": 12
+  },
+  "reused_from_g4_immutable": {
+    "training_manifest": "aidlc-docs/inception/model/g4/g4-training-manifest.csv",
+    "training_manifest_sha256": "8b462ead87d0ffa3617e2d2afadbbf6ca685b85240e3349432408f352cf7e9ba",
+    "manifest_rehash_verified": true,
+    "eligible_counts": {"total": 1028, "NON_TUMOR": 484, "VIABLE_TUMOR": 290, "NECROSIS": 254},
+    "held_excluded": 116,
+    "groups": ["Case-3", "Case-4", "Case-48", "P9"],
+    "split": "Leave-One-Group-Out (4 outer folds), identical group membership to G4",
+    "class_order": ["NON_TUMOR", "VIABLE_TUMOR", "NECROSIS"],
+    "preprocessing": {
+      "resize": [384, 384], "interpolation": "bilinear", "antialias": true, "crop": "none (full-field)",
+      "normalize_mean": [0.485, 0.456, 0.406], "normalize_std": [0.229, 0.224, 0.225]
+    },
+    "train_only_augmentation": ["hflip", "vflip", "rot90_multiples"],
+    "loss": "cross_entropy with inverse-frequency train-only class weights normalized to mean 1 over classes present in the fold's training rows",
+    "comparator_artifacts": ["g4/oof-predictions.csv", "g4/overall-oof-metrics.json", "g4/per-fold-metrics.json"]
+  },
+  "pretrained_weights_enum": "MobileNet_V3_Small_Weights.IMAGENET1K_V1",
+  "the_one_bounded_change": {
+    "description": "Unfreeze ONLY the final MobileNetV3-Small feature stage + classifier head; all earlier feature stages remain frozen.",
+    "final_feature_index": 12,
+    "final_feature_module": "Conv2dNormActivation(Conv2d(96->576,1x1,bias=False) + BatchNorm2d(576) + Hardswish)",
+    "classifier": "Sequential(Linear(576->1024), Hardswish, Dropout(0.2), Linear(1024->3))",
+    "trainable_param_names": [
+      "features.12.0.weight", "features.12.1.weight", "features.12.1.bias",
+      "classifier.0.weight", "classifier.0.bias", "classifier.3.weight", "classifier.3.bias"
+    ],
+    "n_trainable_tensors": 7,
+    "n_trainable_params": 650371,
+    "n_frozen_tensors": 135,
+    "n_frozen_params": 870560,
+    "assertion": "explicit named-parameter assertion verified: ONLY features.12.* + classifier.* have requires_grad=True (no unexpected trainable, none expected-but-frozen).",
+    "batchnorm_convention": "All BatchNorm layers kept in eval mode (frozen running stats) each epoch, including the unfrozen final stage's BN; its affine params remain trainable and gradients flow through the fixed-stat normalization. Documented choice, consistent with G3/G4 frozen-BN behavior."
+  },
+  "optimization": {
+    "optimizer": "AdamW",
+    "param_groups": [
+      {"name": "final_feature_stage", "lr": 1e-05, "params": "features.12.*"},
+      {"name": "classifier_head", "lr": 1e-04, "params": "classifier.*"}
+    ],
+    "weight_decay": 1e-04,
+    "batch_size": 16,
+    "max_epochs": 5,
+    "early_stopping": "none (a-priori-frozen schedule; no leaky inner val; outer test never used for tuning/selection/weighting)",
+    "no_sweep": true,
+    "excluded_techniques": ["focal", "oversampling", "weighted sampler", "MixUp", "CutMix", "stain aug", "synthetic", "new architecture", "hyperparameter sweep"]
+  },
+  "forward_path_note": "Because the final feature stage is trainable, G4's cached frozen-encoder-embedding trick is invalid; G5 runs a full forward+backward pass over pixels every step. For efficiency, each image's deterministic normalized 384x384 eval tensor is cached once in memory and a random D4 tensor transform (rot90 + optional hflip) is applied per step — pixel-identical to the v2 train pipeline because D4 flips/rotations commute with per-channel normalization. Eval uses the identity view only.",
+  "leakage_safeguards": "Same 4-fold LOGO; outer held-out group untouched by training/early-stop/selection/LR/weighting/thresholds; no outer-fold inspection influenced later folds; excluded QC rows and the 63-row human-review queue never introduced; 116 held/excluded rows never introduced.",
+  "runtime": {
+    "base_tensor_cache_sec": 21.9,
+    "fold_times_sec": {"Case-3": 89.15, "Case-4": 172.67, "Case-48": 271.75, "P9": 218.41},
+    "total_train_eval_sec": 751.97,
+    "oom_events": "none; batch 16 stable (throughput probe confirmed no OOM)"
+  },
+  "calibration_status": "uncalibrated",
+  "result_classification": "NO BENEFIT",
+  "final_bundle_created": false,
+  "final_bundle_reason": "Brief: train the final all-1,028 G5 bundle ONLY if PROMISING. Result is NO BENEFIT, so G4 (baseline-frozen-g4) remains the prototype default and no 'improved' G5 replacement was created.",
+  "intended_use": "educational / research prototype only; NOT patient-level, NOT diagnosis, NOT treatment-response, NOT prognosis."
+}

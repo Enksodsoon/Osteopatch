@@ -1,0 +1,90 @@
+{
+  "n_rows": 1028,
+  "aggregation": "pooled out-of-fold (each image scored once by the fold that never saw its group)",
+  "class_order": [
+    "NON_TUMOR",
+    "VIABLE_TUMOR",
+    "NECROSIS"
+  ],
+  "confusion_matrix_rows_true_cols_pred": [
+    [
+      437,
+      13,
+      34
+    ],
+    [
+      105,
+      32,
+      153
+    ],
+    [
+      12,
+      22,
+      220
+    ]
+  ],
+  "per_class": {
+    "NON_TUMOR": {
+      "precision": 0.788809,
+      "recall": 0.902893,
+      "f1": 0.842004,
+      "support": 484
+    },
+    "VIABLE_TUMOR": {
+      "precision": 0.477612,
+      "recall": 0.110345,
+      "f1": 0.179272,
+      "support": 290
+    },
+    "NECROSIS": {
+      "precision": 0.540541,
+      "recall": 0.866142,
+      "f1": 0.665658,
+      "support": 254
+    }
+  },
+  "macro_f1": 0.562311,
+  "macro_f1_n_classes": 3,
+  "balanced_accuracy": 0.62646,
+  "balanced_accuracy_n_classes": 3,
+  "accuracy_secondary": 0.670233,
+  "log_loss": 1.194723,
+  "brier": 0.496084,
+  "neural_vs_majority_descriptive": {
+    "neural": {
+      "macro_f1": 0.562311,
+      "accuracy": 0.670233,
+      "log_loss": 1.194723,
+      "brier": 0.496084
+    },
+    "majority_from_train": {
+      "macro_f1": 0.213404,
+      "accuracy": 0.470817,
+      "confusion_matrix": [
+        [
+          484,
+          0,
+          0
+        ],
+        [
+          290,
+          0,
+          0
+        ],
+        [
+          254,
+          0,
+          0
+        ]
+      ]
+    },
+    "note": "Pooled majority mixes the per-fold majority class (NON_TUMOR for all 4 folds here); comparison is descriptive only."
+  },
+  "limitations": [
+    "Exploratory case/slide-group independence over 4 groups ONLY; patient-level independence unverified.",
+    "P9 fold is single-class (NON_TUMOR) -> VIABLE/NECROSIS not estimable there.",
+    "Case-3 VIABLE test support=3 and Case-48 NECROSIS test support=2 are indicative-only (CI ~ [0,1]).",
+    "Patches are not independent biological samples; no patch-as-patient bootstrap.",
+    "Scores are uncalibrated model class scores, not disease probabilities."
+  ]
+}
