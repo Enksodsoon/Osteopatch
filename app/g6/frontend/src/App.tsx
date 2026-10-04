@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { exportUrl, getMeta } from "./api";
-import type { Meta } from "./types";
+import { exportUrl, getHealth, getMeta } from "./api";
+import type { Health, Meta } from "./types";
 import { t } from "./strings";
 import { Disclaimer } from "./components/Shared";
 import { Workbench } from "./components/Workbench";
@@ -15,10 +15,12 @@ type View =
 
 export default function App() {
   const [meta, setMeta] = useState<Meta | null>(null);
+  const [health, setHealth] = useState<Health | null>(null);
   const [view, setView] = useState<View>({ name: "workbench" });
 
   useEffect(() => {
     getMeta().then(setMeta);
+    getHealth().then(setHealth).catch(() => setHealth(null));
   }, []);
 
   return (
@@ -49,6 +51,12 @@ export default function App() {
       </header>
 
       <Disclaimer />
+
+      {health?.image_subset_scoped && (
+        <div className="subset-banner" role="note" data-testid="subset-banner">
+          {t("subset.banner")}
+        </div>
+      )}
 
       <main className="app-main">
         {!meta && <div className="muted">…</div>}

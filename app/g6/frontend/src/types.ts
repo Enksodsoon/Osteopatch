@@ -113,3 +113,13 @@ export interface Meta {
   attribution_enabled?: boolean;
   attribution?: AttributionBlock;
 }
+
+export interface Health {
+  status: string;
+  model_version: string;
+  model_bundle_sha256: string;
+  images_indexed: number;
+  predictions: number;
+  image_subset_scoped?: boolean;
+  disclaimer: string;
+}

@@ -1,0 +1,10 @@
+{
+  "OsteoPatchG8": {
+    "ApiFunctionName": "osteopatch-api",
+    "ReviewsTableName": "osteopatch-reviews",
+    "ApiUrl": "https://wx414e64ja.execute-api.us-east-1.amazonaws.com/",
+    "WebBucketName": "osteopatch-web-153485202811",
+    "PublicUrl": "https://dgv0wpd8tglrw.cloudfront.net",
+    "DistributionId": "EIKXG771OD6Q8"
+  }
+}

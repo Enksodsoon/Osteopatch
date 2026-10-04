@@ -330,3 +330,60 @@ All 14 PASS criteria met as a design; verdict is PASS WITH LIMITATIONS because t
   exact score parity by construction). Current gate is now **G7 - MODEL ATTRIBUTION REVIEW REQUIRED**.
   Still owner-gated: sign-off of the behaviorally-recovered model as "the recovered model" + review of G7;
   no screenshots/multi-seed/calibration/uncertainty/AWS/deploy until then.
+
+
+---
+
+## 2026-10-04 — R1-C2 behavioral recovery + G7 contrastive attribution CERTIFIED (owner-approved, local, no AWS/retrain)
+
+Owner approved Recovery Gate R1 then R1-C2 (behavioral reconstruction of the lost G4 linear head) and a revised G7 using contrastive Grad-CAM only. Executed across focused workers; final certification completed directly by the parent from disk + a live run after the certification worker was interrupted at the screenshot step (its backend/frontend test reports were already persisted).
+
+### R1-C2 — behavioral head recovery (BEHAVIORALLY_VERIFIED_RECOVERY)
+- Lost original head weights of `baseline-frozen-g4` (sha256 `01727fb8…`) are irretrievable; recovered the observable decision function instead. Recovered encoder bit-identical (sha256 `331b88ec…`). Embeddings 1144×1025, rank 1025, cond ~2744, log-odds LSQ RMSE ~1.2e-7, no regularization. Canonical zero-sum gauge.
+- Recovered model `g4-behavioral-recovery-r1` (sha256 `ffff1282…`), distinct identity; G6 predictions NEVER rewritten.
+- Parity vs surviving G6 oracle: 1,144/1,144 predicted-class (100%); max 2.4e-7 / mean 7.8e-9 / p95 1.2e-7; 0 rows outside 1e-6 (tolerance justified by G6 REAL precision ~5e-7@6dp). Reload 4.9e-13.
+- Gauge-invariance test PASS (single-class CAM changes 0.75; contrastive A−B invariant 7.8e-7). Target layer `model.features[-1]` [1,576,12,12].
+- Evidence: runtime-artifacts/recovery/recovery-run-report.json, g7-target-layer-and-gauge-invariance.json, recovery-prediction-parity.csv (1144 rows).
+
+### G7 — contrastive attribution (certified live)
+- grad-cam 1.5.5; target `model.features[-1]`; custom scalar target `logit_A − logit_B` (gauge-invariant); default pair = suggested vs runner-up; 6 selectable pairs; deterministic cache (cold==cached verified).
+- Backend tests (evidence/backend-test-report.json): torch-free .venv 53 passed/0 failed/10 skipped; torch venv 62 passed/0 failed/5 skipped (5 = test_real_bundle.py gating on original scratch bundle, forbidden to touch — expected).
+- Frontend (evidence/frontend-test-report.json): vitest 18/18; clean tsc+vite build, 0 TS errors.
+- E2E/G6 regression (evidence/e2e-result.json): PASS 11/11 against a SCRATCH COPY; original prediction byte-identical + still baseline-frozen-g4/01727fb8; CORRECT+DEFER persist; export intact.
+- Live attribution (evidence/attribution-live-check.json): PASS; VIABLE-vs-NECROSIS (1c759906) ≠ NECROSIS-vs-VIABLE (e2cff287). Latency CPU: cold ~7.2s (one-time load), cached ~35ms, warm ~113–142ms.
+- Real screenshots (evidence/screenshots/): A-workbench, B-review-screen, C-attribution-overlay, D1-viable-vs-necrosis, D2-necrosis-vs-viable, E-review-history.
+- Immutability/durability: durable DB runtime-artifacts/db/osteopatch_g6.sqlite3 review_event=0, 1,144 predictions all baseline-frozen-g4. Durable runtime deps under runtime-artifacts/ (gitignored).
+- Summary: runtime-artifacts/recovery/g7-summary.md.
+
+### Process lesson recorded
+Load-bearing frozen runtime artifacts must never exist solely in reclaimable scratch. Classify: ephemeral/rebuildable (thumbnails, caches) · durable evidence (recovery reports) · durable runtime dependency (recovered model bundle, source TIFFs, review DB) — the last belong under runtime-artifacts/.
+
+**Verdict: G7 — ATTRIBUTION / VISUAL REVIEW REQUIRED** (implementation complete + certified; awaiting owner visual review). No AWS/deploy/calibration/uncertainty-tuning performed.
+
+
+---
+
+## 2026-10-04 — G8 AWS Deployment / Hackathon Demo CERTIFIED (owner-approved, 50-image subset, us-east-1)
+
+Owner approved deploying the certified G7 app to the workshop account using a deterministic 50-image representative subset. Deployed via CDK (stack OsteoPatchG8); final live validation + screenshots completed directly by the parent after the deploy worker wedged on a non-returning playwright-cli open (certified from AWS + the live CloudFront URL, not the worker's completion flag).
+
+### Architecture (cost-minimal; SCP denied App Runner, so Lambda-container route)
+- Frontend: private S3 osteopatch-web-153485202811 + CloudFront (OAC) → https://dgv0wpd8tglrw.cloudfront.net
+- Backend: Lambda container image osteopatch-api (3008 MB/90 s, torch+grad-cam, lazy-torch serve) + API GW HTTP API wx414e64ja
+- Review state: DynamoDB on-demand osteopatch-reviews (thin adapter, same domain model; prediction immutable, append-only reviews)
+- Assets: recovered model + 50 TIFFs (11.7 MiB) + 50 thumbnails (5.4 MiB) in private S3 osteopatch-artifacts-153485202811
+- IaC under app/g6/deploy/ (CDK). Workshop role WSParticipantRole = AdministratorAccess.
+
+### Live validation (all 15 PASS against CloudFront)
+Health: model baseline-frozen-g4 / bundle 01727fb8… / images_indexed 50 / predictions 50; /v1/images total=50. Subset banner visible ('deterministic 50-image representative subset … 1,144 patches'). Workbench + 50 real thumbnails + review-priority sort; patch opens, 3 scores; contrastive Grad-CAM live (VIABLE vs NECROSIS + reverse, hint flips, overlay recomputes) via the torch Lambda; CORRECT saved → persisted to DynamoDB (revision 1), survives reload (patch 'Reviewed', history #1); export /v1/exports/reviews = 50 rows incl. the CORRECT, model baseline-frozen-g4; model-attribution + behavioral-recovery disclaimers visible. Demo review cleaned afterward (reviews table back to 0 → pristine). Original prediction identity preserved (baseline-frozen-g4/01727fb8); recovered model id g4-behavioral-recovery-r1 never conflated.
+
+### Evidence
+Screenshots: runtime-artifacts/evidence/g8/screenshots/ (A workbench, B review, C attribution, D1 viable-vs-necrosis, D2 necrosis-vs-viable, E review-history). Subset ids: runtime-artifacts/recovery/g8-subset-image-ids.json. Summary: aidlc-docs/g8-deployment-summary.md.
+
+### Cost / teardown
+~$0 demo window; ~$0.20–0.30/mo if left running (ECR image + S3). Teardown: cdk destroy OsteoPatchG8 + empty asset bucket. No GPU/SageMaker/RDS/NAT/App Runner. No new training/calibration/architecture expansion; did NOT upload the other 1,094 images.
+
+### Security / exposure
+Educational prototype, no patient-identifiable data. Private S3 (OAC), no public bucket. Review WRITE endpoint open on the demo API (bounded, no auth) — documented limitation acceptable for hackathon. Disclaimers visible in-UI.
+
+**Verdict: G8 — DEPLOYED DEMO REVIEW REQUIRED** (deployed + live-certified; awaiting owner review). Local runtime preserved; redeploy reproducible from the durable tree.
