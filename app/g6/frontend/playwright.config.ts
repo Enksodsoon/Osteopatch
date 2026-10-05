@@ -12,6 +12,11 @@ import { defineConfig, devices } from "@playwright/test";
  * process squatting on the configured port is a real failure mode on this
  * machine, and a runner that silently attaches to someone else's server would
  * report a green run against unknown code. The harness fails closed instead.
+ *
+ * Browser selection is injected too (E2E_BROWSER) and defaults to the bundled
+ * Chromium, so CI is unchanged. `edge` drives the SYSTEM Microsoft Edge via
+ * Playwright's `msedge` channel: no download, and it exercises the browser the
+ * reviewers are most likely to actually use.
  */
 const baseURL = process.env.E2E_BASE_URL;
 const backendURL = process.env.E2E_BACKEND_URL;
@@ -22,6 +27,24 @@ if (!baseURL || !backendURL) {
       "Run via: python scripts/e2e_ui.py",
   );
 }
+
+/** An unknown browser name must fail here, not silently fall back to Chromium. */
+const BROWSERS = {
+  chromium: () => ({ ...devices["Desktop Chrome"] }),
+  // `msedge` is Playwright's channel name for the preinstalled Edge.
+  edge: () => ({ ...devices["Desktop Chrome"], channel: "msedge" as const }),
+} as const;
+
+type BrowserName = keyof typeof BROWSERS;
+
+const requested = (process.env.E2E_BROWSER ?? "chromium").trim().toLowerCase();
+if (!(requested in BROWSERS)) {
+  throw new Error(
+    `Unknown E2E_BROWSER ${JSON.stringify(requested)}. ` +
+      `Supported: ${Object.keys(BROWSERS).join(", ")}.`,
+  );
+}
+const browser = requested as BrowserName;
 
 export default defineConfig({
   testDir: "./e2e",
@@ -40,5 +63,5 @@ export default defineConfig({
     video: "off",
     actionTimeout: 10_000,
   },
-  projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
+  projects: [{ name: browser, use: BROWSERS[browser]() }],
 });

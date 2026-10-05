@@ -11,7 +11,7 @@ UV := uv
 
 .DEFAULT_GOAL := help
 .PHONY: help setup test test-backend test-enterprise test-frontend \
-        lint typecheck smoke e2e runtime bake verify-bake serve clean
+        lint typecheck smoke e2e e2e-edge runtime bake verify-bake serve clean
 
 help:  ## show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) \
@@ -73,6 +73,13 @@ e2e:  ## whole-app BROWSER end-to-end (real Chromium, real UI, throwaway DB)
 	@echo
 	@echo "e2e PASSED — evidence written to docs/evidence/e2e-ui-result.json"
 	@echo "watch it run instead: .venv/Scripts/python.exe scripts/e2e_ui.py --headed"
+	@echo "run it in installed Edge instead: make e2e-edge"
+
+e2e-edge:  ## same suite driven in the INSTALLED Microsoft Edge (no download)
+	.venv/Scripts/python.exe scripts/e2e_ui.py --browser edge \
+		--out docs/evidence/e2e-edge-result.json
+	@echo
+	@echo "e2e-edge PASSED — evidence written to docs/evidence/e2e-edge-result.json"
 
 # --- running -----------------------------------------------------------------
 
