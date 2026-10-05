@@ -1,0 +1,47 @@
+name: Optional engine capabilities
+
+on:
+  workflow_dispatch:
+    inputs:
+      engine:
+        description: Optional environment to verify; this is not real-data model validation
+        required: true
+        default: wsi
+        type: choice
+        options: [wsi, model]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: capabilities-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+        with:
+          version: "0.12.23"
+          python-version: "3.12"
+          enable-cache: false
+      - name: Install only the selected optional environment
+        env:
+          ENGINE: ${{ inputs.engine }}
+        run: |
+          case "$ENGINE" in wsi|model) ;; *) exit 1 ;; esac
+          uv sync --locked --extra dev --extra "$ENGINE"
+      - name: Inspect WSI capability
+        if: inputs.engine == 'wsi'
+        run: uv run --locked python scripts/check_wsi_engines.py
+      - name: Inspect model imports
+        if: inputs.engine == 'model'
+        run: uv run --locked python -c "import torch, torchvision, pytorch_grad_cam; print('torch', torch.__version__); print('torchvision', torchvision.__version__)"
+      - name: State the verification boundary
+        run: echo 'Dependency capability only. No dataset downloaded, model trained or real-data performance validated.'

@@ -1,0 +1,25 @@
+{
+  "servers": {
+    "github-readonly": {
+      "type": "http",
+      "url": "https://api.githubcopilot.com/mcp/",
+      "headers": {
+        "Authorization": "Bearer ${input:github-mcp-token}",
+        "X-MCP-Readonly": "true",
+        "X-MCP-Toolsets": "repos,issues,pull_requests,actions"
+      }
+    },
+    "aws-knowledge": {
+      "type": "http",
+      "url": "https://knowledge-mcp.global.api.aws"
+    }
+  },
+  "inputs": [
+    {
+      "id": "github-mcp-token",
+      "type": "promptString",
+      "description": "Read-only GitHub token restricted to the required repository",
+      "password": true
+    }
+  ]
+}

@@ -3,16 +3,19 @@
 > **Human-in-the-loop pathology AI for educational osteosarcoma patch review.**<br/>
 > Browse real H&E patches, surface uncertain cases first, inspect model scores and contrastive attribution, record reviewer decisions, and keep the full evidence trail visible.
 
-[![CI](https://img.shields.io/github/actions/workflow/status/Enksodsoon/Osteopatch/ci.yml?branch=main&label=CI)](../../actions/workflows/ci.yml)
+[![CI](https://img.shields.io/github/actions/workflow/status/Enksodsoon/Osteopatch/ci.yml?branch=main&label=CI)](https://github.com/Enksodsoon/Osteopatch/actions/workflows/ci.yml)
 ![Python 3.11–3.13](https://img.shields.io/badge/Python-3.11%E2%80%933.13-3776AB)
 ![React 18](https://img.shields.io/badge/React-18-61DAFB)
 ![FastAPI](https://img.shields.io/badge/API-FastAPI-009688)
 ![Research prototype](https://img.shields.io/badge/use-educational%20research-B4532A)
 
-**Live demo:** https://dgv0wpd8tglrw.cloudfront.net<br/>
-**Repository:** <https://github.com/Enksodsoon/Osteopatch> — this repo was renamed from `osteopatch-review`. GitHub redirects the old URL, but if your clone still reports `osteopatch-review`, repoint it:<br/>
+**[Project website](https://enksodsoon.github.io/Osteopatch/)** · **[Developer documentation](docs/README.md)** · **[Model evidence](docs/model-evidence.md)** · **[Contributing](CONTRIBUTING.md)**
+
+**Repository:** <https://github.com/Enksodsoon/Osteopatch> — renamed from `osteopatch-review`. Existing old URLs redirect, but update stale clones with:<br/>
 `git remote set-url origin https://github.com/Enksodsoon/Osteopatch.git`<br/>
-**Current deployed scope:** deterministic 50-image demo subset · full locally verified collection: 1,144 patches
+**Workshop review demo:** https://dgv0wpd8tglrw.cloudfront.net<br/>
+**Demo scope:** deterministic 50-image subset · full locally verified source collection: 1,144 patches.<br/>
+The website is static documentation, not the review API. The AWS workshop deployment may be older than `main` and depends on its separate access/cost configuration.
 
 > [!CAUTION]
 > **Educational / research prototype only. Not for diagnosis, treatment decisions, treatment-response prediction, prognosis, or clinical reporting.** Model outputs are uncalibrated class scores, not disease probabilities.
@@ -31,7 +34,9 @@ OsteoPatch is built around that review loop:
 
 **Browse patches → prioritize uncertainty → inspect H&E + scores → compare contrastive attribution → accept / correct / defer → preserve history → export**
 
-The model assists with **attention and triage**. The human reviewer remains the authority.
+The model supports **educational review prioritization**, not clinical urgency. The human reviewer remains the authority.
+
+> **Model evidence:** frozen pooled out-of-fold macro-F1 is **0.562311** and viable-tumor recall is **0.110345** across an exploratory four-group evaluation. Patient-level independence is unverified. The original G4 binary is absent; the recovered attribution head is a different artifact. [Read the evidence and reproducibility boundaries](docs/model-evidence.md).
 
 ## What is implemented
 
@@ -49,12 +54,12 @@ The model assists with **attention and triage**. The human reviewer remains the 
 | Enterprise layer | Project tenancy, RBAC, audit chain, governance, registry, drift monitoring |
 | Verification | Backend, frontend, build, static, smoke, and deployment evidence |
 
-### Current verification snapshot
+### Repository verification snapshot — 5 October 2026
 
-- **Backend:** 110 passed, 11 intentional environment-gated skips
+- **Backend:** 112 passed, 11 intentional environment-gated skips
 - **G6 review UI:** 29 tests passed + production TypeScript/Vite build
 - **Enterprise UI:** 2 tests passed + production build
-- **Deployed health:** `baseline-frozen-g4`, 50 indexed/predicted demo patches
+- **Recorded workshop-demo health:** `baseline-frozen-g4`, 50 indexed/predicted demo patches; verify live deployment separately
 - **Full local collection:** 1,144 patches
 - **Model scores:** uncalibrated; never presented as probabilities
 
