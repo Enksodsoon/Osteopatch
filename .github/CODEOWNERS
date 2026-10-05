@@ -1,0 +1,8 @@
+# Ownership requests do not replace the required CI quality gate.
+* @Enksodsoon
+/.github/ @Enksodsoon
+/app/g6/backend/osteopatch/ @Enksodsoon
+/app/g6/deploy/ @Enksodsoon
+/aidlc-docs/ @Enksodsoon
+/site/ @Enksodsoon
+/AGENTS.md @Enksodsoon

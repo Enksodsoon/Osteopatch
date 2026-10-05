@@ -1,104 +1,25 @@
-# OsteoPatch Review (G6) — Local Educational Prototype
+# Core review application
 
-A local, image-first pathology-review workbench over the frozen **`baseline-frozen-g4`**
-osteosarcoma patch classifier (3 classes: NON_TUMOR, VIABLE_TUMOR, NECROSIS).
+The current reviewer-facing application: FastAPI, React/TypeScript, source/QC metadata, immutable three-class predictions, revision-aware accept/correct/defer, export, model card and qualified attribution.
 
-> **Educational / research prototype — NOT for diagnosis, treatment decisions,
-> treatment-response prediction, or prognosis. Model scores are uncalibrated class
-> scores, never disease probabilities.**
+**Educational/research prototype. Not for diagnosis, treatment decisions, treatment-response prediction or prognosis. Scores are uncalibrated class scores.**
 
-The app lets a reviewer browse patches, see the model's suggested class and all three
-**uncalibrated** scores, work the most ambiguous patches first (deterministic
-review-priority ranking), and ACCEPT / CORRECT / DEFER each — recording every decision
-as an append-only event while the model's original prediction stays immutable. Reviews
-export to CSV/JSON with both the model prediction and the human action preserved.
+## Current instructions
+Use the central [getting-started guide](../../docs/getting-started.md), [architecture](../../docs/architecture.md) and [model-evidence guide](../../docs/model-evidence.md). Python dependencies are canonical in root `pyproject.toml`/`uv.lock`; `backend/requirements.txt` is a generated compatibility shim, not an independently maintained environment.
 
-## Architecture
-- **Backend:** FastAPI + SQLite, torch-free at serve time (predictions are precomputed once).
-- **Precompute:** a one-time PyTorch pass over the decoded patches, run under a torch venv.
-- **Frontend:** React + TypeScript + Vite.
-- Server binds **127.0.0.1 only**. No AWS, no Docker, no auth, no external services.
-
-The G4 bundle hash is re-verified at load; the app refuses to start on mismatch.
-
-## Run OsteoPatch locally
-
-### 0. One-time: precompute predictions (torch venv)
-Runs G4 inference over all decoded patches into the SQLite DB. Needs the torch venv
-(the one with torch/torchvision; e.g. the project's ingestion `.venv`). Reuses existing
-rows keyed by `(image_id, model_bundle_hash)` — safe to re-run.
-
-```powershell
-cd app\g6\backend
-# <torch venv python> = the venv containing torch + torchvision
-& <torch-venv>\Scripts\python.exe precompute.py
+```sh
+# From repository root, after restoring and verifying the runtime:
+uv sync --locked --extra dev
+uv run --locked python scripts/prepare_runtime.py
+uv run --locked uvicorn osteopatch.app:app --app-dir app/g6/backend --host 127.0.0.1 --port 8137
+# Separate terminal:
+npm --prefix app/g6/frontend ci
+npm --prefix app/g6/frontend run dev
 ```
 
-Paths (bundle, TIFFs, DB) default to the parent-verified scratch locations and are
-overridable via environment variables: `OSTEOPATCH_BUNDLE`, `OSTEOPATCH_TIFFS`,
-`OSTEOPATCH_DB`, `OSTEOPATCH_QC_DIR`, `OSTEOPATCH_MODEL_CARD_DIR`.
+## Boundaries
+Canonical outputs are `NON_TUMOR`, `VIABLE_TUMOR`, `NECROSIS`. Source/QC, immutable prediction and append-only review events are distinct. Corrections do not automatically retrain a model. Contrastive attribution is implemented but requires its optional dependencies and verified recovered-head artifacts; it is not segmentation or a diagnosis.
 
-### 1. Backend (web venv — no torch needed)
-```powershell
-cd app\g6\backend
-python -m venv .webvenv
-.webvenv\Scripts\python.exe -m pip install -r requirements.txt
-.webvenv\Scripts\python.exe -m uvicorn osteopatch.app:app --host 127.0.0.1 --port 8137
-```
-Health check: open [http://127.0.0.1:8137/v1/health](http://127.0.0.1:8137/v1/health).
+The original G4 binary is absent. The recovered head has a separate identity and cannot inherit original-model claims. The weak viable-tumor result and full limitation catalog remain visible through `/v1/model-card`.
 
-### 2. Frontend
-```powershell
-cd app\g6\frontend
-npm install
-npm run dev
-```
-Vite serves the workbench (default [http://127.0.0.1:5173](http://127.0.0.1:5173)); its
-dev server proxies `/v1/*` to the backend on 8137 (see `vite.config.ts`).
-
-## Tests
-```powershell
-# Backend — torch tests (torch venv) + API/safety/scoring tests (web venv)
-cd app\g6\backend
-<torch-venv>\Scripts\python.exe -m pytest -q tests\test_real_bundle.py
-.webvenv\Scripts\python.exe  -m pytest -q tests\test_api_export.py tests\test_review_safety.py tests\test_scoring_contract.py
-
-# Frontend
-cd app\g6\frontend
-npm run test
-```
-
-## Data model (three separate, non-overwriting concepts)
-1. **Source/QC metadata** (`source_qc`) — source id, group, original label, QC status,
-   `training_eligible`, `qc_review_flag`. `training_eligible=false` is not a biological
-   class; MIXED is excluded metadata, never a 4th model output.
-2. **Prediction** (`prediction`, immutable) — 3 scores + `top1_score` + `top_two_margin`
-   + `normalized_entropy` + `inference_kind="prototype_inference"`, keyed by image + bundle hash.
-3. **ReviewEvent** (`review_event`, append-only) — ACCEPT / CORRECT / DEFER with
-   revision number + idempotency key. A correction is a new event; the prediction row never changes.
-
-## Scope & limitations
-Exploratory, **case/slide-group-independent** classification over four groups; P9 is
-single-class; **VIABLE_TUMOR is the model's weak class** (see the G4 OOF evaluation —
-the authoritative performance evidence, kept separate from this app's prototype inference).
-Scores are uncalibrated. The "Model attribution" tab is reserved for G7 (Grad-CAM) and is
-intentionally empty here — no attribution image is fabricated.
-
-### The full limitations list is served, not just documented
-
-`GET /v1/model-card` returns two distinct surfaces, and the **Model card** screen in the
-UI renders both:
-
-- **`limitations`** — the five frozen G4 evaluation caveats, quoted **verbatim** from
-  `aidlc-docs/inception/model/g4/overall-oof-metrics.json`. Durable evidence; never
-  reworded in place.
-- **`limitations_full` / `limitations_grouped` / `limitations_summary`** — the complete
-  catalog from [`osteopatch/limitations.py`](backend/osteopatch/limitations.py): 33 entries
-  across *claim, data, model, evaluation, attribution, platform, deployment, process*.
-
-Every catalog entry carries a severity, the evidence file it rests on, and **what would
-retire it**. `backend/tests/test_limitations.py` fails if a cited file goes missing, if an
-entry stops being falsifiable, if the frozen five are altered, or if the `VIABLE_TUMOR`
-weakness (pooled OOF recall **0.110345**) is removed, reordered or rounded. Those tests
-were verified by mutation: deleting the entry, rounding the metric, and pointing one entry
-at a missing file each fail the suite.
+The historical AWS deployment under `deploy/` is a separate runtime from local development. See the [deployment runbook](../../docs/deployment.md); no local setup command provisions AWS resources.

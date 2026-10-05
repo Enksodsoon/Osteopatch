@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Documentation and setup
+    url: https://enksodsoon.github.io/Osteopatch/getting-started.html
+    about: Start with clean-clone setup, runtime prerequisites and verification.
+  - name: Security policy
+    url: https://github.com/Enksodsoon/Osteopatch/blob/main/SECURITY.md
+    about: Report sensitive security concerns privately, not in public issues.

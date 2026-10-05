@@ -1,0 +1,101 @@
+name: Deploy existing AWS frontend
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirmation:
+        description: Existing web assets only; no infrastructure, API, model or dataset deployment
+        required: true
+        default: NO_DEPLOYMENT
+        type: choice
+        options: [NO_DEPLOYMENT, DEPLOY_FRONTEND_ONLY]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: aws-demo-frontend
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Require trusted main and explicit intent
+        env:
+          CONFIRMATION: ${{ inputs.confirmation }}
+        run: |
+          test "$GITHUB_REF" = refs/heads/main
+          test "$CONFIRMATION" = DEPLOY_FRONTEND_ONLY
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: app/g6/frontend/package-lock.json
+      - name: Verify and build frontend
+        run: |
+          npm --prefix app/g6/frontend ci --no-audit --no-fund
+          npm --prefix app/g6/frontend test
+          npm --prefix app/g6/frontend run build
+          printf '%s\n' "$GITHUB_SHA" > app/g6/frontend/dist/source-revision.txt
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: frontend-${{ github.sha }}
+          path: app/g6/frontend/dist
+          retention-days: 7
+          if-no-files-found: error
+
+  deploy:
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: aws-demo
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      DEPLOY_ENABLED: ${{ vars.AWS_DEPLOY_ENABLED }}
+      ROLE_ARN: ${{ vars.AWS_ROLE_ARN }}
+      EXPECTED_ACCOUNT: ${{ vars.AWS_ACCOUNT_ID }}
+      REGION: ${{ vars.AWS_REGION }}
+      WEB_BUCKET: ${{ vars.AWS_WEB_BUCKET }}
+      DISTRIBUTION_ID: ${{ vars.AWS_DISTRIBUTION_ID }}
+    steps:
+      - name: Fail closed before credential exchange
+        run: |
+          test "$DEPLOY_ENABLED" = true || { echo '::error::AWS deployment is disabled; read docs/deployment.md'; exit 1; }
+          test "$EXPECTED_ACCOUNT" = 153485202811
+          test "$REGION" = us-east-1
+          test "$WEB_BUCKET" = osteopatch-web-153485202811
+          test "$DISTRIBUTION_ID" = EIKXG771OD6Q8
+          [[ "$ROLE_ARN" =~ ^arn:aws:iam::153485202811:role/[A-Za-z0-9+=,.@_/-]+$ ]]
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: frontend-${{ github.sha }}
+          path: frontend
+      - uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+          allowed-account-ids: ${{ vars.AWS_ACCOUNT_ID }}
+          role-session-name: osteopatch-frontend-${{ github.run_id }}
+      - name: Verify existing resource identity
+        run: |
+          test "$(aws sts get-caller-identity --query Account --output text)" = "$EXPECTED_ACCOUNT"
+          aws s3api head-bucket --bucket "$WEB_BUCKET" --expected-bucket-owner "$EXPECTED_ACCOUNT"
+          aws cloudfront get-distribution-config --id "$DISTRIBUTION_ID" --output json | jq -e --arg prefix "$WEB_BUCKET.s3." '[.DistributionConfig.Origins.Items[].DomainName | startswith($prefix)] | any'
+          test -s frontend/index.html
+          test "$(cat frontend/source-revision.txt)" = "$GITHUB_SHA"
+      - name: Upload assets first and entry document last; retain old assets
+        run: |
+          aws s3 cp frontend/assets "s3://$WEB_BUCKET/assets" --recursive --cache-control 'public,max-age=31536000,immutable' --only-show-errors
+          aws s3 cp frontend "s3://$WEB_BUCKET/" --recursive --exclude 'assets/*' --exclude 'index.html' --cache-control 'no-cache' --only-show-errors
+          aws s3 cp frontend/index.html "s3://$WEB_BUCKET/index.html" --cache-control 'no-cache' --content-type 'text/html' --only-show-errors
+          aws cloudfront create-invalidation --distribution-id "$DISTRIBUTION_ID" --paths / /index.html
+      - name: Record deployment boundary
+        run: echo "Frontend uploaded from $GITHUB_SHA. API/model unchanged. Live workflow verification is still required." >> "$GITHUB_STEP_SUMMARY"

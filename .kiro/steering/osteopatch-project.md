@@ -1,16 +1,14 @@
 ---
 inclusion: always
 ---
-# OsteoPatch project steering
+# OsteoPatch project context
 
-Read `PROJECT_BRIEF.md` and the current `aidlc-docs/aidlc-state.md` before acting. This is a proposed educational three-class histology patch-review application, not a clinical device. Canonical class order is `NON_TUMOR`, `VIABLE_TUMOR`, `NECROSIS`. Unknown source labels must raise an error; never guess a class.
+Read `AGENTS.md`, `docs/README.md` and `docs/project-status.md` first. OsteoPatch Review is already implemented; the original Inception-only handoff is historical. Preserve its evidence without rerunning or mixing workflow controllers.
 
-Use one AI-DLC controller. The user's workshop targets v1.0.1; do not mix its steering rules with native Kiro Specs or a different AI-DLC installation without an explicit decision. This file is project context, not the official workflow.
+The canonical output order is `NON_TUMOR`, `VIABLE_TUMOR`, `NECROSIS`. This is an educational/research prototype, not a clinical device. Unknown labels must fail. Mixed, uncertain and poor-quality are review/QC states. Scores are uncalibrated. Heatmaps are neither segmentation nor a causal explanation. Corrections are append-only and never automatically retrain a model.
 
-First run is Inception only. The exact TCIA dataset's presence in the requested AWS IDC source is unverified. Resolve provenance and ask before changing the data source. Do not download a whole bucket or infer patient IDs from unverified filename patterns.
+Preserve the separate identities of the absent original G4 binary and the recovered attribution head. Keep frozen records in `aidlc-docs/` unchanged; document new work in a dated evidence record.
 
-No training, installation requiring charges, cloud mutation, public sharing, paid API, account switching, or deployment before the relevant approval. Do not trust all tools on a sensitive machine. Inspect only relevant workspace files and authorized read-only cloud information; never print credentials.
+No paid service, AWS mutation, public data expansion, model training, global MCP installation or broad deletion without explicit task-specific authorization. Never print credentials or trust all MCP tools. Shared MCP profiles are disabled by default; authentication and tool approval are separate steps.
 
-Split at patient level when verifiable. Keep source labels, model predictions, and review events separate. No label leakage, automatic online retraining, fake metrics, fabricated heatmaps, or patient-level necrosis/treatment claims. An uncertainty flag is not clinical urgency, and a heatmap is not segmentation or a causal explanation.
-
-Use bounded units, small experiments, tests and evidence. Load detailed documents only when needed. Do not launch unbounded agent teams or repetitive hooks. Record questions, answers, approvals, command results, limitations and resume instructions in `aidlc-docs/`. A proposal is not approval; a test plan is not a passed test.
+Inspect current Git status and protect other workers' changes. Use small tested changes and the verification commands in `AGENTS.md`. Report actual test results, skips, deployment state and blockers; configuration is not execution.
