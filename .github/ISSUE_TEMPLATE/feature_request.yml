@@ -1,0 +1,23 @@
+name: Feature request
+description: Propose an educational, research or engineering improvement.
+title: "[Feature] "
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: User and problem
+      description: Who benefits, and what cannot they do today?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behavior and acceptance criteria
+      description: Include an observable success condition, alternatives and affected components.
+    validations:
+      required: true
+  - type: textarea
+    id: boundaries
+    attributes:
+      label: Data, cost and scientific boundaries
+      description: Identify new data, dependencies, cloud costs, licenses or validation needed. Clinical-use expansion is not implied by a feature request.

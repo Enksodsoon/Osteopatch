@@ -1,0 +1,33 @@
+name: Bug report
+description: Report a reproducible software problem without sensitive data.
+title: "[Bug] "
+body:
+  - type: markdown
+    attributes:
+      value: "For vulnerabilities, follow SECURITY.md. Never include patient information, tokens or private images."
+  - type: input
+    id: revision
+    attributes:
+      label: Version or commit
+      description: Include the branch/commit and whether this is local or the workshop demo.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Reproduction and expected behavior
+      description: Minimal steps, expected result and actual result.
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment and non-sensitive evidence
+      description: OS, browser, Python/Node versions, exact error and relevant test output.
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Before submitting
+      options:
+        - label: I removed patient information, credentials and private data.
+          required: true

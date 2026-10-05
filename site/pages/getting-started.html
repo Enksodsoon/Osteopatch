@@ -1,0 +1,20 @@
+<header class="page-heading wrap"><h1>Start with a<br>clean foundation.</h1><p class="lead">The source checkout is enough to build this website, run the software tests and compile both user interfaces. Reviewing real patches requires a separate verified runtime bundle.</p></header>
+<div class="article">
+<section id="setup"><h2>01 / Install the locked environment</h2><p>Use Python 3.12, Node 24, Git and uv. Run commands from the repository root unless a directory change is shown. These commands do not provision AWS resources.</p><pre><code>git clone https://github.com/Enksodsoon/Osteopatch.git
+cd Osteopatch
+uv sync --locked --extra dev
+npm --prefix app/g6/frontend ci
+npm --prefix app/g7-enterprise/frontend ci</code></pre></section>
+<section id="verify"><h2>02 / Verify the software</h2><pre><code>uv run --locked pytest app/g6/backend/tests app/g7-enterprise/backend/tests -q
+python -m unittest discover -s tests/tooling -v
+python scripts/check_repository.py
+npm --prefix app/g6/frontend test
+npm --prefix app/g6/frontend run build
+npm --prefix app/g7-enterprise/frontend test
+npm --prefix app/g7-enterprise/frontend run build</code></pre><p>Tests requiring real model artifacts or optional image engines explicitly skip when those dependencies are absent. A skipped test is not a model-validation result.</p></section>
+<section id="runtime"><h2>03 / Prepare actual review data</h2><div class="alert"><strong>The runtime is not bundled with Git.</strong><p>Restore the approved runtime artifacts to <code>runtime-artifacts/</code>, or point <code>OSTEOPATCH_RUNTIME_ARTIFACTS</code> at an existing bundle. The preparation command verifies what is already present; it does not download a dataset or reconstruct a missing model.</p></div><pre><code>uv run --locked python scripts/prepare_runtime.py</code></pre><p>Expected artifact identities are recorded in <a href="https://github.com/Enksodsoon/Osteopatch/blob/main/app/g6/deploy/runtime-artifacts.expected.json">the runtime contract</a>. Keep a verified reference bundle and use a separate disposable review-database copy for tests. See the <a href="https://github.com/Enksodsoon/Osteopatch/blob/main/docs/getting-started.md">full setup guide</a> for environment overrides and missing-artifact troubleshooting.</p></section>
+<section id="run"><h2>04 / Start the reviewer application</h2><p>After the artifact checks succeed, use two terminals:</p><pre><code>uv run --locked uvicorn osteopatch.app:app --app-dir app/g6/backend --host 127.0.0.1 --port 8137</code></pre><pre><code>npm --prefix app/g6/frontend run dev</code></pre><p>Open <a href="http://127.0.0.1:5173">127.0.0.1:5173</a>. The API health route is <code>/v1/health</code> on port 8137. Keep development services on loopback. The enterprise local identity issuer is not production authentication.</p></section>
+<section id="website"><h2>Build the documentation website</h2><pre><code>python scripts/build_site.py
+python scripts/check_site.py
+python -m http.server 8765 --bind 127.0.0.1 --directory _site</code></pre><p>Open <a href="http://127.0.0.1:8765">127.0.0.1:8765</a>. This path needs no model, dataset, npm package or cloud account. Stop the local server with Ctrl+C.</p></section>
+</div>

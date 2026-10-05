@@ -1,0 +1,25 @@
+{
+  "mcpServers": {
+    "github-readonly": {
+      "url": "https://api.githubcopilot.com/mcp/",
+      "headers": {
+        "Authorization": "Bearer ${GITHUB_MCP_TOKEN}",
+        "X-MCP-Readonly": "true",
+        "X-MCP-Toolsets": "repos,issues,pull_requests,actions"
+      },
+      "disabled": true,
+      "autoApprove": []
+    },
+    "aws-knowledge": {
+      "url": "https://knowledge-mcp.global.api.aws",
+      "disabled": true,
+      "autoApprove": []
+    },
+    "playwright-local": {
+      "command": "npx",
+      "args": ["--yes", "@playwright/mcp@0.0.83", "--headless", "--isolated"],
+      "disabled": true,
+      "autoApprove": []
+    }
+  }
+}

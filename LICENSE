@@ -1,0 +1,20 @@
+OsteoPatch Review — proprietary license notice
+
+Copyright (c) 2026 Enksodsoon and the respective contributors.
+All rights reserved in the original project material.
+
+The project declares a Proprietary license in pyproject.toml. This notice
+clarifies that existing declaration; it does not grant an open-source license.
+Public visibility alone does not grant permission to use, modify, distribute,
+sublicense or commercially exploit the project beyond rights otherwise
+provided by applicable law, the hosting platform's terms or a separate written
+agreement with the relevant rights holder.
+
+Third-party libraries, datasets, images and other incorporated or referenced
+materials remain subject to their own licenses and notices. Their rights are
+not changed by this notice. Consult docs/dependencies.md and
+docs/07_sources_and_reuse_register.md for the project's source registers.
+
+The project is an educational/research prototype, not a clinical medical device.
+No warranty of clinical accuracy, fitness for a particular purpose, security,
+availability or suitability for patient care is provided by this notice.
