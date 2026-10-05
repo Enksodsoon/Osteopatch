@@ -350,17 +350,14 @@ def serving_model(p: Principal = Depends(require("model:manage", project_scoped=
 @app.get("/v1/projects/{project_id}/drift")
 def drift(project_id: str, bundle_sha256: str,
           p: Principal = Depends(require("model:manage", project_scoped=False))):
-    # drift reads the G6 review store via the proxy's scoped connection
-    review_proxy._apply_scope(project_id)
-    try:
-        g6 = review_proxy._g6()
-    except HTTPException:
-        raise
-    scope = review_proxy.all_corpus_image_ids()  # scoped set resolved by G6 config
-    import json as _json, os as _os
-    scope_path = review_proxy._project_scope_path(project_id)
-    ids = _json.loads(scope_path.read_text("utf-8")).get("subset_image_ids") if scope_path.exists() else None
-    rep = observability.drift_report(g6.get_conn(), bundle_sha256=bundle_sha256, image_ids=ids)
+    # Drift is computed over THIS project's predictions only. The image set is
+    # read from the database via the request-scoped project id — no global is
+    # mutated, so a concurrent request for another project cannot affect this.
+    g6 = review_proxy._g6()
+    ids = review_proxy.project_image_ids(project_id)
+    rep = observability.drift_report(
+        g6.get_conn(), bundle_sha256=bundle_sha256, image_ids=ids or None
+    )
     audit.record(p.email, "obs.drift_report", bundle_sha256, project_id=project_id,
                  detail={"alerts": rep.alerts})
     return {

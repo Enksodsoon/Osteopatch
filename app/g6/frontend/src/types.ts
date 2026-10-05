@@ -103,6 +103,70 @@ export interface AttributionMeta {
   method_note: string;
 }
 
+// ---- limitations catalog (served by /v1/model-card) ----------------------
+// `Limitations` (below) are the FROZEN G4 evaluation caveats, quoted verbatim
+// from the artifact and never edited in place. `Limitation` entries are the
+// full catalog: each one cites an evidence file and states what would retire
+// it. See app/g6/backend/osteopatch/limitations.py.
+export type LimitationSeverity = "blocking" | "high" | "medium" | "low";
+
+export type LimitationCategory =
+  | "claim"
+  | "data"
+  | "model"
+  | "evaluation"
+  | "attribution"
+  | "platform"
+  | "deployment"
+  | "process";
+
+export interface Limitation {
+  id: string;
+  category: LimitationCategory;
+  severity: LimitationSeverity;
+  pin_first: boolean;
+  statement: string;
+  retired_by: string;
+  evidence: string[];
+}
+
+export interface LimitationGroup {
+  category: LimitationCategory;
+  count: number;
+  blocking_count: number;
+  items: Limitation[];
+}
+
+export interface LimitationsSummary {
+  total: number;
+  by_severity: Record<LimitationSeverity, number>;
+  categories: LimitationCategory[];
+  weakest_class: string;
+}
+
+export interface ModelCard {
+  model_version: string;
+  model_bundle_sha256: string;
+  calibration_status: string;
+  canonical_classes: CanonicalClass[];
+  architecture: string | null;
+  preprocessing: unknown;
+  intended_use: string | null;
+  performance_statement: string | null;
+  headline_oof: Record<string, unknown>;
+  limitations: string[];
+  /** False on deployments that do not bake aidlc-docs/ — see the reason field. */
+  evaluation_evidence_available: boolean;
+  evaluation_evidence_unavailable_reason: string;
+  limitations_full: Limitation[];
+  limitations_grouped: LimitationGroup[];
+  limitations_summary: LimitationsSummary;
+  limitations_note: string;
+  disclaimer: string;
+  evidence_note: string;
+  model_card_markdown: string | null;
+}
+
 export interface Meta {
   canonical_classes: CanonicalClass[];
   review_actions: ReviewAction[];

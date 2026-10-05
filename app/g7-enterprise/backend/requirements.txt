@@ -1,9 +1,27 @@
-# OsteoPatch Enterprise (E1) backend — multi-user core over the G6 review API.
-# NO torch, NO AWS. Binds 127.0.0.1 only.
-fastapi==0.115.6
-uvicorn[standard]==0.34.0
-pydantic==2.10.4
+# GENERATED FILE — DO NOT EDIT BY HAND.
+# Source of truth: pyproject.toml (dependency versions) + uv.lock (exact pins).
+# Regenerate with:  python scripts/sync_requirements.py
+# Verify with:      python scripts/sync_requirements.py --check
+#
+# This file exists only so Docker build contexts and documentation that
+# reference it keep working. Two hand-maintained dependency lists is exactly
+# how these diverged before; there is now one source of truth.
+#
+# Educational research prototype. Not for diagnosis, treatment decisions,
+# or predicting treatment response.
+
+
+# --- Enterprise (E1): runtime ---
 PyJWT==2.10.1
-# dev / test
-pytest==8.3.4
+fastapi==0.115.6
+numpy>=2.0.0,<2.4.4
+pillow==11.0.0
+pydantic==2.10.4
+uvicorn[standard]==0.34.0
+
+# --- Enterprise (E1): dev / test ---
+coverage>=7.0
 httpx==0.28.1
+mypy>=1.11
+pytest==8.3.4
+ruff>=0.6

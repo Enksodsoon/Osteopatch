@@ -1,6 +1,8 @@
-# OsteoPatch Review — Kiro handoff
+# OsteoPatch Review — original Kiro handoff
 
-**Prepared:** 3 October 2026 · **Status:** proposed plan, not an implemented product.
+> **Historical planning entrypoint.** This document records the pre-implementation handoff from 3 October 2026 and is retained for provenance. The project has since been implemented, tested, and deployed. For the current product, architecture, verification status, and run instructions, start with [README.md](README.md).
+
+**Prepared:** 3 October 2026 · **Historical status:** pre-implementation proposal (superseded by the current repository state).
 **Execution environment:** Kiro and the user's limited AWS hackathon account.
 
 This package turns the user's brief into a staged, reviewable project. It contains planning documents, acceptance criteria, questionnaires, and prompts. It contains **no trained model, downloaded dataset, application implementation, AWS deployment, or completed test results**. No source-selection, spending, or deployment approval is implied.

@@ -9,6 +9,7 @@ from __future__ import annotations
 import csv
 import io
 import sqlite3
+import threading
 
 from fastapi import FastAPI, Query, Request, Response
 from fastapi.responses import JSONResponse, StreamingResponse
@@ -26,14 +27,33 @@ app = FastAPI(
 )
 
 _conn: sqlite3.Connection | None = None
+_thread_conn = threading.local()
+_conn_init_lock = threading.Lock()
 
 
 def get_conn() -> sqlite3.Connection:
-    global _conn
-    if _conn is None:
-        _conn = db.connect()
-        db.run_migrations(_conn)
-    return _conn
+    """Return the connection for the current worker thread.
+
+    FastAPI runs synchronous endpoints in a thread pool. Sharing one SQLite
+    connection across those threads can produce intermittent ``InterfaceError``
+    failures under concurrent browser traffic even with ``check_same_thread``
+    disabled. Production therefore keeps one connection per worker thread.
+
+    ``_conn`` remains an explicit injected override for tests, which intentionally
+    use one isolated in-memory/temp connection.
+    """
+    if _conn is not None:
+        return _conn
+
+    conn = getattr(_thread_conn, "conn", None)
+    if conn is None:
+        # Serialise first-use migration work; afterwards each thread owns its
+        # independent SQLite connection and SQLite coordinates file-level writes.
+        with _conn_init_lock:
+            conn = db.connect()
+            db.run_migrations(conn)
+        _thread_conn.conn = conn
+    return conn
 
 
 def set_conn(conn: sqlite3.Connection) -> None:

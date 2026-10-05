@@ -1,0 +1,182 @@
+name: CI
+
+# OsteoPatch — reproducible gates for a clean clone.
+#
+# A clean checkout must produce a deterministic pass/fail. Nothing here
+# downloads dataset pixels, model bundles, or touches AWS.
+#
+# Educational research prototype. Not for diagnosis, treatment decisions,
+# or predicting treatment response.
+
+on:
+  push:
+    branches: [main, "feat/**"]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # Nothing in CI may reach the network at runtime for data. Tests that need
+  # real pixels or a model bundle skip themselves rather than silently pass.
+  OSTEOPATCH_RUNTIME_ARTIFACTS: ""
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # Backend — both apps, one locked environment.
+  #
+  # The serve venv deliberately contains NO torch. Environment-gated skips are
+  # expected here and must remain explicit rather than being silently bypassed.
+  # ---------------------------------------------------------------------------
+  backend:
+    name: backend (torch-free)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+
+      - name: Install dependencies (locked)
+        run: uv sync --locked --extra dev
+
+      - name: Show resolved environment
+        run: uv run python -c "import sys, fastapi, numpy, PIL; print(sys.version); print('fastapi', fastapi.__version__); print('numpy', numpy.__version__)"
+
+      - name: Verify the serve venv really is torch-free
+        run: |
+          if uv run python -c "import torch" 2>/dev/null; then
+            echo "::error::torch is present in the serve venv; the web path must stay torch-free"
+            exit 1
+          fi
+          echo "serve venv confirmed torch-free"
+
+      - name: G6 backend tests
+        run: uv run pytest app/g6/backend/tests -q
+
+      - name: Enterprise backend tests
+        run: uv run pytest app/g7-enterprise/backend/tests -q
+
+      - name: Requirements shims are in sync with pyproject
+        run: python scripts/sync_requirements.py --check
+
+      - name: Dependency register covers every declared dependency
+        run: python scripts/check_deps.py
+
+  # ---------------------------------------------------------------------------
+  # Frontends — npm ci (lockfile-exact) so a clean clone is deterministic.
+  # ---------------------------------------------------------------------------
+  frontend-g6:
+    name: frontend (g6)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: app/g6/frontend/package-lock.json
+      - name: Install
+        working-directory: app/g6/frontend
+        run: npm ci
+      - name: Test
+        working-directory: app/g6/frontend
+        run: npm test
+      - name: Build (TypeScript compile gate)
+        working-directory: app/g6/frontend
+        run: npm run build
+
+  frontend-enterprise:
+    name: frontend (enterprise)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: app/g7-enterprise/frontend/package-lock.json
+      - name: Install
+        working-directory: app/g7-enterprise/frontend
+        run: npm ci
+      - name: Test
+        working-directory: app/g7-enterprise/frontend
+        run: npm test
+      - name: Build (TypeScript compile gate)
+        working-directory: app/g7-enterprise/frontend
+        run: npm run build
+
+  # ---------------------------------------------------------------------------
+  # Static checks. Baselined deliberately: these must not be allowed to fail on
+  # pre-existing code, only on newly introduced problems.
+  # ---------------------------------------------------------------------------
+  static:
+    name: static (ruff + mypy)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+      - run: uv sync --locked --extra dev
+      - name: ruff — newly-authored code (BLOCKING)
+        run: uv run ruff check scripts app/g6/backend/osteopatch/pathology app/g6/backend/osteopatch/app.py app/g6/backend/osteopatch/limitations.py app/g6/backend/osteopatch/projects.py app/g6/backend/osteopatch/modelcard.py app/g6/backend/tests/test_connection_concurrency.py app/g6/deploy/verify_bake.py
+      - name: mypy — canonical G6 backend (BLOCKING)
+        run: uv run mypy
+      - name: ruff — legacy tree (INFORMATIONAL)
+        continue-on-error: true
+        run: uv run ruff check app --statistics
+
+  # ---------------------------------------------------------------------------
+  # Model capability — optional torch stack on a clean clone.
+  #
+  # Real attribution tests require the gitignored recovered model + TIFF runtime
+  # bundle and are therefore exercised by scripts/e2e_ui.py on a verified host,
+  # not fabricated on GitHub. This job proves the optional model dependency set
+  # resolves and imports without pretending the runtime evidence exists.
+  # ---------------------------------------------------------------------------
+  model:
+    name: model stack (advisory)
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+      - run: uv sync --locked --extra dev --extra model
+      - name: Verify torch + attribution imports
+        run: |
+          uv run python - <<'PY'
+          import torch
+          import torchvision
+          import pytorch_grad_cam
+          print("torch", torch.__version__)
+          print("torchvision", torchvision.__version__)
+          print("pytorch-grad-cam import OK")
+          PY
+      - name: State the runtime boundary
+        run: echo "Real model/Grad-CAM tests require verified gitignored runtime-artifacts and run via scripts/e2e_ui.py."
+
+  # Browser E2E intentionally stays local/workshop-only. It requires the
+  # gitignored 1,144-patch runtime bundle, so running it on an empty GitHub
+  # hosted runner would waste time installing Chromium only to fail the
+  # artifact gate. Use `python scripts/e2e_ui.py` on a verified runtime host.
+
+  # ---------------------------------------------------------------------------
+  # WSI engine availability. Proves which reader backend a machine actually
+  # has, without gating on it.
+  # ---------------------------------------------------------------------------
+  wsi-capability:
+    name: wsi engine capability
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+      - run: uv sync --locked --extra dev --extra wsi
+      - name: Report reader engines
+        run: uv run python scripts/check_wsi_engines.py

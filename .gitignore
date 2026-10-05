@@ -20,7 +20,12 @@ runtime-artifacts/
 # Node / Vite
 **/node_modules/
 **/dist/
+**/.vite/
 *.tsbuildinfo
+# Playwright (scripts/e2e_ui.py) — regenerated per run, never committed.
+**/test-results/
+**/playwright-report/
+**/e2e-results.json
 
 # SQLite runtime db
 *.sqlite3
@@ -30,6 +35,12 @@ runtime-artifacts/
 # Logs
 server.log
 server.log.err
+
+# Browser / Playwright machine-local diagnostics. Curated screenshots and
+# durable run summaries are kept under docs/ instead.
+**/test-results/
+**/playwright-report/
+**/e2e-results.json
 
 # Freebuff agent runtime scratch — editor session state, npm cache, host
 # PowerShell profile data. Machine-local tooling noise, never project content.

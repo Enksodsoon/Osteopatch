@@ -1,0 +1,167 @@
+[project]
+name = "osteopatch"
+version = "0.8.0"
+description = "OsteoPatch — human-in-the-loop digital pathology AI research platform (educational prototype)"
+readme = "README.md"
+# Upper bound keeps resolution deterministic. Torch/tiatoolbox do not publish
+# wheels for the newest CPython yet, and an open-ended bound makes the lock
+# vary with whatever interpreter uv happens to pick.
+requires-python = ">=3.11,<3.14"
+license = { text = "Proprietary" }
+
+# ---------------------------------------------------------------------------
+# Canonical dependency set.
+#
+# This file REPLACES app/g6/backend/requirements.txt and
+# app/g7-enterprise/backend/requirements.txt as the source of truth. Those files
+# are kept as generated compatibility shims (see scripts/sync_requirements.py)
+# so existing documentation and Docker build contexts keep working.
+#
+# Every entry here MUST have a row in docs/dependencies.md. CI enforces it
+# via scripts/check_deps.py.
+# ---------------------------------------------------------------------------
+dependencies = [
+    # --- web / review stack (torch-free on the serve path by design) ---
+    "fastapi==0.115.6",
+    "uvicorn[standard]==0.34.0",
+    "pydantic==2.10.4",
+    "pillow==11.0.0",
+    # numpy DEVIATION (documented): the previous pin was exactly 2.5.3.
+    # tiatoolbox 2.1.3 declares numpy>=2.0.0,<2.4.4, so an exact 2.5.3 pin makes
+    # the `wsi` extra unsatisfiable. The frozen G4 preprocessing contract
+    # (384x384 bilinear, ImageNet mean/std) is *data* carried in the bundle and
+    # is independent of the numpy build; no compiled extension of ours binds to
+    # a numpy ABI. The range below satisfies both the core and the WSI extra.
+    "numpy>=2.0.0,<2.4.4",
+
+    # --- identity (enterprise layer) ---
+    "PyJWT==2.10.1",
+]
+
+[project.optional-dependencies]
+# ---------------------------------------------------------------------------
+# Extras are split by COST, not by feature area.
+#
+# `tiatoolbox` transitively depends on torch, jupyterlab, sphinx, transformers
+# and matplotlib — installing it alongside openslide-python turns a ~50 MB
+# environment into 1.7 GB. Keeping it in its own group is what preserves the
+# architectural claim that the web serve path is torch-free, and it keeps CI
+# fast and cheap.
+# ---------------------------------------------------------------------------
+
+# Whole-slide metadata + region reading. Lightweight (bindings + native lib).
+# Never required to start the application: osteopatch.pathology.reader detects
+# availability at runtime and falls back to the pure-Python Pillow reader,
+# which reports only genuinely-present metadata (null otherwise, never invented).
+wsi = [
+    # tiatoolbox 2.1.3 declares openslide-python>=1.4.0,<1.4.6, so this upper
+    # bound is not ours to choose — do not raise it without checking that
+    # constraint first.
+    "openslide-python>=1.4.0,<1.4.6",
+    # Ships the native OpenSlide shared library on Windows, where it is not
+    # available from the OS. Without this, `import openslide` fails with
+    # "Couldn't locate OpenSlide DLL".
+    "openslide-bin; sys_platform == 'win32'",
+]
+
+# Tissue masking / pathology preprocessing. HEAVY (pulls torch transitively).
+tissue = [
+    "tiatoolbox>=2.1.3",
+]
+
+# The offline inference worker. Installed only into the model venv; the web
+# serve path must never import torch.
+model = [
+    "torch>=2.2",
+    "torchvision>=0.17",
+    # Distribution name is `grad-cam`; the IMPORT name is `pytorch_grad_cam`.
+    # The mismatch is upstream's, not ours — do not "fix" it back.
+    "grad-cam>=1.5.5",
+]
+
+dev = [
+    "pytest==8.3.4",
+    "httpx==0.28.1",
+    "coverage>=7.0",
+    "ruff>=0.6",
+    "mypy>=1.11",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+# Both application packages ship from ONE distribution. This is the
+# unification seam: the enterprise layer already imports the G6 package at
+# runtime (enterprise/review_proxy.py -> osteopatch.*), so they are installed
+# together rather than being two independently-drifting stacks.
+[tool.hatch.build.targets.wheel]
+packages = [
+    "app/g6/backend/osteopatch",
+    "app/g7-enterprise/backend/enterprise",
+]
+
+[tool.hatch.build.targets.wheel.force-include]
+"app/local-tester.py" = "osteopatch_local_tester.py"
+
+# ---------------------------------------------------------------------------
+# Test configuration
+# ---------------------------------------------------------------------------
+[tool.pytest.ini_options]
+testpaths = [
+    "app/g6/backend/tests",
+    "app/g7-enterprise/backend/tests",
+]
+pythonpath = [
+    "app/g6/backend",
+    "app/g7-enterprise/backend",
+]
+markers = [
+    "torch_only: requires the torch stack; runs only in the model venv",
+    "wsi: requires a native whole-slide image engine (OpenSlide); skips when unavailable",
+]
+
+# ---------------------------------------------------------------------------
+# Static checks.
+#
+# NOTE: `ruff format` is deliberately NOT enabled. Enabling a formatter
+# project-wide would rewrite unrelated files and bury the actual change in
+# churn. Formatting is left to the existing code style.
+# ---------------------------------------------------------------------------
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+# Start narrow. Widen only alongside a deliberate cleanup commit.
+#
+# The legacy tree currently carries ~82 violations (mostly import ordering,
+# semicolon-packed lines and unused imports in pre-existing modules). Running a
+# formatter over them now would bury the real change in churn, so CI enforces
+# this rule set BLOCKING on newly-authored code paths and reports the legacy
+# tree informationally. See docs/evidence/step04-static-baseline.md.
+select = ["E", "F", "I", "UP", "B"]
+ignore = [
+    "E501",   # line length is handled by the formatter, not the linter
+    "B008",   # FastAPI Depends()/Query() in defaults is the framework idiom
+    "UP017",  # datetime.UTC alias requires 3.11+; legacy code uses timezone.utc
+    "UP042",  # str+Enum -> StrEnum; changing it would alter the Role model
+    "UP031",  # percent-format in SQL placeholder building is intentional/legible
+    "E731",   # demo scripts use lambdas for terseness
+    "E702",   # demo scripts pack statements on one line deliberately
+]
+
+[tool.ruff.lint.per-file-ignores]
+"app/g6/backend/tests/*" = ["E402"]
+"app/g7-enterprise/backend/tests/*" = ["E402"]
+"scripts/*" = ["E402"]
+
+[tool.mypy]
+python_version = "3.11"
+# Scope: the canonical G6 backend package. Widening to the enterprise/legacy
+# tree would surface a large volume of pre-existing annotations that are out of
+# scope for this gate.
+files = ["app/g6/backend/osteopatch"]
+ignore_missing_imports = true
+warn_unused_ignores = true
+no_implicit_optional = true

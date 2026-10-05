@@ -79,6 +79,20 @@ def _base_select() -> str:
     """
 
 
+def _project_clause(project_id: str | None) -> tuple[str, list]:
+    """Tenant filter fragment.
+
+    Always derived from an explicit argument — never from process state. A
+    ``None`` project_id means "unscoped", reachable only by callers that
+    deliberately do not scope (local single-tenant dev, migrations).
+
+    ``_filter_clause`` always opens a WHERE, so callers always append with AND.
+    """
+    if project_id is None:
+        return "", []
+    return " AND s.project_id = ? ", [project_id]
+
+
 def _filter_clause(filt: str) -> tuple[str, list]:
     if filt in ("pred_NON_TUMOR", "pred_VIABLE_TUMOR", "pred_NECROSIS"):
         return " WHERE p.predicted_class = ? ", [filt.replace("pred_", "")]
@@ -103,6 +117,7 @@ def list_images(
     q: str | None = None,
     page: int = 1,
     page_size: int = 50,
+    project_id: str | None = None,
 ) -> dict:
     sort = sort if sort in SORTABLE else "priority"
     filt = filt if filt in FILTERS else "all"
@@ -117,6 +132,9 @@ def list_images(
     sql = _base_select()
     where, params = _filter_clause(filt)
     sql += where
+    project_sql, project_params = _project_clause(project_id)
+    sql += project_sql
+    params += project_params
     if q:
         sql += " AND s.image_id LIKE ? "
         params.append(f"%{q}%")
@@ -177,17 +195,26 @@ def list_images(
     }
 
 
-def _priority_rank_map(conn: sqlite3.Connection) -> dict[str, int]:
+def _priority_rank_map(conn: sqlite3.Connection, project_id: str | None = None) -> dict[str, int]:
     """Global deterministic review-priority rank over all predicted images
     (restricted to the allowlisted subset when configured)."""
     from .scoring import review_priority_key
 
     allow = config.load_image_allowlist()
-    rows = list(
-        conn.execute(
-            "SELECT image_id, top_two_margin, normalized_entropy FROM prediction"
+    if project_id is None:
+        rows = list(
+            conn.execute(
+                "SELECT image_id, top_two_margin, normalized_entropy FROM prediction"
+            )
         )
-    )
+    else:
+        rows = list(
+            conn.execute(
+                "SELECT image_id, top_two_margin, normalized_entropy FROM prediction "
+                "WHERE project_id = ?",
+                (project_id,),
+            )
+        )
     if allow is not None:
         rows = [r for r in rows if r["image_id"] in allow]
     rows.sort(
@@ -198,16 +225,25 @@ def _priority_rank_map(conn: sqlite3.Connection) -> dict[str, int]:
     return {r["image_id"]: i + 1 for i, r in enumerate(rows)}
 
 
-def get_image(conn: sqlite3.Connection, image_id: str) -> dict | None:
+def get_image(
+    conn: sqlite3.Connection, image_id: str, project_id: str | None = None
+) -> dict | None:
     allow = config.load_image_allowlist()
     if allow is not None and image_id not in allow:
         return None
     sql = _base_select() + " WHERE s.image_id = ? "
-    r = conn.execute(sql, [image_id]).fetchone()
+    params: list = [image_id]
+    project_sql, project_params = _project_clause(project_id)
+    sql += project_sql
+    params += project_params
+    r = conn.execute(sql, params).fetchone()
     if r is None:
+        # Either the image does not exist, or it belongs to another project.
+        # Indistinguishable to the caller on purpose: revealing the difference
+        # would let a tenant probe for the existence of another tenant's data.
         return None
     image = _row_to_image(conn, r)
-    image["review_priority_rank"] = _priority_rank_map(conn).get(image_id)
+    image["review_priority_rank"] = _priority_rank_map(conn, project_id).get(image_id)
     image["history"] = [
         _event_dict(e) for e in review_store.event_history(conn, image_id)
     ]
@@ -228,13 +264,17 @@ def _event_dict(e: sqlite3.Row) -> dict:
     }
 
 
-def export_rows(conn: sqlite3.Connection) -> list[dict]:
+def export_rows(conn: sqlite3.Connection, project_id: str | None = None) -> list[dict]:
     """One row per image that has a prediction, preserving the ORIGINAL model
     prediction AND the current human review state AND full history refs.
     """
-    rows = list(
-        conn.execute(_base_select() + " WHERE p.prediction_id IS NOT NULL ORDER BY s.image_id")
-    )
+    sql = _base_select() + " WHERE p.prediction_id IS NOT NULL "
+    params: list = []
+    project_sql, project_params = _project_clause(project_id)
+    sql += project_sql
+    params += project_params
+    sql += " ORDER BY s.image_id "
+    rows = list(conn.execute(sql, params))
     allow = config.load_image_allowlist()
     if allow is not None:
         rows = [r for r in rows if r["image_id"] in allow]

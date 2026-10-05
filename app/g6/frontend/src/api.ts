@@ -1,7 +1,7 @@
 // Typed fetch client for the OsteoPatch G6 API. All calls are relative (/v1/...)
 // and go through the Vite dev proxy -> 127.0.0.1 backend.
 
-import type { ImageDetail, ImageList, Meta } from "./types";
+import type { ImageDetail, ImageList, Meta, ModelCard } from "./types";
 
 export class ApiError extends Error {
   status: number;
@@ -32,6 +32,10 @@ export async function getMeta(): Promise<Meta> {
 
 export async function getHealth(): Promise<import("./types").Health> {
   return j<import("./types").Health>(await fetch("/v1/health"));
+}
+
+export async function getModelCard(): Promise<ModelCard> {
+  return j<ModelCard>(await fetch("/v1/model-card"));
 }
 
 export async function listImages(params: {
