@@ -9,8 +9,8 @@
   "remote_main_sha": "44fed1d72b5ab5c65c872b438caf8386b121d078",
   "candidate_sha": null,
   "candidate_sha_note": "The candidate is the task/F001 branch head; it cannot be written into the file it identifies. Resolve it with: git -C <worktree> rev-parse task/F001, or read the PR head SHA.",
-  "diff_sha256": "05732c64f2df464544d718abb00410bb22b9dded11053a67ccc260e35cf95b14",
-  "diff_sha256_covers": "concatenated content of docs/task-evidence/F001-baseline.md and docs/task-evidence/F001-baseline.json (md 595da67b5ac02739701ee9f52f03c93c5177c8c2a6868a2dc27e1975c897b37b, json 47dfe230b96402a66e24d2a23a993ab6db25c15eda1328b80135962afd8a29d1). This receipt file itself is excluded so the digest does not depend on its own contents. The earlier digest fe29abb8... covered the first-pass version measured at b40bf34e and is superseded.",
+  "diff_sha256": "8dbe49c951e7b8cc4f795a85150b2a50c21f97050ab83c2c83a86a7bba0a9455",
+  "diff_sha256_covers": "concatenated content of docs/task-evidence/F001-baseline.md and docs/task-evidence/F001-baseline.json (md 794c451749aaf2a7a40130282a44d67cc869b22f9711c3fc9f2edc363c49c495, json 47dfe230b96402a66e24d2a23a993ab6db25c15eda1328b80135962afd8a29d1). This receipt file itself is excluded so the digest does not depend on its own contents. Superseded digests: fe29abb8... (first pass measured at b40bf34e) and 05732c64... (baseline JSON updated to 44fed1d while the Markdown companion still described b40bf34e).",
 
   "branch": "task/F001",
   "worktree": "C:/Users/enkso/.kiro/crew/workspace/osteopatch/wt/F001",
@@ -88,6 +88,7 @@
 
   "limitations": [
     "README.md's '110 passed' is stale; 112 backend tests passed today. Not edited by this task.",
+    "The Markdown and JSON companions initially disagreed after origin/main advanced mid-audit: the JSON was re-measured at 44fed1d while the Markdown still cited b40bf34e and the old tracked-file count. Both now describe the same baseline and were re-checked together before this receipt was finalised.",
     "'deployed' is UNVERIFIED for every capability: no AWS credentials were present or used, and none were sought.",
     "Real contrastive Grad-CAM heatmaps were NOT rendered: torch is absent from the locked serve venv and installing it is unauthorized. Only the honest-refusal path is verified.",
     "The canonical review_event table holds 0 rows, so the human-review path is only ever exercised against throwaway copies.",

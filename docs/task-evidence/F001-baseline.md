@@ -1,8 +1,15 @@
 # F001 — Real baseline inventory
 
-**Task:** F001 · **Kind:** audit · **Branch:** `task/F001` · **Baseline SHA:** `b40bf34e11a821880ebe2216b4303bbf1685d2ee`
-**Audited:** 2026-10-05, 07:43–07:49 UTC · **Product code changed:** none.
+**Task:** F001 · **Kind:** audit · **Branch:** `task/F001`
+**Audited baseline:** `44fed1d72b5ab5c65c872b438caf8386b121d078` (first measured at `b40bf34e…`; see below)
+**Re-measured:** 2026-10-05, 09:02–09:10 UTC · **Product code changed:** none.
 **Machine-readable companion:** [`F001-baseline.json`](F001-baseline.json) · **Receipt:** [`F001-receipt.json`](F001-receipt.json)
+
+> **The baseline moved during this audit.** `origin/main` advanced three commits from another
+> worker (repository professionalization) after the first pass. That merge changed the tracked
+> file count, the `Makefile` targets, the CI workflow list and added repository/site gates.
+> `origin/main` was **merged** into this branch (not rebased, no force-push) and **every gate
+> below was re-run at the new HEAD**. Nothing is carried over from `b40bf34e` unmeasured.
 
 > **Educational / research prototype only. Not for diagnosis, treatment decisions, or predicting treatment response.**
 
@@ -18,10 +25,11 @@ or from the committed `docs/evidence/*.json`, all of which are earlier runs.
 |---|---|
 | Audited checkout | `../wt/F001` (dedicated worktree) |
 | Primary checkout | `../OsteoPatch_Kiro_Handoff` on `main`, left untouched |
-| Branch / HEAD | `task/F001` @ `b40bf34e11a821880ebe2216b4303bbf1685d2ee` |
-| `origin/main` | `b40bf34e11a821880ebe2216b4303bbf1685d2ee` (identical — nothing unpushed) |
+| Branch / HEAD | `task/F001` @ `912eb25` (F001 evidence commit `19bd5e0` + merge of `origin/main`) |
+| Audited baseline | `44fed1d72b5ab5c65c872b438caf8386b121d078` |
+| `origin/main` at audit time | `44fed1d…`; F001 was subsequently merged as `a4a976d` |
 | Remote | `https://github.com/Enksodsoon/Osteopatch.git` |
-| Tracked files | 267 |
+| Tracked files | 323 |
 
 The repository was identified from `.git/config`, not from the folder name. The prompt pack
 names `Enksodsoon/osteopatch-review`; that repository was **renamed** to `Osteopatch` and the old
@@ -33,11 +41,11 @@ never modified.
 
 ### The pack's premise is stale, and that is why F001 exists
 
-The pack declares baseline `57c1efc`, which is **6 commits behind this checkout**. Its
+The pack declares baseline `57c1efc`, which is now **8 commits behind `main`**. Its
 `PACK_VALIDATION.json` and task files describe a partly-built repository; the real one already has
-a `Makefile` with 13 targets, a locked `uv.lock`, a `.venv`, a CI workflow, two FastAPI apps and
-three test suites. **0 of its 129 tasks had ever been executed here** — `docs/task-evidence/`
-did not exist before this task.
+a `Makefile` with 18 targets, a locked `uv.lock`, a `.venv`, six CI workflows, two FastAPI apps,
+four test suites and a documentation site. **0 of its 129 tasks had ever been executed here** —
+`docs/task-evidence/` did not exist before this task.
 
 ---
 
@@ -85,8 +93,12 @@ the integrator's call.
 
 ## 4. Code inventory
 
-267 tracked files: `app` 112 · `aidlc-docs` 103 · `docs` 21 · `scripts` 8 · `prompts` 8 ·
-`templates` 5 · root/config 9.
+323 tracked files: `app` 112 · `aidlc-docs` 104 · `docs` 35 · `.github` 14 · `scripts` 11 ·
+`site` 9 · `prompts` 9 · `templates` 6 · `tests` 2 · `.kiro` 2 · `config` 1 · root files 28.
+
+Repository tooling added by the newer `main`: `scripts/check_repository.py`,
+`scripts/build_site.py`, `scripts/check_site.py`, `tests/tooling/` (2 files) and `site/pages/`
+(5 HTML pages).
 
 - **G6 review API — 13 routes**, all under `/v1/`: `health`, `meta`, `model-card`, `images`,
   `images/{id}`, `full`, `thumbnail`, `review`, `reviews`, `attribution`, `attribution/meta`,
@@ -97,9 +109,22 @@ the integrator's call.
   `schema_migrations`.
 - **G6 frontend:** 7 components (`Workbench`, `PatchReview`, `ImageViewer`, `AttributionPanel`,
   `ModelCard`, `ReviewPanel`, `Shared`); 29 vitest tests; 17 Playwright browser specs.
-- **Entry points:** `Makefile` (setup, test, lint, typecheck, runtime, bake, verify-bake, smoke,
-  e2e, e2e-edge, serve), `scripts/prepare_runtime.py`, `app/local-tester.py`, `scripts/e2e_ui.py`,
-  `.github/workflows/ci.yml`.
+- **Entry points:** `Makefile` (setup, test, test-backend, test-enterprise, test-frontend,
+  test-tooling, repo-check, lint, typecheck, runtime, bake, verify-bake, smoke, serve, docs,
+  docs-check, docs-serve), `scripts/prepare_runtime.py`, `app/local-tester.py`,
+  `scripts/e2e_ui.py`, `scripts/build_site.py`, `scripts/check_repository.py`,
+  `scripts/check_site.py`, and six workflows under `.github/workflows/`.
+
+### Two commands that must be invoked in the right place
+
+These are properties of an isolated checkout, not defects — both were verified to pass once
+invoked correctly:
+
+- `verify_bake.py` must run where `app/g6/deploy/_bake` exists. That directory is gitignored and
+  therefore **absent from a fresh worktree**; run there it reports all three artifacts missing.
+  In the primary checkout it verifies 3/3.
+- `check_site.py` must run **after** `build_site.py` — the order CI and `make docs` use. Run
+  alone it reports 12 false "missing published file" errors. In order: 0 errors.
 
 ### The four load-bearing defects from the earlier audit are addressed on `main`
 
@@ -157,22 +182,27 @@ than silently omitted.
 
 | # | Command | Exit | Outcome | Observed (UTC) | Summary |
 |---|---|---|---|---|---|
-| 1 | `pytest app/g6/backend/tests -q` | **0** | PASS | 07:43:50 | 84 passed, 10 skipped |
-| 2 | `pytest app/g7-enterprise/backend/tests -q` | **0** | PASS | 07:44:05 | 28 passed, 1 skipped |
-| 3 | `ruff check <Makefile blocking paths>` | **0** | PASS | 07:46:51 | All checks passed |
-| 4 | `ruff check app --statistics` | **1** | FAIL (informational) | 07:48:36 | 48 pre-existing findings; non-blocking in the Makefile |
-| 5 | `mypy` | **0** | PASS | 07:46:52 | no issues in 19 source files |
-| 6 | `scripts/prepare_runtime.py` | **0** | PASS | 07:44:31 | 5 artifacts OK; original bundle absent |
-| 7 | `verify_bake.py …` | **0** | PASS | 07:47:13 | baked artifacts verified |
-| 8 | `git diff --check` | **0** | PASS | 07:46:52 | no whitespace errors |
-| 9 | `app/local-tester.py` (smoke) | **0** | PASS | 07:44:46 | **104/104** checks over real HTTP |
-| 10 | `scripts/e2e_ui.py` (browser E2E) | **0** | PASS | 07:45:13 | **17/17** specs, chromium 153.0.8010.12 |
-| 11 | `npm test` (G6) | **0** | PASS | 07:46:55 | 29 tests |
-| 12 | `npm run build` (G6) | **0** | PASS | 07:47:03 | 0 TypeScript errors |
-| 13 | `npm test` (enterprise) | **0** | PASS | 07:47:05 | 2 tests |
-| 14 | `npm run build` (enterprise) | **0** | PASS | 07:47:13 | 0 TypeScript errors |
-| 15 | live UI + `/v1/health` + `/v1/meta` | **0** | PASS | 07:47:40 | see §7 |
-| 16 | read-only SQLite inspection | **0** | PASS | 07:48:10 | see §5 |
+| 1 | `pytest app/g6/backend/tests -q` | **0** | PASS | 09:05:44 | 84 passed, 10 skipped |
+| 2 | `pytest app/g7-enterprise/backend/tests -q` | **0** | PASS | 09:05:46 | 28 passed, 1 skipped |
+| 3 | `pytest tests/tooling -q` | **0** | PASS | 09:09:09 | 16 passed, 1 skipped |
+| 4 | `unittest discover -s tests/tooling` (CI's runner) | **0** | PASS | 09:09:10 | Ran 17 tests, OK |
+| 5 | `ruff check <Makefile blocking paths>` | **0** | PASS | 09:05:50 | All checks passed |
+| 6 | `ruff check app --statistics` | **1** | FAIL (informational) | 09:05:50 | 48 pre-existing findings; non-blocking in the Makefile |
+| 7 | `mypy` | **0** | PASS | 09:05:50 | no issues in 19 source files |
+| 8 | `scripts/check_repository.py` | **0** | PASS | 09:09:09 | 0 errors |
+| 9 | `scripts/build_site.py` → `scripts/check_site.py` | **0** | PASS | 09:09:10 | 12 files built; 0 site errors (order matters — §4) |
+| 10 | `scripts/prepare_runtime.py` | **0** | PASS | 09:05:51 | 5 artifacts OK; original bundle absent |
+| 11 | `verify_bake.py …` | **0** | PASS | 09:05:51 | 3/3 baked artifacts verified |
+| 12 | `git diff --check` | **0** | PASS | 09:09:10 | no whitespace errors |
+| 13 | `app/local-tester.py` (smoke) | **0** | PASS | 09:03:31 | **104/104** checks over real HTTP |
+| 14 | `scripts/e2e_ui.py` (browser E2E) | **0** | PASS | 09:03:35 | **17/17** specs in real Chromium |
+| 15 | `npm test` (G6) | **0** | PASS | 09:02:49 | 29 tests |
+| 16 | `npm run build` (G6) | **0** | PASS | 09:03:07 | 0 TypeScript errors |
+| 17 | `npm test` (enterprise) | **0** | PASS | 09:03:15 | 2 tests |
+| 18 | `npm run build` (enterprise) | **0** | PASS | 09:03:24 | 0 TypeScript errors |
+| 19 | read-only SQLite inspection | **0** | PASS | 09:06:04 | see §5 |
+| 20 | canonical DB SHA-256, before/after every write-bearing gate | **0** | PASS | 09:06:04 | unchanged, see §5 |
+| 21 | live UI + `/v1/health` + `/v1/meta` | **0** | PASS | **07:47:40** | see §7 — **pre-merge**, against the owner's own long-running dev stack, and not re-claimed at the audited baseline |
 
 **Totals:** backend **112 passed, 11 skipped, 0 failed**; frontend **31 passed**; browser
 **17 passed**; smoke **104/104**.
@@ -255,7 +285,7 @@ path is only ever exercised against throwaway copies), and the local single-user
 |---|:--:|---|
 | **F001-AT01** dirty paths identical before and after | **PASS** | §2 — both trees empty before and after; only the three task-owned evidence files are new |
 | **F001-AT02** an unavailable runtime dependency recorded BLOCKED/NOT_RUN, not PASS | **PASS** | §6 — 11 torch-gated tests recorded SKIPPED with their skip reasons (`torch not installed in this venv`), the original G4 bundle recorded ABSENT, WSI recorded NOT_RUN, cloud deployment recorded UNVERIFIED |
-| **F001-AT03** concrete commit SHA and real test counts | **PASS** | §1 (`b40bf34e…`) and §6 (112 passed / 11 skipped / 31 frontend / 17 browser / 104 smoke), all measured today, with the stale README count called out rather than copied |
+| **F001-AT03** concrete commit SHA and real test counts | **PASS** | §1 (audited baseline `44fed1d…`, first measured at `b40bf34e…`) and §6 (112 passed / 11 skipped / 16 tooling / 31 frontend / 17 browser / 104 smoke), all measured in this session, with the stale README count called out rather than copied |
 | **F001-AT04** sources called case/slide groups | **PASS** | §5 and §7 — `Case-3 / Case-4 / Case-48 / P9`, with an explicit statement that no patient identity is implied |
 | **F001-AT05** no credentials, private outside paths or medical identifiers | **PASS** | §10 — no credential values; paths recorded are the two project checkouts; AWS env vars recorded only as `unset`; aggregate counts only, no per-patch identifiers |
 
