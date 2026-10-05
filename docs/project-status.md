@@ -17,7 +17,7 @@ On the current rebased repository verification: **112 backend tests passed with 
 | Original model | Original G4 binary is absent. A recovered head has a separate identity and does not restore original-model provenance or generalization claims. |
 | Model reliability | Viable-tumor recall is 0.110345 in the frozen exploratory evaluation; no clinical use. |
 | Enterprise security | Local issuer/dev key and prototype governance are not production authentication or a security audit. |
-| Existing AWS demo | Source and deployed revisions can differ. Workshop credentials may expire; frontend deployment remains disabled until an approved OIDC role, enable flag and protected environment are configured. |
+| Existing AWS demo | Source and deployed revisions can differ. The protected `aws-demo` GitHub environment, reviewer gate and non-secret resource identifiers are configured; frontend deployment remains disabled (`AWS_DEPLOY_ENABLED=false`) and no OIDC role is configured. Workshop access/cost approval is still required before enabling it. |
 | Public demo writes | Authentication, abuse controls, budget limits and backup/retention require review before wider exposure. Do not submit private information. |
 | MCP | Profiles are installed but disabled by default. Authentication and per-tool authorization must be performed in the client; no server connection is implied by a config file. |
 | License | Proprietary declaration retained. Open-source dependencies do not make the project itself open source. |
