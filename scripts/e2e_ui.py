@@ -168,11 +168,59 @@ def wait_ready(name: str, child, url: str, log: Path, expect_json: bool = True) 
     )
 
 
-def spawn(name: str, cmd: list[str], env: dict, log_path: Path, cwd: Path) -> subprocess.Popen:
+def spawn(
+    name: str, cmd: list[str], env: dict, log_path: Path, cwd: Path
+) -> tuple[subprocess.Popen, object]:
+    """Start a child with its output redirected to log_path.
+
+    The log handle is RETURNED so the caller can close it. On Windows an open
+    handle in this process blocks deletion of the file, which silently broke
+    temp-workspace cleanup until this was fixed.
+    """
     log = log_path.open("w", encoding="utf-8", errors="replace")
-    return subprocess.Popen(
+    proc = subprocess.Popen(
         cmd, cwd=str(cwd), env=env, stdout=log, stderr=subprocess.STDOUT
     )
+    return proc, log
+
+
+def remove_workspace(path: Path, attempts: int = 5) -> bool:
+    """Remove the temp workspace, retrying while Windows releases locks.
+
+    Two separate causes were fixed here:
+      * the parent process kept its own log-file handles open, which blocks
+        deletion outright (handles are now closed before cleanup);
+      * SQLite's -wal/-shm files stay locked for a moment after the child is
+        terminated, so a single rmtree could fail and ``ignore_errors=True``
+        swallowed it silently, leaving a database copy behind on every failed
+        run.
+    Returns True if the directory is gone.
+    """
+    def _unlock(func, target, _exc):
+        try:
+            os.chmod(target, 0o700)
+            func(target)
+        except Exception:
+            pass
+
+    for i in range(attempts):
+        if not path.exists():
+            return True
+        try:
+            shutil.rmtree(path, onerror=_unlock)
+        except Exception:
+            pass
+        if not path.exists():
+            return True
+        time.sleep(0.5 * (i + 1))
+
+    print(
+        f"WARNING: could not remove the temp workspace {path}.\n"
+        "         It still holds a copy of the review DB and server logs; "
+        "remove it manually.",
+        file=sys.stderr,
+    )
+    return not path.exists()
 
 
 # ---------------------------------------------------------------------------
@@ -273,11 +321,12 @@ def main() -> int:
     web_env["VITE_API_TARGET"] = api_base
 
     api = web = None
+    api_log_handle = web_log_handle = None
     rc = 1
     result: dict = {}
     try:
         print("\nbooting G6 review API …")
-        api = spawn(
+        api, api_log_handle = spawn(
             "g6-api",
             [
                 str(venv_py), "-m", "uvicorn", "osteopatch.app:app",
@@ -295,7 +344,7 @@ def main() -> int:
         print(f"  up: {api_base} ({n} images, {health.get('predictions')} predictions)")
 
         print("booting Vite dev server …")
-        web = spawn(
+        web, web_log_handle = spawn(
             "vite",
             vite("--host", "127.0.0.1", "--port", str(web_port), "--strictPort"),
             web_env, web_log, FRONTEND,
@@ -391,6 +440,22 @@ def main() -> int:
                     child.wait(timeout=10)
                 except subprocess.TimeoutExpired:
                     child.kill()
+        # Close OUR log handles before deleting the workspace — an open handle
+        # in this process is what made cleanup fail on Windows.
+        for handle in (web_log_handle, api_log_handle):
+            if handle is not None:
+                try:
+                    handle.close()
+                except Exception:
+                    pass
+        # Cleanup lives HERE, not after the try/finally: every abort path in
+        # this script raises SystemExit, which unwinds past trailing code and
+        # used to leave a full copy of the database plus server logs behind on
+        # every failed run.
+        if not args.keep_workspace:
+            remove_workspace(workspace)
+        else:
+            print(f"workspace kept: {workspace}")
 
     canon_final = sha256(CANON_DB)
     if canon_final != canon_before:
@@ -422,10 +487,6 @@ def main() -> int:
                 print(path.read_text(encoding="utf-8", errors="replace")[-2000:])
     print(f"evidence: {_display_path(args.out)}")
 
-    if not args.keep_workspace:
-        shutil.rmtree(workspace, ignore_errors=True)
-    else:
-        print(f"workspace kept: {workspace}")
     print("=" * 78)
     return 0 if result.get("passed") else (rc or 1)
 
