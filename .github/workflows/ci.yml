@@ -131,15 +131,15 @@ jobs:
         run: uv run ruff check app --statistics
 
   # ---------------------------------------------------------------------------
-  # Model job — torch. OPTIONAL by design.
+  # Model capability — optional torch stack on a clean clone.
   #
-  # `continue-on-error: true` is intentional and must not be "fixed" casually:
-  # the model bundle (sha256 01727fb8...) is a gitignored runtime artifact that
-  # a clean clone does not have, so the real-bundle tests skip. This job is a
-  # signal, not a gate, until the model stack is provisioned in CI.
+  # Real attribution tests require the gitignored recovered model + TIFF runtime
+  # bundle and are therefore exercised by scripts/e2e_ui.py on a verified host,
+  # not fabricated on GitHub. This job proves the optional model dependency set
+  # resolves and imports without pretending the runtime evidence exists.
   # ---------------------------------------------------------------------------
   model:
-    name: model (torch, advisory)
+    name: model stack (advisory)
     runs-on: ubuntu-latest
     continue-on-error: true
     steps:
@@ -147,8 +147,18 @@ jobs:
       - name: Install uv
         uses: astral-sh/setup-uv@v3
       - run: uv sync --locked --extra dev --extra model
-      - name: torch-gated tests
-        run: uv run pytest app/g6/backend/tests -q -m torch_only -rs
+      - name: Verify torch + attribution imports
+        run: |
+          uv run python - <<'PY'
+          import torch
+          import torchvision
+          import pytorch_grad_cam
+          print("torch", torch.__version__)
+          print("torchvision", torchvision.__version__)
+          print("pytorch-grad-cam import OK")
+          PY
+      - name: State the runtime boundary
+        run: echo "Real model/Grad-CAM tests require verified gitignored runtime-artifacts and run via scripts/e2e_ui.py."
 
   # Browser E2E intentionally stays local/workshop-only. It requires the
   # gitignored 1,144-patch runtime bundle, so running it on an empty GitHub
