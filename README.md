@@ -1,6 +1,6 @@
 # OsteoPatch Review
 
-> **Human-in-the-loop pathology AI for educational osteosarcoma patch review.**  
+> **Human-in-the-loop pathology AI for educational osteosarcoma patch review.**<br/>
 > Browse real H&E patches, surface uncertain cases first, inspect model scores and contrastive attribution, record reviewer decisions, and keep the full evidence trail visible.
 
 [![CI](https://img.shields.io/github/actions/workflow/status/Enksodsoon/osteopatch-review/ci.yml?branch=main&label=CI)](../../actions/workflows/ci.yml)
@@ -9,7 +9,7 @@
 ![FastAPI](https://img.shields.io/badge/API-FastAPI-009688)
 ![Research prototype](https://img.shields.io/badge/use-educational%20research-B4532A)
 
-**Live demo:** https://dgv0wpd8tglrw.cloudfront.net  
+**Live demo:** https://dgv0wpd8tglrw.cloudfront.net<br/>
 **Current deployed scope:** deterministic 50-image demo subset · full locally verified collection: 1,144 patches
 
 > [!CAUTION]
@@ -247,7 +247,7 @@ Infrastructure is under [`app/g6/deploy/cdk/`](app/g6/deploy/cdk/). Nothing in t
 
 ### Safety / intended use
 
-**English:** Educational research prototype only. Not for diagnosis, treatment decisions, or predicting treatment response.  
+**English:** Educational research prototype only. Not for diagnosis, treatment decisions, or predicting treatment response.<br/>
 **ไทย:** ต้นแบบเพื่อการเรียนรู้และการวิจัยเท่านั้น ไม่ใช้วินิจฉัย ตัดสินใจรักษา หรือทำนายผลการรักษา
 
 This repository currently uses a **proprietary** license declaration in `pyproject.toml`. Do not assume open-source reuse rights from repository visibility.
