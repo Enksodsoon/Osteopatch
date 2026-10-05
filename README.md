@@ -3,13 +3,15 @@
 > **Human-in-the-loop pathology AI for educational osteosarcoma patch review.**<br/>
 > Browse real H&E patches, surface uncertain cases first, inspect model scores and contrastive attribution, record reviewer decisions, and keep the full evidence trail visible.
 
-[![CI](https://img.shields.io/github/actions/workflow/status/Enksodsoon/osteopatch-review/ci.yml?branch=main&label=CI)](../../actions/workflows/ci.yml)
+[![CI](https://img.shields.io/github/actions/workflow/status/Enksodsoon/Osteopatch/ci.yml?branch=main&label=CI)](../../actions/workflows/ci.yml)
 ![Python 3.11–3.13](https://img.shields.io/badge/Python-3.11%E2%80%933.13-3776AB)
 ![React 18](https://img.shields.io/badge/React-18-61DAFB)
 ![FastAPI](https://img.shields.io/badge/API-FastAPI-009688)
 ![Research prototype](https://img.shields.io/badge/use-educational%20research-B4532A)
 
 **Live demo:** https://dgv0wpd8tglrw.cloudfront.net<br/>
+**Repository:** <https://github.com/Enksodsoon/Osteopatch> — this repo was renamed from `osteopatch-review`. GitHub redirects the old URL, but if your clone still reports `osteopatch-review`, repoint it:<br/>
+`git remote set-url origin https://github.com/Enksodsoon/Osteopatch.git`<br/>
 **Current deployed scope:** deterministic 50-image demo subset · full locally verified collection: 1,144 patches
 
 > [!CAUTION]
