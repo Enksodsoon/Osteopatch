@@ -60,10 +60,18 @@ A separate fixed-port diagnostic also revealed that local port `8765` was alread
 
 ## Publication and deployment boundaries
 - GitHub Pages workflow publishes only the static allowlist, never runtime images, model binaries, databases, credentials or arbitrary repository content.
-- The AWS frontend workflow is **manual and fail-closed**. It does not create infrastructure, deploy the API/model container or upload the dataset. It remains disabled until the protected environment, enable flag and an approved OIDC role are configured.
+- The AWS frontend workflow is **manual and fail-closed**. It does not create infrastructure, deploy the API/model container or upload the dataset. The protected `aws-demo` environment and non-secret resource identifiers are configured, but `AWS_DEPLOY_ENABLED=false` and no `AWS_ROLE_ARN` is present, so no AWS deployment can occur.
 - Optional model/WSI capability workflows are manual and do not claim real-data validation.
 - MCP examples are credential-free in Git, Kiro profiles are disabled by default and no tools are auto-approved.
 - Draft release automation produces a prerelease for maintainer review; it is not clinical certification.
 
-## Remaining verification after merge
-The branch must still pass GitHub-hosted CI/CodeQL on its pull request. After merge, enable Pages with GitHub Actions, verify the published URL, then apply/verify repository settings and the protected `aws-demo` environment. AWS itself is intentionally not changed by this maintenance task.
+## Post-merge verification
+- Pull request **#12** merged by squash to `main` as `9f3c9bca1c2241abc098fe37c6f7419a118bd55d`; the feature branch was automatically deleted.
+- Pull-request CI and CodeQL passed. The push-to-`main` CI run also passed, and a manual post-merge CodeQL run passed for both Python and JavaScript/TypeScript.
+- GitHub Pages build and deploy jobs passed for the exact merge SHA. The public site is `https://enksodsoon.github.io/Osteopatch/` with HTTPS enforced.
+- The live public site was re-tested in isolated Microsoft Edge at 1440×1000 and 390×844. All six pages passed the same rendered-content, overflow, image, keyboard-navigation and resource-error checks as the local build.
+- `main` is protected with strict required `quality-gate`, admin enforcement, linear history, and force-push/deletion disabled. Merge commits are disabled; squash and rebase remain available.
+- Actions default to read-only tokens, only selected action families are allowed, and full-SHA pinning is enforced server-side. Secret scanning, push protection and Dependabot security updates are enabled.
+- `aws-demo` is restricted to protected branches and now requires an explicit reviewer. Existing account/region/web-bucket/distribution identifiers are stored as environment variables; deployment remains disabled and the OIDC role is intentionally absent.
+
+No AWS resource, model, dataset or paid API was modified during these post-merge checks.
