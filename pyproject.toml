@@ -2,7 +2,7 @@
 name = "osteopatch"
 version = "0.8.0"
 description = "OsteoPatch — human-in-the-loop digital pathology AI research platform (educational prototype)"
-readme = "README_START_HERE.md"
+readme = "README.md"
 # Upper bound keeps resolution deterministic. Torch/tiatoolbox do not publish
 # wheels for the newest CPython yet, and an open-ended bound makes the lock
 # vary with whatever interpreter uv happens to pick.
@@ -158,9 +158,9 @@ ignore = [
 
 [tool.mypy]
 python_version = "3.11"
-# Scope: the canonical domain package only. Widening to the whole repo would
-# surface a large volume of pre-existing annotations that are out of scope for
-# the unification work.
+# Scope: the canonical G6 backend package. Widening to the enterprise/legacy
+# tree would surface a large volume of pre-existing annotations that are out of
+# scope for this gate.
 files = ["app/g6/backend/osteopatch"]
 ignore_missing_imports = true
 warn_unused_ignores = true

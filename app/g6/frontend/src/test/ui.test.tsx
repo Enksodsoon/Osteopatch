@@ -26,6 +26,7 @@ import { PatchReview } from "../components/PatchReview";
 import { Disclaimer } from "../components/Shared";
 import { AttributionPanel } from "../components/AttributionPanel";
 import { ModelCard } from "../components/ModelCard";
+import { t } from "../strings";
 import type {
   AttributionMeta,
   Limitation,
@@ -134,6 +135,8 @@ const MODEL_CARD: ModelCardPayload = {
     categories: ["model", "platform"],
     weakest_class: "VIABLE_TUMOR",
   },
+  evaluation_evidence_available: true,
+  evaluation_evidence_unavailable_reason: "",
   limitations_note: "frozen list verbatim + full catalog",
   disclaimer:
     "Educational / research prototype. NOT for diagnosis, treatment decisions, treatment-response prediction, or prognosis.",
@@ -429,10 +432,85 @@ describe("ModelCard — full limitations catalog", () => {
     expect(screen.queryByTestId("limitations-full")).toBeNull();
   });
 
+  it("shows the real architecture and OOF values when the evidence IS present", async () => {
+    // Regression guard: the metric() fallback must not swallow real values.
+    render(<ModelCard />);
+    await screen.findByTestId("limitations-full");
+    const rows = [...document.querySelectorAll(".kv tr")].map(
+      (tr) => `${tr.children[0].textContent} = ${tr.children[1].textContent}`,
+    );
+    expect(rows.join(" | ")).toContain("Architecture = mobilenetv3_small");
+    expect(rows.join(" | ")).toContain("OOF macro-F1 (LOGO) = 0.562311");
+    expect(screen.queryByText("Not measured in this deployment")).toBeNull();
+    expect(screen.queryByTestId("limitations-evidence-missing")).toBeNull();
+  });
+
   it("keeps the disclaimer and the prototype-inference note on the card", async () => {
     render(<ModelCard />);
     await screen.findByTestId("limitations-full");
     expect(screen.getByTestId("model-card").textContent).toMatch(/NOT for diagnosis/i);
     expect(screen.getByTestId("model-card").textContent).toMatch(/prototype inference only/i);
+  });
+});
+
+
+describe("ModelCard — absent frozen evidence", () => {
+  it("says the frozen caveats are unavailable instead of rendering an empty list", async () => {
+    (api.getModelCard as any).mockResolvedValueOnce({
+      ...MODEL_CARD,
+      limitations: [],
+      evaluation_evidence_available: false,
+      evaluation_evidence_unavailable_reason:
+        "The frozen G4 evaluation artifacts are not present in this deployment.",
+    });
+    render(<ModelCard />);
+    const missing = await screen.findByTestId("limitations-evidence-missing");
+    expect(missing.textContent).toMatch(/Frozen evaluation evidence not available here/);
+    expect(missing.textContent).toMatch(/not present in this deployment/);
+    // no empty bullet list masquerading as "no caveats"
+    expect(screen.getByTestId("limitations-frozen").querySelector("ul")).toBeNull();
+  });
+
+  it("still shows the full catalog when the frozen artifacts are missing", async () => {
+    (api.getModelCard as any).mockResolvedValueOnce({
+      ...MODEL_CARD,
+      limitations: [],
+      evaluation_evidence_available: false,
+    });
+    render(<ModelCard />);
+    await screen.findByTestId("limitations-evidence-missing");
+    expect(screen.getByTestId("limitation-LIM-VIABLE-WEAK")).toBeInTheDocument();
+  });
+
+  it("labels the OOF metrics as not measured rather than showing a bare dash", async () => {
+    (api.getModelCard as any).mockResolvedValueOnce({
+      ...MODEL_CARD,
+      headline_oof: { macro_f1: null, balanced_accuracy: null, n_rows: null },
+      evaluation_evidence_available: false,
+    });
+    render(<ModelCard />);
+    await screen.findByTestId("limitations-evidence-missing");
+    const cells = screen.getAllByText("Not measured in this deployment");
+    expect(cells.length).toBeGreaterThan(0);
+  });
+});
+
+describe("limitations string coverage", () => {
+  // The component builds keys as `category.${category}`, which TypeScript cannot
+  // check. Without this, adding a category in Python renders a raw "category.foo"
+  // string in the UI with no test failing.
+  const CATEGORIES = [
+    "claim", "data", "model", "evaluation",
+    "attribution", "platform", "deployment", "process",
+  ] as const;
+  const SEVERITIES = ["blocking", "high", "medium", "low"] as const;
+
+  it("has a display string for every category and severity", () => {
+    for (const c of CATEGORIES) {
+      expect(t(`category.${c}`)).not.toBe(`category.${c}`);
+    }
+    for (const s of SEVERITIES) {
+      expect(t(`severity.${s}`)).not.toBe(`severity.${s}`);
+    }
   });
 });

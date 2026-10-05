@@ -70,6 +70,17 @@ export function ModelCard() {
   const oof = (card.headline_oof ?? {}) as Record<string, unknown>;
   const summary = card.limitations_summary;
   const blocking = summary?.by_severity?.blocking ?? 0;
+  // When the frozen G4 artifacts are not baked in (the Lambda image), the OOF
+  // metrics are null and the frozen caveat list is empty. Saying "—" over an
+  // empty list would read as "no caveats recorded", which is false.
+  const evidenceAvailable = card.evaluation_evidence_available !== false;
+  const metric = (v: unknown) =>
+    evidenceAvailable && v != null ? String(v) : t("metric.notMeasured");
+  // Architecture is an identity field rather than a measurement, so it gets its
+  // own wording. Either way it is never left as a blank cell.
+  const architecture = evidenceAvailable && card.architecture
+    ? String(card.architecture)
+    : t("metric.notAvailable");
 
   return (
     <div className="model-card" data-testid="model-card">
@@ -80,10 +91,10 @@ export function ModelCard() {
           <tr><td>Bundle SHA-256</td><td className="mono">{card.model_bundle_sha256}</td></tr>
           <tr><td>Calibration</td><td>{card.calibration_status}</td></tr>
           <tr><td>Classes</td><td>{(card.canonical_classes ?? []).join(", ")}</td></tr>
-          <tr><td>Architecture</td><td>{card.architecture}</td></tr>
-          <tr><td>OOF macro-F1 (LOGO)</td><td>{String(oof.macro_f1 ?? "—")}</td></tr>
-          <tr><td>OOF balanced acc</td><td>{String(oof.balanced_accuracy ?? "—")}</td></tr>
-          <tr><td>n (OOF)</td><td>{String(oof.n_rows ?? "—")}</td></tr>
+          <tr><td>Architecture</td><td>{architecture}</td></tr>
+          <tr><td>OOF macro-F1 (LOGO)</td><td>{metric(oof.macro_f1)}</td></tr>
+          <tr><td>OOF balanced acc</td><td>{metric(oof.balanced_accuracy)}</td></tr>
+          <tr><td>n (OOF)</td><td>{metric(oof.n_rows)}</td></tr>
         </tbody>
       </table>
       <p className="muted small">{card.evidence_note}</p>
@@ -128,9 +139,16 @@ export function ModelCard() {
       {/* ---- frozen G4 evaluation caveats, verbatim --------------------- */}
       <section className="limitations-frozen" data-testid="limitations-frozen">
         <h3>{t("limitations.frozenHeading")}</h3>
-        <ul className="limitations">
-          {(card.limitations ?? []).map((l, i) => <li key={i}>{l}</li>)}
-        </ul>
+        {!evidenceAvailable ? (
+          <p className="evidence-missing" data-testid="limitations-evidence-missing">
+            <strong>{t("limitations.evidenceUnavailable")}.</strong>{" "}
+            {card.evaluation_evidence_unavailable_reason}
+          </p>
+        ) : (
+          <ul className="limitations">
+            {(card.limitations ?? []).map((l, i) => <li key={i}>{l}</li>)}
+          </ul>
+        )}
       </section>
 
       <p className="muted small">{card.disclaimer}</p>

@@ -27,9 +27,8 @@ jobs:
   # ---------------------------------------------------------------------------
   # Backend — both apps, one locked environment.
   #
-  # The serve venv deliberately contains NO torch. The 10 skipped tests are the
-  # seam that keeps it that way; they are not expected to run here and must not
-  # be un-skipped in this job.
+  # The serve venv deliberately contains NO torch. Environment-gated skips are
+  # expected here and must remain explicit rather than being silently bypassed.
   # ---------------------------------------------------------------------------
   backend:
     name: backend (torch-free)
@@ -124,8 +123,8 @@ jobs:
         uses: astral-sh/setup-uv@v3
       - run: uv sync --locked --extra dev
       - name: ruff — newly-authored code (BLOCKING)
-        run: uv run ruff check scripts app/g6/backend/osteopatch/pathology app/g6/backend/osteopatch/domain
-      - name: mypy — canonical domain package (BLOCKING)
+        run: uv run ruff check scripts app/g6/backend/osteopatch/pathology app/g6/backend/osteopatch/app.py app/g6/backend/osteopatch/limitations.py app/g6/backend/osteopatch/projects.py app/g6/backend/osteopatch/modelcard.py app/g6/backend/tests/test_connection_concurrency.py app/g6/deploy/verify_bake.py
+      - name: mypy — canonical G6 backend (BLOCKING)
         run: uv run mypy
       - name: ruff — legacy tree (INFORMATIONAL)
         continue-on-error: true
@@ -150,6 +149,11 @@ jobs:
       - run: uv sync --locked --extra dev --extra model
       - name: torch-gated tests
         run: uv run pytest app/g6/backend/tests -q -m torch_only -rs
+
+  # Browser E2E intentionally stays local/workshop-only. It requires the
+  # gitignored 1,144-patch runtime bundle, so running it on an empty GitHub
+  # hosted runner would waste time installing Chromium only to fail the
+  # artifact gate. Use `python scripts/e2e_ui.py` on a verified runtime host.
 
   # ---------------------------------------------------------------------------
   # WSI engine availability. Proves which reader backend a machine actually

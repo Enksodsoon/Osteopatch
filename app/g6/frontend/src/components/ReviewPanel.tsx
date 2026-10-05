@@ -33,24 +33,29 @@ export function ReviewPanel({
   async function save() {
     setBusy(true);
     setMsg(null);
-    const res = await submitReview(image.image_id, {
-      prediction_id: pred!.prediction_id,
-      action,
-      selected_label: action === "CORRECT" ? (selected as string) : null,
-      reason: action === "DEFER" ? reason || "other" : null,
-      note: note || null,
-      expected_revision: image.review_state.revision,
-      idempotency_key: newIdempotencyKey(),
-    });
-    setBusy(false);
-    if (res.conflict) {
-      setMsg(t("review.conflict"));
-      onReviewed(); // reload latest state
-      return;
+    try {
+      const res = await submitReview(image.image_id, {
+        prediction_id: pred!.prediction_id,
+        action,
+        selected_label: action === "CORRECT" ? (selected as string) : null,
+        reason: action === "DEFER" ? reason || "other" : null,
+        note: note || null,
+        expected_revision: image.review_state.revision,
+        idempotency_key: newIdempotencyKey(),
+      });
+      if (res.conflict) {
+        setMsg(t("review.conflict"));
+        onReviewed(); // reload latest state
+        return;
+      }
+      setMsg(t("review.saved"));
+      setNote("");
+      onReviewed();
+    } catch {
+      setMsg(t("review.saveError"));
+    } finally {
+      setBusy(false);
     }
-    setMsg(t("review.saved"));
-    setNote("");
-    onReviewed();
   }
 
   return (

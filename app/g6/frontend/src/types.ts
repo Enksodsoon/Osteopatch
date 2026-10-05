@@ -155,6 +155,9 @@ export interface ModelCard {
   performance_statement: string | null;
   headline_oof: Record<string, unknown>;
   limitations: string[];
+  /** False on deployments that do not bake aidlc-docs/ — see the reason field. */
+  evaluation_evidence_available: boolean;
+  evaluation_evidence_unavailable_reason: string;
   limitations_full: Limitation[];
   limitations_grouped: LimitationGroup[];
   limitations_summary: LimitationsSummary;

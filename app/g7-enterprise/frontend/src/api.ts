@@ -19,7 +19,10 @@ function headers(withProject = false): Record<string, string> {
 async function j<T>(res: Response): Promise<T> {
   if (!res.ok) {
     let detail: unknown = res.statusText;
-    try { detail = (await res.json()).detail ?? (await res.json()).error; } catch { /* ignore */ }
+    try {
+      const payload = await res.json() as { detail?: unknown; error?: unknown };
+      detail = payload.detail ?? payload.error ?? detail;
+    } catch { /* non-JSON error body: keep status text */ }
     throw new Error(`${res.status}: ${JSON.stringify(detail)}`);
   }
   return res.json() as Promise<T>;
