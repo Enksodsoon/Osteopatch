@@ -1,8 +1,8 @@
 {
-  "generated_at_utc": "2026-10-05T03:42:17+00:00",
+  "generated_at_utc": "2026-10-05T03:43:21+00:00",
   "runner": "scripts/e2e_ui.py",
-  "api_base": "http://127.0.0.1:51412",
-  "web_base": "http://127.0.0.1:51413",
+  "api_base": "http://127.0.0.1:56142",
+  "web_base": "http://127.0.0.1:56143",
   "images_indexed": 1144,
   "predictions": 1144,
   "specs_discovered": 17,
