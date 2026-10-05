@@ -21,7 +21,7 @@ from pathlib import Path
 BACKEND_DIR = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(BACKEND_DIR))
 
-from osteopatch import config, limitations  # noqa: E402
+from osteopatch import config, limitations, modelcard  # noqa: E402
 from osteopatch.modelcard import model_card  # noqa: E402
 
 REPO_ROOT = config.PROJECT_ROOT
@@ -191,3 +191,49 @@ def test_disclaimer_and_claim_boundary_survive():
     claim = [d for d in mc["limitations_full"] if d["category"] == "claim"]
     assert claim, "the claim boundary is not stated as a limitation"
     assert any(d["severity"] == "blocking" for d in claim)
+
+
+# ---------------------------------------------------------------------------
+# Absent frozen evidence must be stated, not rendered as an empty list
+# ---------------------------------------------------------------------------
+def test_absent_frozen_artifacts_are_declared_not_silently_empty(monkeypatch, tmp_path):
+    """The Lambda image has no aidlc-docs/. An empty caveat list must be flagged.
+
+    Without this, a deployment with no frozen artifacts returns
+    ``limitations == []``, which a reader cannot distinguish from a model with
+    no caveats — the exact opposite of the truth here.
+    """
+    monkeypatch.setattr(config, "MODEL_CARD_DIR", tmp_path / "not-baked")
+
+    mc = modelcard.model_card()
+
+    assert mc["limitations"] == []
+    assert mc["evaluation_evidence_available"] is False
+    reason = mc["evaluation_evidence_unavailable_reason"]
+    assert reason.strip()
+    assert "not present in this deployment" in reason
+    # The catalog itself is stdlib-only and must be UNAFFECTED by the missing
+    # artifacts — it ships inside the application package.
+    assert mc["limitations_summary"]["total"] == len(limitations.catalog())
+    assert mc["limitations_full"]
+
+
+def test_present_frozen_artifacts_report_available(monkeypatch):
+    """The flag must not be hard-wired to False."""
+    mc = modelcard.model_card()
+    assert mc["evaluation_evidence_available"] is True
+    assert mc["evaluation_evidence_unavailable_reason"] == ""
+
+
+def test_catalog_records_the_absent_frozen_evidence_itself():
+    """The gap must be in the catalog, not only in a test."""
+    entry = next(
+        (
+            d
+            for d in limitations.catalog()
+            if d["id"] == "LIM-PLATFORM-FROZEN-EVIDENCE-NOT-BAKED"
+        ),
+        None,
+    )
+    assert entry is not None, "the absent-frozen-evidence limitation was removed"
+    assert entry["severity"] in ("blocking", "high")

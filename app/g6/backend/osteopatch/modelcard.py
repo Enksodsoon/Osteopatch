@@ -36,6 +36,14 @@ def model_card() -> dict:
     oof = _read_json(config.MODEL_CARD_DIR / "overall-oof-metrics.json") or {}
     bundle = _read_json(config.MODEL_CARD_DIR / "final-bundle.json") or {}
     cfg = (bundle or {}).get("config", {})
+
+    # The frozen G4 evaluation artifacts live in aidlc-docs/, which is NOT
+    # copied into the Lambda image. Verified by running this module with an
+    # absent MODEL_CARD_DIR: `limitations` comes back [] and every headline
+    # metric is None. An empty list is indistinguishable from "no caveats",
+    # which is exactly the wrong thing to imply about this model — so the
+    # response states the absence instead of letting the UI render a blank.
+    evidence_available = bool(oof)
     return {
         "model_version": config.MODEL_VERSION,
         "model_bundle_sha256": config.EXPECTED_BUNDLE_SHA256,
@@ -57,6 +65,18 @@ def model_card() -> dict:
         },
         # Frozen G4 evaluation caveats — verbatim, never modified.
         "limitations": oof.get("limitations", []),
+        "evaluation_evidence_available": evidence_available,
+        "evaluation_evidence_unavailable_reason": (
+            ""
+            if evidence_available
+            else (
+                "The frozen G4 evaluation artifacts (aidlc-docs/inception/model/g4) "
+                "are not present in this deployment, so the OOF metrics and the "
+                "frozen caveat list cannot be shown. They are not missing because "
+                "there were none. The limitations catalog below is unaffected — it "
+                "ships inside the application package."
+            )
+        ),
         # The complete catalog (see limitations.py), grouped for display.
         "limitations_full": limitations.catalog(),
         "limitations_grouped": limitations.grouped(),

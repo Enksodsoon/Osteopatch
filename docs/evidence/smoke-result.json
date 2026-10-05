@@ -1,8 +1,8 @@
 {
   "banner": "OsteoPatch local tester \u2014 educational research prototype. NOT for diagnosis, treatment decisions, or predicting treatment response.",
-  "generated_at": "2026-10-05T02:34:56+00:00",
-  "g6_url": "http://127.0.0.1:63634",
-  "enterprise_url": "http://127.0.0.1:63635",
+  "generated_at": "2026-10-05T02:44:23+00:00",
+  "g6_url": "http://127.0.0.1:62600",
+  "enterprise_url": "http://127.0.0.1:62601",
   "canonical_db_sha256": "0e4524db91f7a6e22dfbdc3395cf0fce6b7bf1b5628ac4cd1198be291d01ac40",
   "passed": 104,
   "total": 104,
@@ -233,13 +233,13 @@
       "group": "G6",
       "name": "full limitations catalog served (not just the frozen five)",
       "ok": true,
-      "detail": "total=33 groups=8"
+      "detail": "total=34 groups=8"
     },
     {
       "group": "G6",
       "name": "every catalogued limitation cites evidence and states what would retire it",
       "ok": true,
-      "detail": "n=33"
+      "detail": "n=34"
     },
     {
       "group": "G6",
@@ -317,7 +317,7 @@
       "group": "E1-E6",
       "name": "demo project id resolved",
       "ok": true,
-      "detail": "pid=prj_8fedb8b1f184"
+      "detail": "pid=prj_73d787d9dba5"
     },
     {
       "group": "E1-E6",

@@ -390,6 +390,26 @@ LIMITATIONS: list[dict[str, Any]] = [
         ],
     ),
     _lim(
+        "LIM-PLATFORM-FROZEN-EVIDENCE-NOT-BAKED",
+        "platform",
+        "high",
+        "The frozen G4 evaluation artifacts (aidlc-docs/inception/model/g4) are NOT "
+        "copied into the deployed Lambda image, and the handler never sets "
+        "OSTEOPATCH_MODEL_CARD_DIR. On that deployment the model card's OOF "
+        "metrics are null and the frozen caveat list is empty — measured, not "
+        "assumed. The API now says so explicitly rather than returning an empty "
+        "list that reads as 'no caveats'. This catalog is unaffected: it ships "
+        "inside the application package and is stdlib-only.",
+        "Retired by baking the model-card directory into the image (or pointing "
+        "OSTEOPATCH_MODEL_CARD_DIR at a fetched copy) and asserting its presence "
+        "in verify_bake.py alongside the three existing artifacts.",
+        [
+            "app/g6/deploy/Dockerfile",
+            "app/g6/deploy/lambda_handler.py",
+            "app/g6/deploy/verify_bake.py",
+        ],
+    ),
+    _lim(
         "LIM-PLATFORM-NO-SLIDE-INGESTION",
         "platform",
         "high",
