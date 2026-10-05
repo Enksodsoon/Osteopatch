@@ -1,0 +1,273 @@
+{
+  "schema": "BaselineInventory",
+  "schema_version": "1",
+  "task_id": "F001",
+  "task_title": "Inventory the real baseline without changing product code",
+  "generated_at_utc": "2026-10-05T09:07:00Z",
+  "author_role": "implementer — this task is not self-accepted; independent review pending",
+
+  "baseline_measurement": {
+    "audited_baseline_sha": "44fed1d72b5ab5c65c872b438caf8386b121d078",
+    "first_measured_at": "b40bf34e11a821880ebe2216b4303bbf1685d2ee",
+    "origin_main_advanced_mid_audit_to": "44fed1d72b5ab5c65c872b438caf8386b121d078",
+    "advance_was": "3 commits from another worker (repository professionalization: site/, tests/tooling/, scripts/build_site.py, scripts/check_site.py, scripts/check_repository.py, docs guides, extra workflows, Makefile and CI changes). No file under app/g6/backend, app/g7-enterprise/backend, app/*/frontend/src or runtime-artifacts was touched by it.",
+    "action_taken": "merged origin/main into task/F001 (no rebase, no force-push) and re-ran every gate at the merged HEAD. Every count in code_inventory, capabilities and tests[] was re-measured at 44fed1d between 09:02 and 09:06 UTC.",
+    "single_exception": "the one-off browser observation of the owner's pre-existing dev stack (:5173/:8137) was performed at 07:47:40Z, before the merge, against a process outside this branch. It is labelled in place; the post-merge equivalent is the browser E2E at 09:03:35Z.",
+    "re_measured": true
+  },
+
+  "repo_root": "C:/Users/enkso/.kiro/crew/workspace/osteopatch/wt/F001",
+  "branch": "task/F001",
+  "head_sha": "3dfcc7aaf225d69aadde030b3ba91f2a9d454656",
+  "head_sha_note": "merge of task/F001 with origin/main 44fed1d; the F001 evidence commit itself is 19bd5e0",
+  "remote_main_sha": "44fed1d72b5ab5c65c872b438caf8386b121d078",
+  "remote_url": "https://github.com/Enksodsoon/Osteopatch.git",
+  "remote_url_note": "Renamed from Enksodsoon/osteopatch-review; the prompt pack's URL redirects. Identity confirmed from .git/config, not from the folder name.",
+
+  "isolation": {
+    "mode": "dedicated git worktree",
+    "worktree_created_from": "b40bf34e11a821880ebe2216b4303bbf1685d2ee, later merged with origin/main 44fed1d72b5ab5c65c872b438caf8386b121d078",
+    "primary_checkout": "C:/Users/enkso/.kiro/crew/workspace/osteopatch/OsteoPatch_Kiro_Handoff",
+    "shared_environments_reused": [
+      ".venv (locked serve environment, invoked read-only from the primary checkout; Python 3.12.10, fastapi 0.115.6, torch absent)",
+      "node_modules (both frontends; a fresh worktree has none and npm ci is an unauthorized install)",
+      "runtime-artifacts/ (gitignored, 433 MB, READ-ONLY via OSTEOPATCH_RUNTIME_ARTIFACTS)"
+    ],
+    "product_code_modified": false,
+    "external_authorizations_used": "none — no install, no cloud call, no training, no publish, no deploy, USD 0 additional spend"
+  },
+
+  "task_pack": {
+    "location": "the owner's Desktop, folder OsteoPatch_Prompt_Pack (absolute user path withheld under F001-AT05; the integrator knows where the pack lives)",
+    "treated_as": "read-only reference; never modified",
+    "integrity": "all 150 files listed in SHA256_MANIFEST.json verified by recomputed SHA-256: 0 mismatched, 0 missing",
+    "declared_baseline_sha": "57c1efc77e67f691708bb9a825c621953fcea358",
+    "staleness": "the declared baseline is now 8 commits behind origin/main; 0 of 129 tasks had been executed here (docs/task-evidence did not exist before this task)"
+  },
+
+  "dirty_paths": {
+    "method": "git status --porcelain in both trees, before any work and again after every gate",
+    "worktree_before": [],
+    "worktree_after": [],
+    "primary_checkout_before": [],
+    "primary_checkout_after": [],
+    "identical_before_after": true,
+    "note": "the only changed paths anywhere are the three task-owned evidence files in this worktree"
+  },
+
+  "branches": {
+    "compared_at_first_measurement": "b40bf34e",
+    "contained_in_main": [
+      "feat/unified-platform-p0 (5479248) — git log main..feat/unified-platform-p0 is empty",
+      "feat/enterprise-e1-e6 (75c98fd) — git log main..feat/enterprise-e1-e6 is empty"
+    ],
+    "ahead_of_main": [
+      {
+        "name": "feat/professional-ui-readme",
+        "sha": "1065d2d",
+        "commits_ahead": 2,
+        "commits": [
+          "1065d2d chore(evidence): refresh e2e evidence after the cleanup fix",
+          "9fb9008 fix(e2e): stop leaking a database copy on every failed run"
+        ],
+        "diffstat_vs_main": [
+          "docs/evidence/e2e-ui-result.json | 6 ++--",
+          "scripts/e2e_ui.py                | 77 +++++++++++++++++++++++++++++++++++-----"
+        ],
+        "patch_equivalent_in_main": false,
+        "git_cherry_output": ["+ 9fb9008b3289776fd19446cf949388deed82db34", "+ 1065d2dc73a301dc3052baf6ab208eb74cb01a7b"],
+        "observed_comparison": "main CONTAINS the same functional fix. scripts/e2e_ui.py on main defines remove_workspace(path, attempts=5) with the onerror=_unlock retry handler, and spawn() returns the log handle so the parent can close it. main additionally has --browser edge support, BROWSER_OUT per-engine evidence paths and browser_version() recording — none of which exist on this branch. The commits are not patch-equivalent only because main later rewrote the same lines.",
+        "verdict": "comparison only — no merge, rebase, cherry-pick or delete performed"
+      },
+      {
+        "name": "backup/post-merge-evidence",
+        "sha": "037ce60",
+        "commits_ahead": 2,
+        "commits": [
+          "037ce60 chore(evidence): final e2e run, post-merge",
+          "beb3b1c chore(evidence): record the final e2e run at HEAD"
+        ],
+        "diffstat_vs_main": ["docs/evidence/e2e-ui-result.json | 6 +++---"],
+        "patch_equivalent_in_main": false,
+        "git_cherry_output": ["+ beb3b1c592c67f80a293545283b72bf021cf49da", "+ 037ce60d7005a38688b14f734fabe17d87d9022a"],
+        "observed_comparison": "the branch's evidence file is OLDER (generated_at_utc 2026-10-05T03:50:00Z vs main's 2026-10-05T04:02:33Z) and lacks the browser / browser_version fields main records. main's copy is strictly more informative.",
+        "verdict": "comparison only — no merge, rebase, cherry-pick or delete performed"
+      }
+    ],
+    "status_at_audited_baseline": "NOT RE-COMPARED at 44fed1d. These two refs were compared against b40bf34e; the comparison is reported as of that SHA and is not claimed to hold at 44fed1d."
+  },
+
+  "running_services": [
+    {"port": 8137, "bind": "127.0.0.1", "pid": 44564, "role": "G6 review API (uvicorn) — owner's pre-existing dev stack", "action": "left running, not killed"},
+    {"port": 5173, "bind": "127.0.0.1", "pid": 14196, "role": "Vite dev server (G6 frontend) — owner's pre-existing dev stack", "action": "left running; observed read-only in a browser at 07:47:40Z"},
+    {"port": 18080, "bind": "0.0.0.0", "pid": 26152, "role": "unidentified listener, not part of this task", "action": "recorded only"}
+  ],
+  "concurrent_worker_check": {
+    "result": "another worker was demonstrably active — origin/main advanced 3 commits during this audit. Their work was merged in, not overwritten. No other task branch or worktree exists.",
+    "action": "no other branch, checkout or file was modified by this task"
+  },
+
+  "code_inventory": {
+    "tracked_files": 323,
+    "tracked_files_by_area": {"app": 112, "aidlc-docs": 104, "docs": 35, ".github": 14, "scripts": 11, "site": 9, "prompts": 9, "templates": 6, "tests": 2, ".kiro": 2, "config": 1, "root files": 28},
+    "makefile_targets": ["help", "setup", "test", "test-backend", "test-enterprise", "test-frontend", "test-tooling", "repo-check", "lint", "typecheck", "runtime", "bake", "verify-bake", "smoke", "serve", "docs", "docs-check", "docs-serve"],
+    "ci_workflows": ["ci.yml", "capabilities.yml", "codeql.yml", "deploy-frontend.yml", "pages.yml", "release.yml"],
+    "ci_jobs": ["backend (torch-free)", "frontend (g6)", "frontend (enterprise)", "static (ruff + mypy)", "repository (docs + safety)", "quality-gate"],
+    "repository_tooling": ["scripts/check_repository.py", "scripts/build_site.py", "scripts/check_site.py", "tests/tooling/test_repository.py", "tests/tooling/test_site.py", "site/pages/*.html (5 pages)"],
+    "g6_routes_under_v1": 13,
+    "g6_route_paths": [
+      "/v1/health", "/v1/meta", "/v1/model-card", "/v1/images", "/v1/images/{image_id}",
+      "/v1/images/{image_id}/full", "/v1/images/{image_id}/thumbnail",
+      "/v1/images/{image_id}/review", "/v1/images/{image_id}/reviews",
+      "/v1/images/{image_id}/attribution", "/v1/images/{image_id}/attribution/meta",
+      "/v1/predictions/{prediction_id}", "/v1/exports/reviews"
+    ],
+    "g6_backend_modules": ["app.py", "attribution.py", "config.py", "db.py", "dynamo_review.py", "images.py", "limitations.py", "metadata.py", "model.py", "modelcard.py", "projects.py", "queries.py", "repo.py", "review_store.py", "scoring.py", "server.py", "pathology/reader.py"],
+    "enterprise_routes": 23,
+    "enterprise_backend_modules": ["app.py", "audit.py", "auth.py", "config.py", "cpu_worker.py", "demo_full.py", "demo_fullstack.py", "deps.py", "governance.py", "inference.py", "ingestion.py", "observability.py", "registry.py", "review_proxy.py", "seed.py", "store.py"],
+    "migrations": [
+      "app/g6/backend/osteopatch/migrations/0001_initial.sql",
+      "app/g6/backend/osteopatch/migrations/0002_project_scope.sql"
+    ],
+    "g6_frontend_components": ["AttributionPanel.tsx", "ImageViewer.tsx", "ModelCard.tsx", "PatchReview.tsx", "ReviewPanel.tsx", "Shared.tsx", "Workbench.tsx"],
+    "g6_test_files": ["conftest.py", "test_api_export.py", "test_attribution.py", "test_connection_concurrency.py", "test_e2e_workspace_cleanup.py", "test_limitations.py", "test_project_isolation.py", "test_real_bundle.py", "test_review_safety.py", "test_robustness.py", "test_scoring_contract.py"],
+    "enterprise_test_files": ["test_cpu_worker.py", "test_e1_core.py", "test_e2_e6.py"],
+    "browser_specs": ["app/g6/frontend/e2e/whole-app.spec.ts (17 specs)"],
+    "package_scripts": {
+      "app/g6/frontend": {"dev": "vite", "build": "tsc -b && vite build", "preview": "vite preview", "test": "vitest run", "test:watch": "vitest"},
+      "app/g7-enterprise/frontend": {"dev": "vite", "build": "tsc -b && vite build", "preview": "vite preview", "test": "vitest run"}
+    },
+    "deployment_manifest": "app/g6/deploy/runtime-artifacts.expected.json — committed, and verified by scripts/prepare_runtime.py and app/g6/deploy/verify_bake.py",
+    "entry_points": ["Makefile (setup/test/test-backend/test-enterprise/test-frontend/test-tooling/repo-check/lint/typecheck/runtime/bake/verify-bake/smoke/serve/docs/docs-check/docs-serve)", "scripts/prepare_runtime.py", "app/local-tester.py", "scripts/e2e_ui.py", "scripts/build_site.py", "scripts/check_repository.py", "scripts/check_site.py", ".github/workflows/ci.yml"],
+    "invocation_notes": [
+      "verify_bake.py must run where app/g6/deploy/_bake exists. That directory is gitignored and therefore absent from a fresh worktree; running it inside the worktree fails with 'baked artifact missing' for all three artifacts. That is a property of the isolated checkout, not a defect. Re-run in the primary checkout: exit 0, 3/3 artifacts verified.",
+      "check_site.py must run AFTER build_site.py — the order CI and 'make docs' use. Run alone it reports 12 'missing published file' errors because _site/ has not been generated. Correct order: build_site.py exit 0, then check_site.py exit 0 with 0 errors."
+    ],
+    "prior_defects_now_addressed_on_main": [
+      "D1 worker preprocessing contradicting the frozen contract — cpu_worker.py reads the bundle's own preprocessing spec and refuses to guess",
+      "D2 divergent prediction_id schemes — cpu_worker.py calls the canonical repo.prediction_id_for(image_id, hash)",
+      "D3 process-global tenancy mutation — replaced by app/g6/backend/osteopatch/projects.py plus migration 0002 project_id columns",
+      "D4 hardcoded dead machine-specific scratch paths under the user home directory (path redacted under F001-AT05) — config.py resolves via OSTEOPATCH_* env vars, repo/runtime-artifacts, or app/runtime-artifacts"
+    ]
+  },
+
+  "frozen_artifact_hashes": {
+    "canonical_database": {
+      "path": "runtime-artifacts/db/osteopatch_g6.sqlite3",
+      "sha256": "0e4524db91f7a6e22dfbdc3395cf0fce6b7bf1b5628ac4cd1198be291d01ac40",
+      "bytes": 925696,
+      "verified_against_committed_expectation": true,
+      "rows_read_only_query": {"source_qc": 1144, "prediction": 1144, "review_event": 0, "schema_migrations": 2},
+      "prediction_identity": {"model_bundle_hash": "01727fb832f9d5518bbe2e33b901e7041020929c94b89cdb7a5e5195b544df63", "model_version": "baseline-frozen-g4", "rows": 1144, "distinct_bundle_hashes": 1},
+      "predicted_class_distribution": {"NON_TUMOR": 510, "VIABLE_TUMOR": 330, "NECROSIS": 304},
+      "null_project_id_rows": 0,
+      "note": "This is the CURRENT DB revision. runtime-artifacts.expected.json records two earlier revisions (705ce5c5..., cb25f476...) in its _revision_note. The original bundle hash is never reassigned."
+    },
+    "original_frozen_g4_bundle": {
+      "model_id": "baseline-frozen-g4",
+      "sha256": "01727fb832f9d5518bbe2e33b901e7041020929c94b89cdb7a5e5195b544df63",
+      "state": "ABSENT_FROM_DISK",
+      "how_established": "scripts/prepare_runtime.py printed 'original frozen G4 bundle present: False' at 09:05:51Z — a checked absence, recorded separately from unknown",
+      "must_never": "be reassigned to the recovered head"
+    },
+    "recovered_attribution_head": {
+      "model_id": "g4-behavioral-recovery-r1",
+      "path": "runtime-artifacts/models/g4-behavioral-recovery-r1.pt",
+      "sha256": "ffff1282f533758d7d7c8370ee6092f97f553da69918c5ee7e83632428176a73",
+      "bytes": 21785,
+      "verified": true,
+      "identity_note": "behavioural reconstruction, separately identified from baseline-frozen-g4; the original hash is never assigned to it"
+    },
+    "g8_demo_subset": {
+      "path": "runtime-artifacts/recovery/g8-subset-image-ids.json",
+      "sha256": "78ecd2f703913cef8d3c5f298489f741cc96f9d99a8a9c526290ec85c6ef005f",
+      "unique_image_ids": 50,
+      "verified": true
+    },
+    "pixel_and_thumbnail_sets": {
+      "images": 1144,
+      "thumbnails": 1144,
+      "verified_by": "scripts/prepare_runtime.py at 09:05:51Z",
+      "hashing": "counts verified against the committed manifest; not re-hashed file-by-file in this audit"
+    },
+    "other_runtime_dirs": {"models": 7, "recovery": 12, "evidence": 11, "scratch": 1, "demo-local": 4, "devlogs": 2},
+    "runtime_root_total_size": "433 MB — gitignored by policy; a durable runtime dependency, never committed"
+  },
+
+  "tests": [
+    {"command": ".venv/Scripts/python.exe -m pytest app/g6/backend/tests -q", "working_directory": "wt/F001", "exit_code": 0, "outcome": "PASS", "observed_at_utc": "2026-10-05T09:05:44Z", "summary": "84 passed, 10 skipped, 1 warning in 1.62s", "counts": {"passed": 84, "failed": 0, "skipped": 10}},
+    {"command": ".venv/Scripts/python.exe -m pytest app/g7-enterprise/backend/tests -q", "working_directory": "wt/F001", "exit_code": 0, "outcome": "PASS", "observed_at_utc": "2026-10-05T09:05:46Z", "summary": "28 passed, 1 skipped, 1 warning in 1.52s", "counts": {"passed": 28, "failed": 0, "skipped": 1}},
+    {"command": ".venv/Scripts/python.exe -m pytest tests/tooling -q", "working_directory": "wt/F001", "exit_code": 0, "outcome": "PASS", "observed_at_utc": "2026-10-05T09:05:48Z", "summary": "16 passed, 1 skipped in 0.50s", "counts": {"passed": 16, "failed": 0, "skipped": 1}},
+    {"command": ".venv/Scripts/python.exe -m unittest discover -s tests/tooling", "working_directory": "wt/F001", "exit_code": 0, "outcome": "PASS", "observed_at_utc": "2026-10-05T09:05:49Z", "summary": "Ran 17 tests, OK (skipped=1) — the runner ci.yml actually uses"},
+    {"command": ".venv/Scripts/python.exe -m ruff check scripts app/g6/backend/osteopatch/pathology app/g6/backend/osteopatch/app.py app/g6/backend/osteopatch/limitations.py app/g6/backend/osteopatch/projects.py app/g6/backend/osteopatch/modelcard.py app/g6/backend/tests/test_connection_concurrency.py app/g6/deploy/verify_bake.py", "working_directory": "wt/F001", "exit_code": 0, "outcome": "PASS", "observed_at_utc": "2026-10-05T09:05:50Z", "summary": "All checks passed! (Makefile blocking lint scope)"},
+    {"command": ".venv/Scripts/python.exe -m ruff check app --statistics", "working_directory": "wt/F001", "exit_code": 1, "outcome": "FAIL_INFORMATIONAL", "observed_at_utc": "2026-10-05T09:05:50Z", "summary": "48 pre-existing findings: 26 I001, 13 F401, 7 B904, 1 F541, 1 F841. The Makefile runs this informational and non-blocking. Not introduced by this task; no product file was changed."},
+    {"command": ".venv/Scripts/python.exe -m mypy", "working_directory": "wt/F001", "exit_code": 0, "outcome": "PASS", "observed_at_utc": "2026-10-05T09:05:50Z", "summary": "Success: no issues found in 19 source files"},
+    {"command": ".venv/Scripts/python.exe scripts/check_repository.py", "working_directory": "wt/F001", "exit_code": 0, "outcome": "PASS", "observed_at_utc": "2026-10-05T09:05:50Z", "summary": "Repository checks: 0 error(s)"},
+    {"command": ".venv/Scripts/python.exe scripts/build_site.py", "working_directory": "wt/F001", "exit_code": 0, "outcome": "PASS", "observed_at_utc": "2026-10-05T09:05:51Z", "summary": "Built 12 allowlisted files into _site; no runtime data published"},
+    {"command": ".venv/Scripts/python.exe scripts/check_site.py", "working_directory": "wt/F001", "exit_code": 0, "outcome": "PASS", "observed_at_utc": "2026-10-05T09:05:51Z", "summary": "Site checks: 0 error(s). Must run AFTER build_site.py; run alone it reports 12 'missing published file' errors — see code_inventory.invocation_notes."},
+    {"command": ".venv/Scripts/python.exe scripts/prepare_runtime.py", "working_directory": "wt/F001", "exit_code": 0, "outcome": "PASS", "observed_at_utc": "2026-10-05T09:05:51Z", "summary": "database OK, recovered_model OK, g8_subset OK, images 1144, thumbnails 1144; 'original frozen G4 bundle present: False'"},
+    {"command": ".venv/Scripts/python.exe app/g6/deploy/verify_bake.py app/g6/deploy/_bake app/g6/deploy/runtime-artifacts.expected.json", "working_directory": "OsteoPatch_Kiro_Handoff", "exit_code": 0, "outcome": "PASS", "observed_at_utc": "2026-10-05T09:05:51Z", "summary": "3/3 baked artifacts verified against committed expectations. Must run where the gitignored _bake directory exists — see code_inventory.invocation_notes."},
+    {"command": "git diff --check", "working_directory": "wt/F001", "exit_code": 0, "outcome": "PASS", "observed_at_utc": "2026-10-05T09:05:51Z", "summary": "no whitespace errors — F001's named verification command"},
+    {"command": "npm test", "working_directory": "OsteoPatch_Kiro_Handoff/app/g6/frontend", "exit_code": 0, "outcome": "PASS", "observed_at_utc": "2026-10-05T09:02:49Z", "summary": "vitest run: 1 file, 29 tests passed", "counts": {"passed": 29, "failed": 0}},
+    {"command": "npm run build", "working_directory": "OsteoPatch_Kiro_Handoff/app/g6/frontend", "exit_code": 0, "outcome": "PASS", "observed_at_utc": "2026-10-05T09:03:07Z", "summary": "tsc -b && vite build, 0 TypeScript errors, built in 4.83s"},
+    {"command": "npm test", "working_directory": "OsteoPatch_Kiro_Handoff/app/g7-enterprise/frontend", "exit_code": 0, "outcome": "PASS", "observed_at_utc": "2026-10-05T09:03:15Z", "summary": "vitest run: 1 file, 2 tests passed", "counts": {"passed": 2, "failed": 0}},
+    {"command": "npm run build", "working_directory": "OsteoPatch_Kiro_Handoff/app/g7-enterprise/frontend", "exit_code": 0, "outcome": "PASS", "observed_at_utc": "2026-10-05T09:03:24Z", "summary": "tsc -b && vite build, 0 TypeScript errors, built in 4.85s"},
+    {"command": ".venv/Scripts/python.exe app/local-tester.py --out <tmp>/smoke-result.json", "working_directory": "OsteoPatch_Kiro_Handoff", "exit_code": 0, "outcome": "PASS", "observed_at_utc": "2026-10-05T09:03:31Z", "summary": "RESULT: 104/104 checks passed over real HTTP against a throwaway copy of the canonical DB. The attribution check passes BECAUSE the API answered 503 'attribution runtime unavailable (torch not installed)' instead of fabricating a heatmap.", "counts": {"passed": 104, "failed": 0}},
+    {"command": ".venv/Scripts/python.exe scripts/e2e_ui.py --out <tmp>/e2e-ui-result.json", "working_directory": "OsteoPatch_Kiro_Handoff", "exit_code": 0, "outcome": "PASS", "observed_at_utc": "2026-10-05T09:03:35Z", "summary": "17/17 Playwright specs passed in real Chromium in 13.4s; 0 leftover temp workspaces; canonical store byte-identical", "counts": {"passed": 17, "failed": 0}},
+    {"command": "read-only SQLite inspection (file:...?mode=ro) of the canonical database", "working_directory": "OsteoPatch_Kiro_Handoff", "exit_code": 0, "outcome": "PASS", "observed_at_utc": "2026-10-05T09:06:04Z", "summary": "source_qc 1144, prediction 1144, review_event 0, schema_migrations [1, 2]; the single distinct model_bundle_hash is 01727fb8...; predicted_class NON_TUMOR 510 / VIABLE_TUMOR 330 / NECROSIS 304; prediction.project_id has 0 NULL rows"},
+    {"command": "sha256sum runtime-artifacts/db/osteopatch_g6.sqlite3 before and after every write-bearing gate", "working_directory": "OsteoPatch_Kiro_Handoff", "exit_code": 0, "outcome": "PASS", "observed_at_utc": "2026-10-05T09:06:04Z", "summary": "0e4524db91f7a6e22dfbdc3395cf0fce6b7bf1b5628ac4cd1198be291d01ac40 — identical before smoke, after smoke and after the browser E2E"},
+    {"command": "browser observation of the owner's pre-existing dev stack: GET / plus GET /v1/health and /v1/meta", "working_directory": "http://127.0.0.1:5173", "exit_code": 0, "outcome": "PASS", "observed_at_utc": "2026-10-05T07:47:40Z", "summary": "Page renders 'Page 1 - 1144 patches' with real H&E thumbnails ordered by ascending top-two score margin 0.000 -> 0.330; /v1/health = status ok, images_indexed 1144, predictions 1144, model_bundle_sha256 01727fb8..., image_subset_scoped false; /v1/meta canonical_classes exactly [NON_TUMOR, VIABLE_TUMOR, NECROSIS] and review_actions [ACCEPT, CORRECT, DEFER]; source groups rendered as case/slide groups; console clean apart from Vite HMR and React DevTools notices", "note": "PRE-MERGE observation, taken before origin/main advanced. It is not re-claimed at 44fed1d. The post-merge equivalent is the browser E2E at 09:03:35Z."}
+  ],
+
+  "blocked_checks": [
+    {"check": "11 torch-gated tests (9 in test_attribution.py, 1 in test_real_bundle.py, 1 in test_cpu_worker.py)", "state": "SKIPPED", "reason": "torch is not installed in the locked serve venv and installing it is not authorized by this task", "consequence": "real contrastive Grad-CAM heatmap production is NOT verified locally; only the honest-refusal path is verified (smoke 09:03:31Z observed a real 503 refusal; e2e spec 16 passes on that basis)"},
+    {"check": "anything requiring the original frozen G4 weights (01727fb8...)", "state": "NOT_RUN", "reason": "that bundle file is absent from disk — a checked absence reported by scripts/prepare_runtime.py at 09:05:51Z"},
+    {"check": "whether the CloudFront deployment at dgv0wpd8tglrw.cloudfront.net is live and matches this code", "state": "UNVERIFIED", "reason": "no AWS credentials in the environment and no authorization to use any; a ~/.aws directory exists but was deliberately not read. Nothing was asserted in either direction."},
+    {"check": "real whole-slide image reading", "state": "NOT_RUN", "reason": "openslide 1.4.3 IS importable in this venv, but no real WSI slide with coordinates is present in the authorized scope"},
+    {"check": "GitHub Actions run for the merged HEAD", "state": "NOT_RUN", "reason": "the branch had not been pushed at the time of measurement. A green CI run for 19bd5e0 was observed earlier; nothing is claimed about 3dfcc7a."},
+    {"check": "ruff over the whole legacy app tree", "state": "FAIL_INFORMATIONAL", "reason": "48 pre-existing findings at 09:05:50Z, explicitly non-blocking in the Makefile, and outside this task's write surface"}
+  ],
+
+  "capabilities": [
+    {"capability": "Three-class frozen predictions (NON_TUMOR / VIABLE_TUMOR / NECROSIS)", "code_present": true, "unit_tested": true, "real_data_tested": true, "locally_running": true, "deployed": "UNVERIFIED", "evidence": "config.CANONICAL_CLASSES; 1144 rows keyed to model_bundle_hash 01727fb8... with exactly 1 distinct bundle hash; /v1/meta canonical_classes; g6 suite 84 passed at 09:05:44Z"},
+    {"capability": "Uncertainty-first priority queue (margin + normalized entropy)", "code_present": true, "unit_tested": true, "real_data_tested": true, "locally_running": true, "deployed": "UNVERIFIED", "evidence": "live page ordered by ascending top-two margin 0.000 -> 0.330; e2e spec 2; smoke"},
+    {"capability": "Human review ACCEPT / CORRECT / DEFER, append-only", "code_present": true, "unit_tested": true, "real_data_tested": true, "locally_running": true, "deployed": "UNVERIFIED", "evidence": "review_event carries revision_number, idempotency_key and project_id; smoke verified a CORRECT leaves the model prediction intact and history length 1; e2e specs 6-8", "caveat": "the canonical review_event table holds 0 rows — the review path is exercised only against throwaway copies"},
+    {"capability": "Contrastive attribution (Grad-CAM)", "code_present": true, "unit_tested": "SKIPPED (no torch)", "real_data_tested": false, "locally_running": "honest refusal only", "deployed": "UNVERIFIED", "evidence": "smoke at 09:03:31Z observed a real 503 'attribution runtime unavailable (torch not installed)' and counted that as correct behaviour; e2e spec 16 asserts it is real or honestly refuses", "caveat": "no heatmap was rendered — do not claim real attribution evidence"},
+    {"capability": "Model card + limitations catalog", "code_present": true, "unit_tested": true, "real_data_tested": true, "locally_running": true, "deployed": "UNVERIFIED", "evidence": "e2e specs 11-15 render the full catalog, the VIABLE_TUMOR weakness and each retirement criterion"},
+    {"capability": "CSV / JSON export with disclaimer and provenance", "code_present": true, "unit_tested": true, "real_data_tested": true, "locally_running": true, "deployed": "UNVERIFIED", "evidence": "e2e spec 17; smoke export checks"},
+    {"capability": "Project scoping / tenancy in the database", "code_present": true, "unit_tested": true, "real_data_tested": true, "locally_running": "enterprise stack only", "deployed": "UNVERIFIED", "evidence": "projects.py explicitly replaces the old process-global mutation; migration 0002; prediction.project_id with 0 NULL rows; test_project_isolation.py; smoke E2 scope checks", "caveat": "the local single-user G6 endpoint is not a protected multi-user endpoint"},
+    {"capability": "Enterprise identity, RBAC, tamper-evident audit chain", "code_present": true, "unit_tested": true, "real_data_tested": true, "locally_running": "enterprise stack only", "deployed": "UNVERIFIED", "evidence": "23 routes; 28 tests passed; smoke verified 28 audited mutation kinds and a verifying hash chain"},
+    {"capability": "Model registry, promotion gate, rollback, drift", "code_present": true, "unit_tested": true, "real_data_tested": true, "locally_running": "enterprise stack only", "deployed": "UNVERIFIED", "evidence": "smoke E5/E6: single-serving invariant, refusal to serve a model whose eval failed, rollback restores baseline-frozen-g4, reviewer receives 403 on drift"},
+    {"capability": "SQLite connection lifetime / concurrency", "code_present": true, "unit_tested": true, "real_data_tested": false, "locally_running": "UNVERIFIED", "deployed": "UNVERIFIED", "evidence": "app/g6/backend/tests/test_connection_concurrency.py passes inside the g6 suite"},
+    {"capability": "Whole-slide reading", "code_present": true, "unit_tested": "UNVERIFIED", "real_data_tested": false, "locally_running": false, "deployed": "UNVERIFIED", "evidence": "app/g6/backend/osteopatch/pathology/reader.py exists; openslide 1.4.3 importable; no real slide in scope"},
+    {"capability": "Deterministic 50-image demo subset", "code_present": true, "unit_tested": true, "real_data_tested": true, "locally_running": "allowlist mechanism only", "deployed": "UNVERIFIED", "evidence": "50 unique ids, sha256 78ecd2f7..., baked and verified by verify_bake.py at 09:05:51Z; /v1/health reports image_subset_scoped=false locally"},
+    {"capability": "Local dev / verification entry points", "code_present": true, "unit_tested": "n/a", "real_data_tested": true, "locally_running": true, "deployed": "UNVERIFIED", "evidence": "18 Makefile targets, 6 CI workflows, 6 CI jobs; every gate in this audit ran through them"}
+  ],
+
+  "acceptance": [
+    {"id": "F001-AT01", "requirement": "Existing dirty paths are identical before and after the audit.", "result": "PASS", "evidence": "git status --porcelain captured before any work and after every gate: empty in wt/F001 and empty in the primary checkout. The only changed paths are the three task-owned evidence files. Gates that write (npm run build, smoke, browser E2E, build_site) wrote only gitignored output or a temp --out path."},
+    {"id": "F001-AT02", "requirement": "A deliberately unavailable runtime dependency is recorded BLOCKED or NOT_RUN, not PASS.", "result": "PASS", "evidence": "11 torch-gated tests are recorded SKIPPED with their literal skip reasons; the original frozen G4 bundle is recorded ABSENT_FROM_DISK with the 09:05:51Z command output that established it; real WSI is NOT_RUN; the CloudFront deployment is UNVERIFIED; CI for the merged HEAD is NOT_RUN. None is recorded PASS."},
+    {"id": "F001-AT03", "requirement": "The inventory records a concrete commit SHA and the real test counts rather than copying historical numbers.", "result": "PASS", "evidence": "audited_baseline_sha 44fed1d72b5ab5c65c872b438caf8386b121d078 plus the first measurement b40bf34e...; backend 112 passed / 11 skipped, tooling 16+1 skipped, frontend 29 + 2, browser 17/17, smoke 104/104 — all measured in this session between 09:02 and 09:06 UTC. README.md's claim of '110 passed' is recorded as stale rather than copied."},
+    {"id": "F001-AT04", "requirement": "Source groups are called case/slide groups unless patient mapping evidence is independently present.", "result": "PASS", "evidence": "sources recorded as case/slide groups Case-3, Case-4, Case-48, P9 with an explicit statement that no patient identity is implied. No patient mapping evidence exists, and none is asserted."},
+    {"id": "F001-AT05", "requirement": "No credential values, private user paths outside the project, or medical identifiers enter the evidence file.", "result": "PASS", "evidence": "verified by grep over all three files: zero per-patch identifiers, zero credential-shaped strings, and zero absolute paths outside the two project checkouts (the prompt pack's Desktop location and the historical dead scratch paths were deliberately redacted). AWS variables appear only as the word 'unset'; ~/.aws is mentioned but never read."}
+  ],
+
+  "canonical_data": {
+    "canonical_data_unchanged": true,
+    "verification": "sha256 of runtime-artifacts/db/osteopatch_g6.sqlite3 taken before smoke, after smoke, after the browser E2E and again at 09:06:04Z: 0e4524db91f7a6e22dfbdc3395cf0fce6b7bf1b5628ac4cd1198be291d01ac40 every time. Both runners copy the DB to a temp workspace and re-assert the hash themselves; smoke printed 'canonical review store is byte-identical after the run'.",
+    "writes_to_canonical_store": "none",
+    "pixels_or_model_binaries_written": "none"
+  },
+
+  "limitations": [
+    "All figures are from this session. The committed docs/evidence/*.json files are older runs and were not treated as current.",
+    "README.md states 'Backend: 110 passed, 11 intentional environment-gated skips'. Observed at 09:05:44-09:05:46Z: 112 passed, 11 skipped. The README count is stale by two; this task did not edit it.",
+    "'deployed' is UNVERIFIED for every capability — no AWS credentials were present or used, and none were sought.",
+    "Real attribution, calibration, WSI, research and deployment work were not performed. F001 is an inventory and it stops here.",
+    "Node gates ran in the primary checkout (shared node_modules) rather than in the worktree — a documented deviation.",
+    "The one browser observation of the live dev stack is pre-merge and is labelled as such; the post-merge equivalent is the browser E2E.",
+    "The two branches ahead of main were compared against b40bf34e only, and never modified; the decision is the integrator's."
+  ],
+
+  "next_integrator_action": "Independently review this inventory against templates/REVIEW_ONE_TASK.md — confirm each of F001-AT01..AT05 traces to a line of evidence here and that no product file changed — then choose the next task from the capability-maturity list rather than from the pack's stale 57c1efc baseline."
+}

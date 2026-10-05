@@ -1,0 +1,126 @@
+{
+  "task_id": "F001",
+  "task_title": "Inventory the real baseline without changing product code",
+  "status": "IMPLEMENTED_VERIFIED",
+  "acceptance_status": "NOT_REVIEWED — this receipt is the implementer's, not an acceptance",
+
+  "baseline_sha": "44fed1d72b5ab5c65c872b438caf8386b121d078",
+  "baseline_sha_note": "The inventory was first measured at b40bf34e11a821880ebe2216b4303bbf1685d2ee. origin/main then advanced 3 commits from another worker (repository professionalization), which changed tracked_files (267 -> 323), the Makefile targets, the CI workflow list and the tooling/site gates. origin/main was merged into this branch (no rebase, no force-push) and EVERY gate was re-run at 44fed1d; no count in the evidence is carried over from b40bf34e without having been re-measured.",
+  "remote_main_sha": "44fed1d72b5ab5c65c872b438caf8386b121d078",
+  "candidate_sha": null,
+  "candidate_sha_note": "The candidate is the task/F001 branch head; it cannot be written into the file it identifies. Resolve it with: git -C <worktree> rev-parse task/F001, or read the PR head SHA.",
+  "diff_sha256": "05732c64f2df464544d718abb00410bb22b9dded11053a67ccc260e35cf95b14",
+  "diff_sha256_covers": "concatenated content of docs/task-evidence/F001-baseline.md and docs/task-evidence/F001-baseline.json (md 595da67b5ac02739701ee9f52f03c93c5177c8c2a6868a2dc27e1975c897b37b, json 47dfe230b96402a66e24d2a23a993ab6db25c15eda1328b80135962afd8a29d1). This receipt file itself is excluded so the digest does not depend on its own contents. The earlier digest fe29abb8... covered the first-pass version measured at b40bf34e and is superseded.",
+
+  "branch": "task/F001",
+  "worktree": "C:/Users/enkso/.kiro/crew/workspace/osteopatch/wt/F001",
+  "isolation": "dedicated git worktree cut from b40bf34e and later merged with origin/main 44fed1d (merge, not rebase, so no force-push); the primary checkout on main was never modified",
+
+  "changed_files": [
+    {"path": "docs/task-evidence/F001-baseline.md", "why": "task-owned human-readable baseline inventory (F001 allowed change surface)"},
+    {"path": "docs/task-evidence/F001-baseline.json", "why": "task-owned machine-readable BaselineInventory; every tests[] entry carries command, working_directory, exit_code, outcome, observed_at_utc"},
+    {"path": "docs/task-evidence/F001-receipt.json", "why": "task-owned evidence receipt on the pack's RECEIPT_TEMPLATE schema"}
+  ],
+  "product_code_changed": false,
+  "product_files_modified": [],
+  "dependency_receipts_inspected": [
+    "none — F001 declares no implementation prerequisites and no docs/task-evidence directory existed before this task"
+  ],
+  "produced_interfaces": [
+    "BaselineInventory (evidence document, not a product API): repo_root, branch, head_sha, remote_main_sha, dirty_paths, running_services, capabilities, tests[], blocked_checks[], frozen_artifact_hashes"
+  ],
+  "produced_endpoints": [],
+  "produced_types": [],
+
+  "tests": [
+    {"command": ".venv/Scripts/python.exe -m pytest app/g6/backend/tests -q", "cwd": "wt/F001", "exit_code": 0, "passed": 84, "failed": 0, "skipped": 10, "observed_at_utc": "2026-10-05T09:05:44Z"},
+    {"command": ".venv/Scripts/python.exe -m pytest app/g7-enterprise/backend/tests -q", "cwd": "wt/F001", "exit_code": 0, "passed": 28, "failed": 0, "skipped": 1, "observed_at_utc": "2026-10-05T09:05:46Z"},
+    {"command": ".venv/Scripts/python.exe -m pytest tests/tooling -q", "cwd": "wt/F001", "exit_code": 0, "passed": 16, "failed": 0, "skipped": 1, "observed_at_utc": "2026-10-05T09:09:09Z"},
+    {"command": ".venv/Scripts/python.exe -m unittest discover -s tests/tooling", "cwd": "wt/F001", "exit_code": 0, "result": "Ran 17 tests, OK (skipped=1) — the runner ci.yml uses", "observed_at_utc": "2026-10-05T09:09:10Z"},
+    {"command": ".venv/Scripts/python.exe -m ruff check <Makefile blocking paths>", "cwd": "wt/F001", "exit_code": 0, "result": "All checks passed!", "observed_at_utc": "2026-10-05T09:05:50Z"},
+    {"command": ".venv/Scripts/python.exe -m ruff check app --statistics", "cwd": "wt/F001", "exit_code": 1, "result": "48 pre-existing findings; informational and non-blocking in the Makefile", "observed_at_utc": "2026-10-05T09:05:50Z"},
+    {"command": ".venv/Scripts/python.exe -m mypy", "cwd": "wt/F001", "exit_code": 0, "result": "no issues found in 19 source files", "observed_at_utc": "2026-10-05T09:05:50Z"},
+    {"command": ".venv/Scripts/python.exe scripts/check_repository.py", "cwd": "wt/F001", "exit_code": 0, "result": "Repository checks: 0 error(s)", "observed_at_utc": "2026-10-05T09:09:09Z"},
+    {"command": ".venv/Scripts/python.exe scripts/build_site.py && scripts/check_site.py", "cwd": "wt/F001", "exit_code": 0, "result": "Built 12 allowlisted files; Site checks: 0 error(s). Order matters: check_site alone reports 12 false 'missing published file' errors.", "observed_at_utc": "2026-10-05T09:09:10Z"},
+    {"command": ".venv/Scripts/python.exe scripts/prepare_runtime.py", "cwd": "wt/F001", "exit_code": 0, "result": "database/recovered_model/g8_subset OK, images 1144, thumbnails 1144, original frozen G4 bundle present: False", "observed_at_utc": "2026-10-05T09:05:51Z"},
+    {"command": ".venv/Scripts/python.exe app/g6/deploy/verify_bake.py app/g6/deploy/_bake app/g6/deploy/runtime-artifacts.expected.json", "cwd": "OsteoPatch_Kiro_Handoff", "exit_code": 0, "result": "3/3 baked artifacts verified. Must run where the gitignored _bake exists; a fresh worktree has none and reports all three missing.", "observed_at_utc": "2026-10-05T09:05:51Z"},
+    {"command": "git diff --check", "cwd": "wt/F001", "exit_code": 0, "result": "no whitespace errors", "observed_at_utc": "2026-10-05T09:09:10Z"},
+    {"command": "npm test (G6 frontend)", "cwd": "OsteoPatch_Kiro_Handoff/app/g6/frontend", "exit_code": 0, "passed": 29, "failed": 0, "observed_at_utc": "2026-10-05T09:02:49Z"},
+    {"command": "npm run build (G6 frontend)", "cwd": "OsteoPatch_Kiro_Handoff/app/g6/frontend", "exit_code": 0, "result": "0 TypeScript errors, built in 4.83s", "observed_at_utc": "2026-10-05T09:03:07Z"},
+    {"command": "npm test (enterprise frontend)", "cwd": "OsteoPatch_Kiro_Handoff/app/g7-enterprise/frontend", "exit_code": 0, "passed": 2, "failed": 0, "observed_at_utc": "2026-10-05T09:03:15Z"},
+    {"command": "npm run build (enterprise frontend)", "cwd": "OsteoPatch_Kiro_Handoff/app/g7-enterprise/frontend", "exit_code": 0, "result": "0 TypeScript errors, built in 4.85s", "observed_at_utc": "2026-10-05T09:03:24Z"},
+    {"command": ".venv/Scripts/python.exe app/local-tester.py --out <tmp>/smoke-result.json", "cwd": "OsteoPatch_Kiro_Handoff", "exit_code": 0, "passed": 104, "failed": 0, "result": "104/104 over real HTTP. The attribution check passes BECAUSE the API answered 503 'attribution runtime unavailable (torch not installed)' instead of fabricating a heatmap.", "observed_at_utc": "2026-10-05T09:03:31Z"},
+    {"command": ".venv/Scripts/python.exe scripts/e2e_ui.py --out <tmp>/e2e-ui-result.json", "cwd": "OsteoPatch_Kiro_Handoff", "exit_code": 0, "passed": 17, "failed": 0, "result": "17/17 Playwright specs in real Chromium; 0 leftover temp workspaces; canonical store byte-identical", "observed_at_utc": "2026-10-05T09:03:35Z"},
+    {"command": "read-only SQLite inspection (mode=ro) of the canonical database", "cwd": "OsteoPatch_Kiro_Handoff", "exit_code": 0, "result": "source_qc 1144, prediction 1144, review_event 0, 2 migrations, 1 distinct bundle hash 01727fb8..., 0 NULL project_id", "observed_at_utc": "2026-10-05T09:06:04Z"},
+    {"command": "sha256sum of the canonical database before/after every write-bearing gate", "cwd": "OsteoPatch_Kiro_Handoff", "exit_code": 0, "result": "0e4524db91f7a6e22dfbdc3395cf0fce6b7bf1b5628ac4cd1198be291d01ac40 — identical every time", "observed_at_utc": "2026-10-05T09:06:04Z"},
+    {"command": "browser observation of http://127.0.0.1:5173 plus GET /v1/health and /v1/meta", "cwd": "owner's pre-existing dev stack", "exit_code": 0, "result": "1144 patches rendered; canonical_classes and review_actions exactly as contracted; console clean", "observed_at_utc": "2026-10-05T07:47:40Z", "note": "PRE-MERGE observation, before origin/main advanced. Not re-claimed at 44fed1d; the post-merge equivalent is the browser E2E above."}
+  ],
+  "evidence_path": "docs/task-evidence/F001-baseline.md and docs/task-evidence/F001-baseline.json",
+
+  "acceptance_tests": [
+    {"id": "F001-AT01", "result": "PASS", "evidence": "git status --porcelain empty in both the worktree and the primary checkout before and after every gate; only the three task-owned evidence files are new (F001-baseline.md §2)"},
+    {"id": "F001-AT02", "result": "PASS", "evidence": "11 torch-gated tests recorded SKIPPED with their skip reasons, the original G4 bundle recorded ABSENT_FROM_DISK (checked absence, not unknown), WSI recorded NOT_RUN, cloud deployment recorded UNVERIFIED — none recorded PASS (F001-baseline.md §6)"},
+    {"id": "F001-AT03", "result": "PASS", "evidence": "concrete SHA b40bf34e11a821880ebe2216b4303bbf1685d2ee and today's real counts — backend 112 passed / 11 skipped, frontend 31, browser 17, smoke 104/104 — with README's stale '110 passed' called out rather than copied (F001-baseline.md §1, §6)"},
+    {"id": "F001-AT04", "result": "PASS", "evidence": "sources recorded as case/slide groups Case-3, Case-4, Case-48, P9 with an explicit statement that no patient identity is implied (F001-baseline.md §5, §7)"},
+    {"id": "F001-AT05", "result": "PASS", "evidence": "no credential values; AWS variables recorded only as unset and ~/.aws deliberately not read; paths recorded are the two project checkouts; aggregate counts only, no per-patch or medical identifiers (F001-baseline.md §10)"}
+  ],
+
+  "data_mode": "real_authorized_data",
+  "scope": "Read-only use of the local authorized runtime artifacts (1,144 patches, 1,144 thumbnails, recovered attribution head, 50-image demo subset). Smoke and browser E2E operated on throwaway copies of the canonical database. No synthetic data was presented as production, and no model, label, or real review was altered to make any example more favourable.",
+  "model_artifact_identities": {
+    "baseline-frozen-g4": {"sha256": "01727fb832f9d5518bbe2e33b901e7041020929c94b89cdb7a5e5195b544df63", "state": "ABSENT_FROM_DISK — never reassigned"},
+    "g4-behavioral-recovery-r1": {"sha256": "ffff1282f533758d7d7c8370ee6092f97f553da69918c5ee7e83632428176a73", "state": "present, verified, separately identified"}
+  },
+
+  "canonical_data_unchanged": {
+    "status": "VERIFIED_TRUE",
+    "evidence": "sha256 of runtime-artifacts/db/osteopatch_g6.sqlite3 measured before smoke, after smoke, and after the browser E2E: 0e4524db91f7a6e22dfbdc3395cf0fce6b7bf1b5628ac4cd1198be291d01ac40 every time. smoke printed 'canonical review store is byte-identical after the run'. No pixel, thumbnail or model binary was written."
+  },
+
+  "ui_browser_observations": [
+    "Running dev stack observed read-only: gallery shows 'Page 1 - 1144 patches' with real H&E thumbnails ordered by ascending top-two score margin 0.000 -> 0.330.",
+    "/v1/health: status ok, images_indexed 1144, predictions 1144, model_bundle_sha256 01727fb8..., image_subset_scoped false.",
+    "/v1/meta: canonical_classes exactly [NON_TUMOR, VIABLE_TUMOR, NECROSIS]; review_actions exactly [ACCEPT, CORRECT, DEFER]; attribution advertised with the reconstruction disclosure and recovered_model_id.",
+    "Cards show 'Training eligible' and 'QC REVIEW (data quality)' as metadata, never as a fourth class.",
+    "Browser console clean apart from Vite HMR and the React DevTools notice.",
+    "scripts/e2e_ui.py independently drove ACCEPT/CORRECT/DEFER, the model-card catalog, attribution honesty and CSV export provenance: 17/17 passed, 0 leftover temp workspaces."
+  ],
+
+  "limitations": [
+    "README.md's '110 passed' is stale; 112 backend tests passed today. Not edited by this task.",
+    "'deployed' is UNVERIFIED for every capability: no AWS credentials were present or used, and none were sought.",
+    "Real contrastive Grad-CAM heatmaps were NOT rendered: torch is absent from the locked serve venv and installing it is unauthorized. Only the honest-refusal path is verified.",
+    "The canonical review_event table holds 0 rows, so the human-review path is only ever exercised against throwaway copies.",
+    "Node gates ran in the primary checkout because a fresh worktree has no node_modules and npm ci is an unauthorized install — a documented deviation.",
+    "Real WSI, calibration, research and deployment work were not performed; this is F001 only."
+  ],
+
+  "blockers": [],
+  "required_approval": [
+    "none needed to complete this task",
+    "separate authorization would be required for: installing torch, installing node_modules into a worktree, using any AWS credential, and merging this branch"
+  ],
+
+  "boundary_observations": [
+    "no rows: review_event = 0 in the canonical database",
+    "duplicate input/retry: smoke verifies enterprise enqueue idempotency; the e2e no-leak invariant test guards temp-workspace cleanup",
+    "unavailable artifact: missing torch, missing original G4 bundle, missing WSI slide — all recorded as SKIPPED/NOT_RUN",
+    "unauthorized object: smoke verifies a reviewer receives 403 on drift and cross-project scope is denied",
+    "changed model/session: smoke verifies promotion, the single-serving invariant and rollback to baseline-frozen-g4",
+    "partial failure: ingestion fails closed with HTTP 400 on a non-canonical label",
+    "no null metric is reported as zero anywhere in this inventory"
+  ],
+
+  "external_effects": {
+    "installs": "none",
+    "cloud_calls": "none",
+    "training_or_calibration": "none",
+    "publish_or_deploy": "none",
+    "additional_spend_usd": 0,
+    "branches_modified": "none — two branches ahead of main were compared only",
+    "running_services_touched": "none — the 8137/5173 dev stack was left running"
+  },
+
+  "next_integrator_action": "Review this receipt and the two evidence files against templates/REVIEW_ONE_TASK.md, confirm no product file changed (git status shows only docs/task-evidence/), then choose the next task from the capability-maturity table in F001-baseline.md §8 rather than from the pack's stale 57c1efc baseline. Do not start it until this task is accepted.",
+  "self_acceptance": "NOT GIVEN — this receipt records implementation and verification only. Test success and acceptance are separate; a reviewer may still reject this for an incorrect requirement or a misleading claim."
+}
