@@ -12,6 +12,27 @@ const en = {
   "nav.modelCard": "Model card",
   "nav.attribution": "Model attribution",
 
+  "limitations.heading": "Limitations — the full list",
+  "limitations.frozenHeading": "Frozen G4 evaluation caveats (verbatim)",
+  "limitations.note": "What would retire it",
+  "limitations.evidence": "Evidence",
+  "limitations.count": "{total} limitations recorded",
+  "limitations.blockingCount": "{n} blocking",
+  "limitations.weakest": "Weakest class: {cls}",
+  "limitations.empty": "No limitations were recorded.",
+  "severity.blocking": "blocking",
+  "severity.high": "high",
+  "severity.medium": "medium",
+  "severity.low": "low",
+  "category.claim": "What this system may claim",
+  "category.data": "Data and cohort",
+  "category.model": "Model",
+  "category.evaluation": "Evaluation",
+  "category.attribution": "Attribution",
+  "category.platform": "Platform",
+  "category.deployment": "Deployment",
+  "category.process": "Process",
+
   "disclaimer.short":
     "Educational / research prototype — NOT for diagnosis, treatment decisions, treatment-response prediction, or prognosis.",
 

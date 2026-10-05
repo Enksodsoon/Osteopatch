@@ -12,6 +12,7 @@ vi.mock("../api", async () => {
     getImage: vi.fn(),
     submitReview: vi.fn(),
     getAttributionMeta: vi.fn(),
+    getModelCard: vi.fn(),
     thumbnailUrl: (id: string) => `/thumb/${id}`,
     fullUrl: (id: string) => `/full/${id}`,
     exportUrl: (f: string) => `/export.${f}`,
@@ -24,7 +25,13 @@ import { Workbench } from "../components/Workbench";
 import { PatchReview } from "../components/PatchReview";
 import { Disclaimer } from "../components/Shared";
 import { AttributionPanel } from "../components/AttributionPanel";
-import type { AttributionMeta } from "../types";
+import { ModelCard } from "../components/ModelCard";
+import type {
+  AttributionMeta,
+  Limitation,
+  LimitationGroup,
+  ModelCard as ModelCardPayload,
+} from "../types";
 
 const ATTRIB_META: AttributionMeta = {
   image_id: "img-1",
@@ -55,6 +62,83 @@ const META: Meta = {
   score_label: "Model score — uncalibrated",
   disclaimer: "Educational / research prototype",
   g7_placeholder: "Model attribution — coming in G7",
+};
+
+// ---- model card payload (limitations catalog) -----------------------------
+// Mirrors the real /v1/model-card shape. LIM-VIABLE-WEAK is deliberately first
+// in its group and blocking: the UI must never let it scroll away unseen.
+function makeLimitation(o: Partial<Limitation> = {}): Limitation {
+  return {
+    id: "LIM-TEST",
+    category: "model",
+    severity: "high",
+    pin_first: false,
+    statement: "A test limitation.",
+    retired_by: "Retired by doing the thing that would remove it.",
+    evidence: ["docs/current-state-audit.md"],
+    ...o,
+  };
+}
+
+const VIABLE = makeLimitation({
+  id: "LIM-VIABLE-WEAK",
+  category: "model",
+  severity: "blocking",
+  pin_first: true,
+  statement:
+    "VIABLE_TUMOR is the model's weak class. Pooled out-of-fold recall is 0.110345.",
+  retired_by: "Retired by widening independent VIABLE_TUMOR coverage.",
+});
+
+const UNCALIBRATED = makeLimitation({
+  id: "LIM-MODEL-UNCALIBRATED",
+  category: "model",
+  severity: "blocking",
+  statement: "calibration_status is 'uncalibrated'.",
+});
+
+const ABSENT_BUNDLE = makeLimitation({
+  id: "LIM-PLATFORM-FROZEN-BUNDLE-ABSENT",
+  category: "platform",
+  severity: "high",
+  statement: "The original frozen bundle file is not present on disk.",
+});
+
+const GROUPS: LimitationGroup[] = [
+  { category: "model", count: 2, blocking_count: 2, items: [VIABLE, UNCALIBRATED] },
+  { category: "platform", count: 1, blocking_count: 0, items: [ABSENT_BUNDLE] },
+];
+
+const MODEL_CARD: ModelCardPayload = {
+  model_version: "baseline-frozen-g4",
+  model_bundle_sha256: "01727fb832f9d5518bbe2e33b901e7041020929c94b89cdb7a5e5195b544df63",
+  calibration_status: "uncalibrated",
+  canonical_classes: ["NON_TUMOR", "VIABLE_TUMOR", "NECROSIS"],
+  architecture: "mobilenetv3_small",
+  preprocessing: {},
+  intended_use: "educational",
+  performance_statement: "frozen LOGO OOF",
+  headline_oof: { macro_f1: 0.562311, balanced_accuracy: 0.62646, n_rows: 1028 },
+  limitations: [
+    "Exploratory case/slide-group independence over 4 groups ONLY; patient-level independence unverified.",
+    "P9 fold is single-class (NON_TUMOR) -> VIABLE/NECROSIS not estimable there.",
+    "Case-3 VIABLE test support=3 and Case-48 NECROSIS test support=2 are indicative-only (CI ~ [0,1]).",
+    "Patches are not independent biological samples; no patch-as-patient bootstrap.",
+    "Scores are uncalibrated model class scores, not disease probabilities.",
+  ],
+  limitations_full: [VIABLE, UNCALIBRATED, ABSENT_BUNDLE],
+  limitations_grouped: GROUPS,
+  limitations_summary: {
+    total: 3,
+    by_severity: { blocking: 2, high: 1, medium: 0, low: 0 },
+    categories: ["model", "platform"],
+    weakest_class: "VIABLE_TUMOR",
+  },
+  limitations_note: "frozen list verbatim + full catalog",
+  disclaimer:
+    "Educational / research prototype. NOT for diagnosis, treatment decisions, treatment-response prediction, or prognosis.",
+  evidence_note: "prototype inference only",
+  model_card_markdown: null,
 };
 
 function makeDetail(overrides: Partial<ImageDetail> = {}): ImageDetail {
@@ -99,6 +183,7 @@ beforeEach(() => {
   (api.listImages as any).mockResolvedValue(LIST);
   (api.submitReview as any).mockResolvedValue({ status: 201, created: true, current_revision: 1 });
   (api.getAttributionMeta as any).mockResolvedValue(ATTRIB_META);
+  (api.getModelCard as any).mockResolvedValue(MODEL_CARD);
 });
 
 describe("Disclaimer", () => {
@@ -294,5 +379,60 @@ describe("AttributionPanel (G7 contrastive)", () => {
     await waitFor(() => expect(api.submitReview).toHaveBeenCalled());
     const body = (api.submitReview as any).mock.calls[0][1];
     expect(body.action).toBe("ACCEPT");
+  });
+});
+
+describe("ModelCard — full limitations catalog", () => {
+  it("renders every catalogued limitation, not just the frozen five", async () => {
+    render(<ModelCard />);
+    await screen.findByTestId("limitations-full");
+    expect(screen.getByTestId("limitation-LIM-VIABLE-WEAK")).toBeInTheDocument();
+    expect(screen.getByTestId("limitation-LIM-MODEL-UNCALIBRATED")).toBeInTheDocument();
+    expect(screen.getByTestId("limitation-LIM-PLATFORM-FROZEN-BUNDLE-ABSENT")).toBeInTheDocument();
+    expect(screen.getByTestId("limitations-count").textContent).toMatch(/3 limitations recorded/);
+  });
+
+  it("keeps the VIABLE_TUMOR weakness first, blocking, and quoted with its recall", async () => {
+    render(<ModelCard />);
+    const model = await screen.findByTestId("lim-group-model");
+    const first = model.querySelector("[data-testid^='limitation-']");
+    expect(first?.getAttribute("data-testid")).toBe("limitation-LIM-VIABLE-WEAK");
+    expect(first?.getAttribute("data-severity")).toBe("blocking");
+    // severity is a word, not a colour
+    expect(screen.getAllByTestId("sev-blocking").length).toBeGreaterThan(0);
+    expect(screen.getByTestId("limitation-LIM-VIABLE-WEAK").textContent).toMatch(
+      /0\.110345/,
+    );
+  });
+
+  it("says what would retire each limitation and cites evidence", async () => {
+    render(<ModelCard />);
+    const item = await screen.findByTestId("limitation-LIM-VIABLE-WEAK");
+    expect(item.textContent).toMatch(/What would retire it/i);
+    expect(item.textContent).toMatch(/Widening independent VIABLE_TUMOR coverage/i);
+    expect(item.textContent).toMatch(/docs\/current-state-audit\.md/);
+  });
+
+  it("still shows the frozen G4 evaluation caveats verbatim", async () => {
+    render(<ModelCard />);
+    const frozen = await screen.findByTestId("limitations-frozen");
+    expect(frozen.textContent).toMatch(/patient-level independence unverified/);
+    expect(frozen.textContent).toMatch(/uncalibrated model class scores/);
+  });
+
+  it("never replaces the limitations with a placeholder when the fetch fails", async () => {
+    (api.getModelCard as any).mockRejectedValueOnce(new Error("boom"));
+    render(<ModelCard />);
+    const err = await screen.findByTestId("model-card-error");
+    expect(err.textContent).toMatch(/could not be loaded/i);
+    expect(err.textContent).toMatch(/nothing is shown in their place/i);
+    expect(screen.queryByTestId("limitations-full")).toBeNull();
+  });
+
+  it("keeps the disclaimer and the prototype-inference note on the card", async () => {
+    render(<ModelCard />);
+    await screen.findByTestId("limitations-full");
+    expect(screen.getByTestId("model-card").textContent).toMatch(/NOT for diagnosis/i);
+    expect(screen.getByTestId("model-card").textContent).toMatch(/prototype inference only/i);
   });
 });

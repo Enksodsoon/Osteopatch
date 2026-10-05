@@ -3,12 +3,25 @@
 Pulls from the durable G4 artifacts (model-card-baseline.md, final-bundle.json,
 overall-oof-metrics.json). The app does NOT recompute these; the G4 OOF LOGO
 evaluation stays the immutable performance evidence.
+
+Two limitation surfaces are returned, and the distinction matters:
+
+``limitations``
+    The five frozen strings from ``overall-oof-metrics.json``, VERBATIM. These
+    are durable evaluation evidence. They are never rewritten, filtered or
+    reordered here.
+
+``limitations_full`` / ``limitations_summary`` / ``limitations_grouped``
+    The full catalog from :mod:`osteopatch.limitations`, which adds the data,
+    attribution, platform, deployment and process caveats the frozen five
+    cannot express. Every entry there cites an evidence file that a test checks
+    still exists, and states what would retire it.
 """
 from __future__ import annotations
 
 import json
 
-from . import config
+from . import config, limitations
 
 
 def _read_json(path):
@@ -42,12 +55,25 @@ def model_card() -> dict:
             "brier": oof.get("brier"),
             "per_class": oof.get("per_class"),
         },
+        # Frozen G4 evaluation caveats — verbatim, never modified.
         "limitations": oof.get("limitations", []),
+        # The complete catalog (see limitations.py), grouped for display.
+        "limitations_full": limitations.catalog(),
+        "limitations_grouped": limitations.grouped(),
+        "limitations_summary": limitations.summary(),
         "disclaimer": config.DISCLAIMER,
         "evidence_note": (
             "The app performs PROTOTYPE INFERENCE only. Headline performance is "
             "the frozen G4 Leave-One-Group-Out OOF evaluation and is NOT "
             "recomputed here."
+        ),
+        "limitations_note": (
+            "'limitations' is the frozen G4 evaluation caveat list, quoted "
+            "verbatim. 'limitations_full' is the complete catalog, including "
+            "data, attribution, platform, deployment and process limitations "
+            "that the frozen evaluation cannot express. Each full entry cites an "
+            "evidence file and states what would retire it. This is an "
+            "educational prototype, not a diagnostic device."
         ),
         "model_card_markdown": md.read_text(encoding="utf-8") if md.exists() else None,
     }

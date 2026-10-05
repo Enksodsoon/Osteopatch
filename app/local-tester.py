@@ -364,6 +364,71 @@ def test_g6(g6: Server, r: Results) -> dict:
         f"status={csv_exp.status} ct={csv_exp.content_type()!r} bytes={len(csv_exp.body)}",
     )
 
+    # ---- model card: the limitations a reviewer is entitled to see ---------
+    mc = http("GET", f"{g6.base}/v1/model-card")
+    mcb = mc.json() if mc.status == 200 else {}
+    state["model_card"] = {
+        "limitations_total": (mcb.get("limitations_summary") or {}).get("total"),
+        "by_severity": (mcb.get("limitations_summary") or {}).get("by_severity"),
+    }
+    r.check(g, "model-card 200", mc.status == 200, f"status={mc.status}")
+    r.eq(g, "model-card bundle sha256 matches the frozen contract",
+         mcb.get("model_bundle_sha256"), FROZEN_BUNDLE)
+
+    frozen_lims = mcb.get("limitations") or []
+    r.eq(g, "frozen G4 evaluation caveats served verbatim", len(frozen_lims), 5)
+    r.check(
+        g,
+        "frozen caveat list is the real one (4 groups, uncalibrated)",
+        any("4 groups ONLY" in s for s in frozen_lims)
+        and any("uncalibrated" in s for s in frozen_lims),
+        f"n={len(frozen_lims)}",
+    )
+
+    full_lims = mcb.get("limitations_full") or []
+    total = (mcb.get("limitations_summary") or {}).get("total")
+    r.check(
+        g,
+        "full limitations catalog served (not just the frozen five)",
+        isinstance(full_lims, list) and total == len(full_lims) and total >= 25,
+        f"total={total} groups={len(mcb.get('limitations_grouped') or [])}",
+    )
+    r.check(
+        g,
+        "every catalogued limitation cites evidence and states what would retire it",
+        all(
+            isinstance(d.get("evidence"), list) and d["evidence"]
+            and str(d.get("retired_by") or "").strip()
+            for d in full_lims
+        ),
+        f"n={len(full_lims)}",
+    )
+
+    model_group = next(
+        (x for x in (mcb.get("limitations_grouped") or []) if x.get("category") == "model"),
+        {},
+    )
+    model_items = model_group.get("items") or []
+    first_model = model_items[0] if model_items else {}
+    r.check(
+        g,
+        "VIABLE_TUMOR weakness leads the model group and is BLOCKING",
+        first_model.get("id") == "LIM-VIABLE-WEAK"
+        and first_model.get("severity") == "blocking",
+        f"first={first_model.get('id')!r} sev={first_model.get('severity')!r}",
+    )
+    r.check(
+        g,
+        "VIABLE_TUMOR weakness quotes the frozen pooled recall (0.110345)",
+        "0.110345" in str(first_model.get("statement") or ""),
+        f"stmt={str(first_model.get('statement') or '')[:90]!r}",
+    )
+    r.check(
+        g,
+        "model card states the claim boundary",
+        "NOT for diagnosis" in (mcb.get("disclaimer") or ""),
+    )
+
     # Attribution needs torch + the recovered bundle; the torch-free G6 web venv
     # must degrade honestly. Either it works, or it refuses — never a fake map.
     attr = http("GET", f"{g6.base}/v1/images/{target['image_id']}/attribution")

@@ -1,11 +1,11 @@
 {
   "banner": "OsteoPatch local tester \u2014 educational research prototype. NOT for diagnosis, treatment decisions, or predicting treatment response.",
-  "generated_at": "2026-10-04T18:22:54+00:00",
-  "g6_url": "http://127.0.0.1:54647",
-  "enterprise_url": "http://127.0.0.1:54648",
+  "generated_at": "2026-10-05T02:34:56+00:00",
+  "g6_url": "http://127.0.0.1:63634",
+  "enterprise_url": "http://127.0.0.1:63635",
   "canonical_db_sha256": "0e4524db91f7a6e22dfbdc3395cf0fce6b7bf1b5628ac4cd1198be291d01ac40",
-  "passed": 95,
-  "total": 95,
+  "passed": 104,
+  "total": 104,
   "checks": [
     {
       "group": "G6",
@@ -207,6 +207,60 @@
     },
     {
       "group": "G6",
+      "name": "model-card 200",
+      "ok": true,
+      "detail": "status=200"
+    },
+    {
+      "group": "G6",
+      "name": "model-card bundle sha256 matches the frozen contract",
+      "ok": true,
+      "detail": "actual='01727fb832f9d5518bbe2e33b901e7041020929c94b89cdb7a5e5195b544df63' expected='01727fb832f9d5518bbe2e33b901e7041020929c94b89cdb7a5e5195b544df63'"
+    },
+    {
+      "group": "G6",
+      "name": "frozen G4 evaluation caveats served verbatim",
+      "ok": true,
+      "detail": "actual=5 expected=5"
+    },
+    {
+      "group": "G6",
+      "name": "frozen caveat list is the real one (4 groups, uncalibrated)",
+      "ok": true,
+      "detail": "n=5"
+    },
+    {
+      "group": "G6",
+      "name": "full limitations catalog served (not just the frozen five)",
+      "ok": true,
+      "detail": "total=33 groups=8"
+    },
+    {
+      "group": "G6",
+      "name": "every catalogued limitation cites evidence and states what would retire it",
+      "ok": true,
+      "detail": "n=33"
+    },
+    {
+      "group": "G6",
+      "name": "VIABLE_TUMOR weakness leads the model group and is BLOCKING",
+      "ok": true,
+      "detail": "first='LIM-VIABLE-WEAK' sev='blocking'"
+    },
+    {
+      "group": "G6",
+      "name": "VIABLE_TUMOR weakness quotes the frozen pooled recall (0.110345)",
+      "ok": true,
+      "detail": "stmt=\"VIABLE_TUMOR is the model's weak class and the dominant limitation of this system. Pooled \""
+    },
+    {
+      "group": "G6",
+      "name": "model card states the claim boundary",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "G6",
       "name": "attribution is real or honestly refuses (never a fabricated map)",
       "ok": true,
       "detail": "status=503 body='{\"error\":\"attribution runtime unavailable (torch not installed)\",\"detail\":\"No module named \\'torch\\'\"}'"
@@ -263,7 +317,7 @@
       "group": "E1-E6",
       "name": "demo project id resolved",
       "ok": true,
-      "detail": "pid=prj_1b745ce0dc16"
+      "detail": "pid=prj_8fedb8b1f184"
     },
     {
       "group": "E1-E6",

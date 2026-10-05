@@ -83,3 +83,22 @@ single-class; **VIABLE_TUMOR is the model's weak class** (see the G4 OOF evaluat
 the authoritative performance evidence, kept separate from this app's prototype inference).
 Scores are uncalibrated. The "Model attribution" tab is reserved for G7 (Grad-CAM) and is
 intentionally empty here — no attribution image is fabricated.
+
+### The full limitations list is served, not just documented
+
+`GET /v1/model-card` returns two distinct surfaces, and the **Model card** screen in the
+UI renders both:
+
+- **`limitations`** — the five frozen G4 evaluation caveats, quoted **verbatim** from
+  `aidlc-docs/inception/model/g4/overall-oof-metrics.json`. Durable evidence; never
+  reworded in place.
+- **`limitations_full` / `limitations_grouped` / `limitations_summary`** — the complete
+  catalog from [`osteopatch/limitations.py`](backend/osteopatch/limitations.py): 33 entries
+  across *claim, data, model, evaluation, attribution, platform, deployment, process*.
+
+Every catalog entry carries a severity, the evidence file it rests on, and **what would
+retire it**. `backend/tests/test_limitations.py` fails if a cited file goes missing, if an
+entry stops being falsifiable, if the frozen five are altered, or if the `VIABLE_TUMOR`
+weakness (pooled OOF recall **0.110345**) is removed, reordered or rounded. Those tests
+were verified by mutation: deleting the entry, rounding the metric, and pointing one entry
+at a missing file each fail the suite.
