@@ -1,6 +1,9 @@
 // i18n-ready string table. Components reference t('key'); a Thai table can be
 // added later as STRINGS.th without rewriting any component. Pathology terms are
 // kept in English per the reviewer-language preference.
+//
+// Ported from the G6 review frontend so the unified app carries the same
+// editorial design language, Thai labels, and honesty wording.
 
 export type Locale = "en";
 

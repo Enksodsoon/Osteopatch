@@ -1,0 +1,41 @@
+.review-note-editor {
+  position: relative;
+}
+
+.review-note-input {
+  width: 100%;
+  resize: vertical;
+  padding: 8px;
+  border: 1px solid var(--theme-line);
+  border-radius: 6px;
+  background: var(--theme-panel);
+  color: var(--theme-ink);
+  font: inherit;
+  min-height: 56px;
+}
+
+.review-note-input:focus {
+  border-color: var(--theme-accent);
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(138, 63, 42, .18);
+}
+
+.review-note-expand {
+  position: absolute;
+  bottom: 6px;
+  right: 6px;
+  appearance: none;
+  border: 1px solid var(--theme-line);
+  border-radius: 6px;
+  background: var(--theme-panel-2);
+  color: var(--theme-muted);
+  font-size: 11px;
+  font-weight: 650;
+  padding: 1px 8px;
+  cursor: pointer;
+}
+
+.review-note-expand:hover {
+  border-color: var(--theme-accent);
+  color: var(--theme-ink);
+}
