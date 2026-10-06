@@ -23,6 +23,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import threading
 import time
 from dataclasses import dataclass
@@ -59,6 +60,11 @@ def _sha256_file(p: Path) -> str:
 
 
 def _build_state() -> dict:
+    # Keep torchvision's encoder-weight fetch inside the durable runtime tree so
+    # a demo run needs no network. setdefault, not assignment: an operator's
+    # explicit TORCH_HOME still wins.
+    os.environ.setdefault("TORCH_HOME", str(config.TORCH_HUB_DIR))
+
     import torch
     import torch.nn as nn
     from torchvision.models import mobilenet_v3_small, MobileNet_V3_Small_Weights

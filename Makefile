@@ -3,11 +3,11 @@
 UV ?= uv
 PY := $(UV) run --locked python
 .DEFAULT_GOAL := help
-.PHONY: help setup test test-backend test-enterprise test-frontend test-tooling repo-check lint typecheck runtime bake verify-bake smoke e2e serve docs docs-check docs-serve
+.PHONY: help setup test test-backend test-enterprise test-frontend test-tooling repo-check lint typecheck runtime capability unified bake verify-bake smoke e2e serve docs docs-check docs-serve
 
 help:
 	@echo "setup | test | lint | typecheck | repo-check | docs | docs-serve"
-	@echo "Runtime required: runtime | serve | smoke | e2e | bake | verify-bake"
+	@echo "Runtime required: runtime | capability | unified | serve | smoke | e2e | bake | verify-bake"
 	@echo "No target creates cloud resources or deletes runtime evidence."
 
 setup:
@@ -45,6 +45,16 @@ typecheck:
 
 runtime:
 	$(PY) scripts/prepare_runtime.py
+
+# Which OPTIONAL runtimes this machine can actually use (torch stack, WSI
+# engines, frozen artifact hashes). Records capability; never gates on it.
+capability:
+	$(PY) scripts/runtime_capability.py --out docs/evidence/runtime-capability.json
+
+# Authenticated unified /v1/* surface over real HTTP, as each demo persona.
+# Copies the review store; the canonical database is never written.
+unified:
+	$(PY) scripts/verify_unified_surface.py
 
 bake: runtime
 	$(PY) scripts/prepare_bake.py

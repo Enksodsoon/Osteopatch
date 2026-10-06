@@ -210,6 +210,85 @@ def test_invalid_class_raises_attribution_error():
         attribution.compute_attribution(tiff, tiff.stem, "NECROSIS", "NECROSIS")
 
 
+# ---------------------------------------------------------------------------
+# Frozen-identity guards. `torch.load` executes pickled code, so the SHA-256
+# check in `_build_state` must fire BEFORE the file is opened by torch. These
+# assert both directions: the durable artifact still matches its pinned hash,
+# and a single flipped byte is refused with a message that keeps the recovered
+# identity distinct from the original frozen one.
+# ---------------------------------------------------------------------------
+@torch_only
+def test_durable_recovered_bundle_matches_its_pinned_hash():
+    from osteopatch import attribution
+    actual = attribution._sha256_file(RECOVERED_MODEL)
+    assert actual == config.RECOVERED_MODEL_SHA256, (
+        f"recovered head hash drifted: {actual} != {config.RECOVERED_MODEL_SHA256}"
+    )
+    # The original frozen G4 hash must never be reassigned to this artifact.
+    assert actual != config.EXPECTED_BUNDLE_SHA256
+
+
+@torch_only
+def test_hash_guard_refuses_a_tampered_recovered_bundle(tmp_path, monkeypatch):
+    from osteopatch import attribution
+
+    raw = bytearray(RECOVERED_MODEL.read_bytes())
+    raw[len(raw) // 2] ^= 0x01  # one byte is enough
+    tampered = tmp_path / "g4-behavioral-recovery-r1.pt"
+    tampered.write_bytes(bytes(raw))
+
+    monkeypatch.setattr(config, "RECOVERED_MODEL_PATH", tampered)
+    monkeypatch.setattr(attribution, "RECOVERED_BUNDLE", tampered)
+    monkeypatch.setattr(attribution, "_STATE", None)  # force a real rebuild attempt
+
+    with pytest.raises(attribution.AttributionError) as exc:
+        attribution.get_state()
+    msg = str(exc.value)
+    assert "hash mismatch" in msg
+    # The message must name BOTH hashes so a reader cannot confuse the two
+    # models, and must not have loaded the file.
+    assert config.RECOVERED_MODEL_SHA256 in msg
+    assert config.EXPECTED_BUNDLE_SHA256 in msg
+    assert attribution._STATE is None  # nothing was cached from the bad file
+
+
+@torch_only
+def test_encoder_weights_are_cached_in_the_durable_runtime_tree(monkeypatch):
+    """The demo must not need live internet: TORCH_HOME is pinned under
+    runtime-artifacts/ and the frozen encoder checkpoint lives there."""
+    from osteopatch import attribution
+
+    monkeypatch.delenv("TORCH_HOME", raising=False)
+    monkeypatch.setattr(attribution, "_STATE", None)
+    attribution.get_state()
+
+    assert os.environ["TORCH_HOME"] == str(config.TORCH_HUB_DIR)
+
+    ckpt = config.TORCH_HUB_DIR / "hub" / "checkpoints" / config.ENCODER_CHECKPOINT_NAME
+    if not ckpt.exists():
+        pytest.skip(
+            "encoder checkpoint not pre-warmed; run scripts/runtime_capability.py --warm"
+        )
+    actual = attribution._sha256_file(ckpt)
+    assert actual == config.ENCODER_CHECKPOINT_SHA256, (
+        f"encoder checkpoint hash drifted: {actual} != {config.ENCODER_CHECKPOINT_SHA256}"
+    )
+
+
+@torch_only
+def test_caller_supplied_torch_home_is_not_overridden(monkeypatch):
+    """setdefault, not assignment: an operator's explicit TORCH_HOME wins."""
+    from osteopatch import attribution
+
+    override = os.environ.get("OSTEOPATCH_TEST_TORCH_HOME") or str(
+        config.TORCH_HUB_DIR.parent / "explicit-override"
+    )
+    monkeypatch.setenv("TORCH_HOME", override)
+    monkeypatch.setattr(attribution, "_STATE", None)
+    attribution.get_state()
+    assert os.environ["TORCH_HOME"] == override
+
+
 @torch_only
 def test_gauge_invariance_live_on_durable_tiff():
     from osteopatch import attribution

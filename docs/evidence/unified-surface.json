@@ -1,0 +1,273 @@
+{
+  "generated_at": "2026-10-06T01:39:49+00:00",
+  "canonical_db_unchanged": true,
+  "canonical_db_sha256": "0e4524db91f7a6e22dfbdc3395cf0fce6b7bf1b5628ac4cd1198be291d01ac40",
+  "read_model_used": "copy of runtime-artifacts/db (canonical never written)",
+  "checks": [
+    {
+      "check": "health reports the read model",
+      "ok": true,
+      "detail": {
+        "available": true,
+        "status": "ok",
+        "model_version": "baseline-frozen-g4",
+        "model_bundle_sha256": "01727fb832f9d5518bbe2e33b901e7041020929c94b89cdb7a5e5195b544df63",
+        "images_indexed": 1144,
+        "predictions": 1144,
+        "image_subset_scoped": false,
+        "disclaimer": "Educational / research prototype. NOT for diagnosis, treatment decisions, treatment-response prediction, or prognosis. Model scores are uncalibrated class scores, never disease probabilities."
+      }
+    },
+    {
+      "check": "audit chain verifies",
+      "ok": true,
+      "detail": true
+    },
+    {
+      "check": "six demo personas can log in",
+      "expected": 6,
+      "actual": 6,
+      "ok": true
+    },
+    {
+      "check": "demo scope populated the gallery",
+      "expected": 50,
+      "actual": 50,
+      "ok": true
+    },
+    {
+      "check": "gallery is uncertainty-first",
+      "ok": true,
+      "detail": "top=Case-3-A17-15765-20926 margin=0.0003"
+    },
+    {
+      "check": "GET /v1/meta",
+      "expected": 200,
+      "actual": 200,
+      "ok": true
+    },
+    {
+      "check": "meta keeps 3 canonical classes",
+      "expected": [
+        "NON_TUMOR",
+        "VIABLE_TUMOR",
+        "NECROSIS"
+      ],
+      "actual": [
+        "NON_TUMOR",
+        "VIABLE_TUMOR",
+        "NECROSIS"
+      ],
+      "ok": true
+    },
+    {
+      "check": "GET /v1/model-card",
+      "expected": 200,
+      "actual": 200,
+      "ok": true
+    },
+    {
+      "check": "GET /v1/images",
+      "expected": 200,
+      "actual": 200,
+      "ok": true
+    },
+    {
+      "check": "GET /v1/images/{id}",
+      "expected": 200,
+      "actual": 200,
+      "ok": true
+    },
+    {
+      "check": "GET thumbnail -> png",
+      "expected": 200,
+      "actual": 200,
+      "ok": true
+    },
+    {
+      "check": "thumbnail is real PNG bytes",
+      "ok": true,
+      "detail": "138010 bytes, magic=b'\\x89PNG\\r\\n\\x1a\\n'"
+    },
+    {
+      "check": "GET full -> png",
+      "expected": 200,
+      "actual": 200,
+      "ok": true
+    },
+    {
+      "check": "full image is real PNG bytes",
+      "ok": true,
+      "detail": "1664351 bytes"
+    },
+    {
+      "check": "GET attribution/meta",
+      "expected": 200,
+      "actual": 200,
+      "ok": true
+    },
+    {
+      "check": "attribution names the recovered model",
+      "expected": "g4-behavioral-recovery-r1",
+      "actual": "g4-behavioral-recovery-r1",
+      "ok": true
+    },
+    {
+      "check": "attribution keeps the recovery disclosure",
+      "ok": true,
+      "detail": "Attribution uses a behaviorally reconstructed classifier because the original ru..."
+    },
+    {
+      "check": "GET attribution -> png with provenance headers",
+      "ok": true,
+      "detail": {
+        "x-attrib-target-a": "NON_TUMOR",
+        "x-attrib-target-b": "NECROSIS",
+        "x-attrib-cached": "true",
+        "x-attrib-latency-ms": "0.0",
+        "x-attrib-recovered-model": "g4-behavioral-recovery-r1",
+        "x-attrib-target-layer": "model.features[-1]"
+      }
+    },
+    {
+      "check": "POST review (reviewer)",
+      "ok": true,
+      "detail": "HTTP 200 {\"review_event_id\":\"rev-Case-3-A17-15765-20926-1-86a12028\",\"action\":\"ACCEPT\",\"selected_class\":null,\"reason\":null,\"note\":"
+    },
+    {
+      "check": "GET /v1/exports/reviews -> csv",
+      "expected": 200,
+      "actual": 200,
+      "ok": true
+    },
+    {
+      "check": "csv is a downloadable attachment",
+      "ok": true,
+      "detail": "attachment; filename=osteopatch_reviews.csv"
+    },
+    {
+      "check": "csv has a header row",
+      "ok": true,
+      "detail": "image_id,source_group,qc_primary_status,training_eligible,qc_review_fl"
+    },
+    {
+      "check": "GET exports?format=json",
+      "expected": 200,
+      "actual": 200,
+      "ok": true
+    },
+    {
+      "check": "json export carries model provenance",
+      "expected": "baseline-frozen-g4",
+      "actual": "baseline-frozen-g4",
+      "ok": true
+    },
+    {
+      "check": "no token -> 401 on /v1/images",
+      "expected": 401,
+      "actual": 401,
+      "ok": true
+    },
+    {
+      "check": "no token -> 401 on image bytes",
+      "expected": 401,
+      "actual": 401,
+      "ok": true
+    },
+    {
+      "check": "reviewer without X-Project-Id -> 400",
+      "expected": 400,
+      "actual": 400,
+      "ok": true
+    },
+    {
+      "check": "non-member project -> 404 (existence not disclosed)",
+      "expected": 404,
+      "actual": 404,
+      "ok": true
+    },
+    {
+      "check": "auditor cannot write a review",
+      "expected": 403,
+      "actual": 403,
+      "ok": true
+    },
+    {
+      "check": "auditor CAN read",
+      "expected": 200,
+      "actual": 200,
+      "ok": true
+    },
+    {
+      "check": "student cannot export (export:read excludes student)",
+      "expected": 403,
+      "actual": 403,
+      "ok": true
+    },
+    {
+      "check": "student CAN read (review:read includes student)",
+      "expected": 200,
+      "actual": 200,
+      "ok": true
+    },
+    {
+      "check": "mle cannot write a review (no review:write)",
+      "expected": 403,
+      "actual": 403,
+      "ok": true
+    },
+    {
+      "check": "student cannot create a project",
+      "expected": 403,
+      "actual": 403,
+      "ok": true
+    },
+    {
+      "check": "admin CAN create a project",
+      "expected": 200,
+      "actual": 200,
+      "ok": true
+    },
+    {
+      "check": "created project has an id",
+      "ok": true,
+      "detail": {
+        "project_id": "prj_c90fee67d598",
+        "name": "Project B",
+        "created_by": "usr_6b43536a77d0"
+      }
+    },
+    {
+      "check": "other project -> 404 on Case-3-A17-15765-20926",
+      "expected": 404,
+      "actual": 404,
+      "ok": true
+    },
+    {
+      "check": "other project -> 404 on thumbnail",
+      "expected": 404,
+      "actual": 404,
+      "ok": true
+    },
+    {
+      "check": "other project -> 404 on full",
+      "expected": 404,
+      "actual": 404,
+      "ok": true
+    },
+    {
+      "check": "other project -> 404 on meta",
+      "expected": 404,
+      "actual": 404,
+      "ok": true
+    },
+    {
+      "check": "other project sees an empty gallery",
+      "expected": 0,
+      "actual": 0,
+      "ok": true
+    }
+  ],
+  "failed": 0,
+  "passed": 41
+}

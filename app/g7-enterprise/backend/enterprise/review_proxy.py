@@ -16,11 +16,8 @@ every call returns a labelled 503 — NEVER a fabricated prediction or review.
 from __future__ import annotations
 
 import json
-from pathlib import Path
 
-from fastapi import HTTPException
-
-from . import config
+from fastapi import HTTPException, Response
 
 # ---------------------------------------------------------------------------
 # G6 import is best-effort and lazy. We never crash the enterprise app just
@@ -45,7 +42,7 @@ def _g6():
                         "no prediction is fabricated when the backend is down",
                 "cause": _G6_IMPORT_ERROR,
             },
-        )
+        ) from exc
 
 
 def backend_status() -> dict:
@@ -54,6 +51,15 @@ def backend_status() -> dict:
         return {"available": True}
     except HTTPException as exc:
         return {"available": False, "detail": exc.detail}
+
+
+def g6_conn():
+    """The G6 read-model connection, honouring the G6 ``set_conn`` test hook.
+
+    Public so callers that legitimately share the read model (demo scoping,
+    diagnostics) do not have to reach into a private module global.
+    """
+    return _g6().get_conn()
 
 
 # ---------------------------------------------------------------------------
@@ -155,3 +161,126 @@ def export_reviews(project_id: str | None, *, format: str) -> dict:
     from osteopatch import queries  # type: ignore
     rows = queries.export_rows(_g6().get_conn(), project_id=pid)
     return {"format": format, "count": len(rows), "rows": rows}
+
+
+# ---------------------------------------------------------------------------
+# Unified review surface (Phase 1)
+#
+# The G6 handlers are called directly rather than re-implemented, so the
+# unified app cannot drift from the review API it fronts: one contract, one
+# implementation. What this layer adds is TENANCY -- every one of these checks
+# the image is inside the caller's project BEFORE the G6 handler runs, so a
+# caller cannot read a neighbour's patch by guessing an image_id.
+# ---------------------------------------------------------------------------
+def _require_in_project(image_id: str, project_id: str) -> None:
+    """Fail closed when the image is absent from the caller's project.
+
+    404, not 403: telling "out of scope" apart from "does not exist" would let
+    a tenant probe for another tenant's corpus.
+    """
+    from osteopatch import queries  # type: ignore
+
+    if queries.get_image(_g6().get_conn(), image_id, project_id=project_id) is None:
+        raise HTTPException(status_code=404, detail="unknown image_id (or out of project scope)")
+
+
+def _unwrap(response: Response) -> tuple[bytes, dict[str, str]]:
+    """Split a G6 handler result into (body, headers).
+
+    G6 signals honest failure by RETURNING a JSONResponse (404 unknown image,
+    400 bad class, 503 attribution runtime unavailable). That status is
+    preserved verbatim rather than flattened, so a caller never sees a 200
+    carrying an error body -- and never sees a fabricated image.
+    """
+    status = getattr(response, "status_code", 200)
+    if status != 200:
+        try:
+            detail = json.loads(response.body)
+        except Exception:  # pragma: no cover - defensive; body is our own JSON
+            detail = {"error": "G6 handler failed", "status": status}
+        raise HTTPException(status_code=status, detail=detail)
+    return bytes(response.body), dict(response.headers)
+
+
+def meta() -> dict:
+    """Review contract: canonical classes, actions, attribution disclosure."""
+    return _g6().meta()
+
+
+def health() -> dict:
+    """Read-model health: indexed images, prediction count, subset scoping."""
+    return _g6().health()
+
+
+def model_card() -> dict:
+    """Frozen model card + the full limitations catalog."""
+    return _g6().get_model_card()
+
+
+def thumbnail_png(project_id: str | None, image_id: str) -> bytes:
+    pid = _require_project(project_id)
+    _require_in_project(image_id, pid)
+    body, _ = _unwrap(_g6().get_thumbnail(image_id))
+    return body
+
+
+def full_png(project_id: str | None, image_id: str) -> bytes:
+    pid = _require_project(project_id)
+    _require_in_project(image_id, pid)
+    body, _ = _unwrap(_g6().get_full(image_id))
+    return body
+
+
+def attribution_meta(project_id: str | None, image_id: str) -> dict:
+    """Attribution availability + default contrastive pair, WITHOUT running the
+    torch-loading CAM. Lets the UI render the panel and the recovery disclosure
+    before the user asks for an overlay."""
+    pid = _require_project(project_id)
+    _require_in_project(image_id, pid)
+    return _g6().get_attribution_meta(image_id)
+
+
+def attribution_overlay(
+    project_id: str | None,
+    image_id: str,
+    *,
+    target_a: str | None = None,
+    target_b: str | None = None,
+) -> tuple[bytes, dict[str, str]]:
+    """Contrastive Grad-CAM overlay PNG plus the X-Attrib-* provenance headers.
+
+    `target_a`/`target_b` default to the predicted class vs its runner-up,
+    exactly as the G6 endpoint does. A 503 from G6 (torch absent, bundle hash
+    mismatch) is passed through unchanged: attribution degrades honestly rather
+    than returning a fabricated heatmap.
+    """
+    pid = _require_project(project_id)
+    _require_in_project(image_id, pid)
+    response = _g6().get_attribution(
+        image_id, target_a=target_a, target_b=target_b, format="png"
+    )
+    return _unwrap(response)
+
+
+def review_export_rows(project_id: str | None) -> list[dict]:
+    """Raw export rows for this project. Serialisation lives in
+    ``osteopatch.exports`` so both apps emit byte-identical downloads."""
+    pid = _require_project(project_id)
+    from osteopatch import queries  # type: ignore
+    return queries.export_rows(_g6().get_conn(), project_id=pid)
+
+
+def top_priority_image_ids(limit: int) -> list[str]:
+    """The ``limit`` most review-priority images across the whole corpus.
+
+    Unscoped on purpose: this reads the frozen read model to pick a demo scope,
+    before any project owns those rows. Deterministic -- the ranking is a pure
+    function of the frozen scores.
+    """
+    from osteopatch import queries  # type: ignore
+
+    listing = queries.list_images(
+        g6_conn(), sort="priority", filt="all", q=None, page=1,
+        page_size=limit, project_id=None,
+    )
+    return [item["image_id"] for item in listing["items"]]

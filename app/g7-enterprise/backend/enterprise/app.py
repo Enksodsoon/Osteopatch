@@ -9,6 +9,9 @@ Routes:
   GET  /v1/audit                   -> read + verify the audit chain (auditor/admin)
   GET  /api/v1/images              -> project-scoped gallery (review:read)
   POST /api/v1/images/{id}/reviews -> submit a review (review:write), audited
+  GET  /v1/images, /v1/images/{id} -> the SAME handlers, at the G6-shaped paths
+                                      the unified reviewer UI calls. Aliases, not
+                                      copies: see the alias block below.
 
 The review surface is enforced here (authz + tenancy) and then delegated to the
 G6 review logic. When the G6 package / its data store is not importable (e.g. in
@@ -19,8 +22,8 @@ Binds 127.0.0.1 only. No torch. No AWS.
 """
 from __future__ import annotations
 
-from fastapi import Depends, FastAPI, Header, HTTPException
-from fastapi.responses import JSONResponse
+from fastapi import Depends, FastAPI, Header, HTTPException, Response
+from fastapi.responses import JSONResponse, StreamingResponse
 from pydantic import BaseModel, Field
 
 from . import audit, auth, config, governance, ingestion, inference, observability, registry, review_proxy, store
@@ -237,6 +240,107 @@ def export(p: Principal = Depends(require("export:read")),
 
 
 # ---------------------------------------------------------------------------
+# Unified review surface (Phase 1) — the G6-shaped /v1/* paths
+#
+# One implementation, two mount points. The /api/v1/* handlers above are
+# re-registered here at their G6 paths so the unified reviewer UI calls the
+# same functions; nothing is reimplemented, so the two surfaces cannot drift.
+# /api/v1/* stays exactly as it was for existing callers.
+# ---------------------------------------------------------------------------
+_UNIFIED_ALIASES: tuple[tuple[str, str, str], ...] = (
+    ("/v1/images", "gallery", "GET"),
+    ("/v1/images/{image_id}", "patch_detail", "GET"),
+    ("/v1/images/{image_id}/reviews", "submit_review", "POST"),
+)
+
+
+def _register_unified_aliases() -> None:
+    for path, handler_name, method in _UNIFIED_ALIASES:
+        app.add_api_route(path, globals()[handler_name], methods=[method])
+
+
+_register_unified_aliases()
+
+
+@app.get("/v1/meta")
+def unified_meta(p: Principal = Depends(require("review:read"))):
+    """Review contract: canonical classes, actions, defer reasons, attribution
+    disclosure. Requires membership; carries no project-scoped data itself."""
+    return review_proxy.meta()
+
+
+@app.get("/v1/model-card")
+def unified_model_card(p: Principal = Depends(require("review:read"))):
+    """Frozen model card + the full limitations catalog."""
+    return review_proxy.model_card()
+
+
+@app.get("/v1/images/{image_id}/thumbnail")
+def unified_thumbnail(image_id: str, p: Principal = Depends(require("review:read")),
+                      x_project_id: str | None = Header(default=None, alias="X-Project-Id")):
+    """Gallery thumbnail PNG. 404 (not 403) when the image is outside the
+    caller's project, so scope cannot be probed."""
+    return Response(content=review_proxy.thumbnail_png(x_project_id, image_id),
+                    media_type="image/png")
+
+
+@app.get("/v1/images/{image_id}/full")
+def unified_full(image_id: str, p: Principal = Depends(require("review:read")),
+                 x_project_id: str | None = Header(default=None, alias="X-Project-Id")):
+    """Full-resolution patch PNG."""
+    return Response(content=review_proxy.full_png(x_project_id, image_id),
+                    media_type="image/png")
+
+
+@app.get("/v1/images/{image_id}/attribution/meta")
+def unified_attribution_meta(image_id: str, p: Principal = Depends(require("review:read")),
+                             x_project_id: str | None = Header(default=None, alias="X-Project-Id")):
+    """Attribution availability + default contrastive pair, WITHOUT running the
+    torch-loading CAM, so the UI can show the recovery disclosure up front."""
+    return review_proxy.attribution_meta(x_project_id, image_id)
+
+
+@app.get("/v1/images/{image_id}/attribution")
+def unified_attribution(image_id: str,
+                        p: Principal = Depends(require("review:read")),
+                        x_project_id: str | None = Header(default=None, alias="X-Project-Id"),
+                        target_a: str | None = None, target_b: str | None = None):
+    """Contrastive Grad-CAM overlay PNG.
+
+    The X-Attrib-* provenance headers come straight from G6. A 503 from G6
+    (torch absent, recovered-bundle hash mismatch) passes through unchanged —
+    attribution degrades to an honest notice, never a fabricated heatmap.
+    """
+    body, headers = review_proxy.attribution_overlay(
+        x_project_id, image_id, target_a=target_a, target_b=target_b
+    )
+    return Response(content=body, media_type="image/png", headers=headers)
+
+
+@app.get("/v1/exports/reviews")
+def unified_export(p: Principal = Depends(require("export:read")),
+                   x_project_id: str | None = Header(default=None, alias="X-Project-Id"),
+                   format: str = "csv"):
+    """G6-shaped review export: a real CSV download, or the JSON envelope.
+
+    Distinct from /api/v1/exports/reviews, which returns the row envelope for
+    the enterprise UI rather than a file. Both read the same rows.
+    """
+    from osteopatch import exports  # type: ignore
+
+    rows = review_proxy.review_export_rows(x_project_id)
+    audit.record(p.email, "export.reviews", x_project_id or "-", project_id=x_project_id,
+                 detail={"format": format, "rows": len(rows)})
+    if format == "json":
+        return exports.json_envelope(rows)
+    return StreamingResponse(
+        iter([exports.rows_to_csv(rows)]),
+        media_type="text/csv",
+        headers={"Content-Disposition": f"attachment; filename={exports.CSV_FILENAME}"},
+    )
+
+
+# ---------------------------------------------------------------------------
 # E4 — Governance (adjudication, batch sign-off, correction capture)
 # ---------------------------------------------------------------------------
 class AdjudicateBody(BaseModel):
@@ -424,7 +528,7 @@ def enqueue_inference(body: EnqueueBody,
 @app.get("/v1/health")
 def health():
     ok, n, _ = audit.verify_chain()
-    return {
+    report: dict = {
         "status": "ok",
         "layer": "enterprise-full (E1 live + E2–E6 local; AWS seam gated)",
         "external_oidc": config.USE_EXTERNAL_OIDC,
@@ -433,3 +537,14 @@ def health():
         "review_backend": review_proxy.backend_status(),
         "disclaimer": config.DISCLAIMER,
     }
+    # The unified UI shows this as its single "is the demo ready?" indicator, so
+    # it needs the READ MODEL's counts too — not just "the package imported".
+    # A G6 store that is absent or unreadable reports why, never a zero that
+    # would read as an empty corpus.
+    try:
+        read_model = review_proxy.health()
+    except HTTPException as exc:
+        report["read_model"] = {"available": False, "detail": exc.detail}
+    else:
+        report["read_model"] = {"available": True, **read_model}
+    return report
