@@ -1,0 +1,345 @@
+{
+  "generated_at": "2026-10-06T05:39:02+00:00",
+  "canonical_db_unchanged": true,
+  "canonical_db_sha256": "2b18cdec2a9169ce88ff79e7f714662f7898cdb4d804fe34ed4119d31219d46b",
+  "read_model_used": "copy of runtime-artifacts/db (canonical never written)",
+  "corpus_row_digest_before": {
+    "digest": "fcb6c07313790d4401bd0eb9f233b56b9c8ba82dbf2548bd01ba4b97f3dcfa35",
+    "tables": {
+      "source_qc": 1144,
+      "prediction": 1144,
+      "review_event": 0
+    }
+  },
+  "corpus_row_digest_after": {
+    "digest": "fcb6c07313790d4401bd0eb9f233b56b9c8ba82dbf2548bd01ba4b97f3dcfa35",
+    "tables": {
+      "source_qc": 1144,
+      "prediction": 1144,
+      "review_event": 0
+    }
+  },
+  "corpus_rows_unchanged": true,
+  "live_rows_written": {
+    "live_run": 1,
+    "live_tile": 120,
+    "prediction": 1144
+  },
+  "checks": [
+    {
+      "check": "seeding wrote no review scope into the read model",
+      "ok": true,
+      "detail": {
+        "status": "not_requested"
+      }
+    },
+    {
+      "check": "seeding alone left all corpus rows identical",
+      "ok": true,
+      "detail": {
+        "digest": "fcb6c07313790d4401bd0eb9f233b56b9c8ba82dbf2548bd01ba4b97f3dcfa35",
+        "tables": {
+          "source_qc": 1144,
+          "prediction": 1144,
+          "review_event": 0
+        }
+      }
+    },
+    {
+      "check": "GET /v1/live/capability",
+      "expected": 200,
+      "actual": 200,
+      "ok": true
+    },
+    {
+      "check": "live inference is available here",
+      "ok": true,
+      "detail": {
+        "available": true,
+        "model_id": "g4-behavioral-recovery-r1",
+        "bundle_path_relative": "runtime-artifacts/models/g4-behavioral-recovery-r1.pt",
+        "tile_px": 384,
+        "max_tiles": 256,
+        "max_upload_bytes": 536870912,
+        "allowed_suffixes": [
+          ".svs",
+          ".ndpi",
+          ".tif",
+          ".tiff",
+          ".png",
+          ".jpg",
+          ".jpeg"
+        ]
+      }
+    },
+    {
+      "check": "capability names the RECOVERED head",
+      "ok": true,
+      "detail": "g4-behavioral-recovery-r1"
+    },
+    {
+      "check": "no token -> 401 on capability",
+      "expected": 401,
+      "actual": 401,
+      "ok": true
+    },
+    {
+      "check": "reviewer without X-Project-Id -> 400",
+      "expected": 400,
+      "actual": 400,
+      "ok": true
+    },
+    {
+      "check": "non-member project -> 404",
+      "expected": 404,
+      "actual": 404,
+      "ok": true
+    },
+    {
+      "check": "student@demo cannot analyze (403)",
+      "expected": 403,
+      "actual": 403,
+      "ok": true
+    },
+    {
+      "check": "auditor@demo cannot analyze (403)",
+      "expected": 403,
+      "actual": 403,
+      "ok": true
+    },
+    {
+      "check": "reviewer cannot analyze without a project (400)",
+      "expected": 400,
+      "actual": 400,
+      "ok": true
+    },
+    {
+      "check": "empty upload -> 400",
+      "expected": 400,
+      "actual": 400,
+      "ok": true
+    },
+    {
+      "check": "unsupported type -> 415",
+      "expected": 415,
+      "actual": 415,
+      "ok": true
+    },
+    {
+      "check": "undecodable image -> 422",
+      "expected": 422,
+      "actual": 422,
+      "ok": true
+    },
+    {
+      "check": "POST /v1/live/patches",
+      "expected": 200,
+      "actual": 200,
+      "ok": true
+    },
+    {
+      "check": "live run is flagged as live, not corpus",
+      "ok": true,
+      "detail": {
+        "is_live_inference": true,
+        "is_corpus_prediction": false
+      }
+    },
+    {
+      "check": "run carries the recovered model id",
+      "expected": "g4-behavioral-recovery-r1",
+      "actual": "g4-behavioral-recovery-r1",
+      "ok": true
+    },
+    {
+      "check": "run does NOT carry the frozen bundle hash",
+      "expected": false,
+      "actual": false,
+      "ok": true
+    },
+    {
+      "check": "predicted class is one of the three",
+      "expected": true,
+      "actual": true,
+      "ok": true
+    },
+    {
+      "check": "scores sum to 1",
+      "ok": true,
+      "detail": {
+        "NON_TUMOR": 0.28179827479903974,
+        "VIABLE_TUMOR": 0.018016612262910948,
+        "NECROSIS": 0.7001851129380493
+      }
+    },
+    {
+      "check": "score label says uncalibrated",
+      "ok": true,
+      "detail": "Model score \u2014 uncalibrated (recovered research head)"
+    },
+    {
+      "check": "confidence is banded, with a caveat when not clear",
+      "ok": true,
+      "detail": {
+        "confidence": "clear",
+        "caveat": null
+      }
+    },
+    {
+      "check": "wall clock for one patch (incl. model load)",
+      "ok": true,
+      "detail": "20.55s, server-reported 20538.1ms"
+    },
+    {
+      "check": "GET /v1/live/runs/{id} read-back",
+      "expected": 200,
+      "actual": 200,
+      "ok": true
+    },
+    {
+      "check": "read-back returns the same run",
+      "expected": "live-ab4d0db32ae44b01",
+      "actual": "live-ab4d0db32ae44b01",
+      "ok": true
+    },
+    {
+      "check": "read-back returns its tiles",
+      "expected": 1,
+      "actual": 1,
+      "ok": true
+    },
+    {
+      "check": "a reader-only role can read it back",
+      "ok": true,
+      "detail": true
+    },
+    {
+      "check": "listed in /v1/live/runs",
+      "ok": true,
+      "detail": true
+    },
+    {
+      "check": "a patch run has no mosaic (404 says so)",
+      "expected": 404,
+      "actual": 404,
+      "ok": true
+    },
+    {
+      "check": "POST /v1/live/slides",
+      "expected": 200,
+      "actual": 200,
+      "ok": true
+    },
+    {
+      "check": "slide reports the engine it really used",
+      "ok": true,
+      "detail": {
+        "engine": "pillow",
+        "level_count": 1
+      }
+    },
+    {
+      "check": "mpp is null when the file carries none",
+      "ok": true,
+      "detail": {
+        "mpp_x": null,
+        "mpp_y": null
+      }
+    },
+    {
+      "check": "every grid cell was scored",
+      "ok": true,
+      "detail": {
+        "scored": 120,
+        "available": 120,
+        "truncated": false
+      }
+    },
+    {
+      "check": "mosaic grid returned",
+      "ok": true,
+      "detail": {
+        "path_relative": "live-runs/live-30a6cb22898a416f/mosaic.png",
+        "cols": 12,
+        "rows": 10,
+        "cell_px": 18,
+        "undecoded_colour": [
+          150,
+          150,
+          150
+        ]
+      }
+    },
+    {
+      "check": "GET mosaic.png",
+      "expected": 200,
+      "actual": 200,
+      "ok": true
+    },
+    {
+      "check": "mosaic is a real PNG",
+      "ok": true,
+      "detail": "731 bytes"
+    },
+    {
+      "check": "most uncertain tiles are surfaced",
+      "ok": true,
+      "detail": [
+        {
+          "index": 67,
+          "x": 2688,
+          "y": 1920,
+          "predicted_class": "VIABLE_TUMOR",
+          "top_two_margin": 0.007123148744369756,
+          "confidence": "indeterminate"
+        },
+        {
+          "index": 4,
+          "x": 1536,
+          "y": 0,
+          "predicted_class": "VIABLE_TUMOR",
+          "top_two_margin": 0.007844225957775397,
+          "confidence": "indeterminate"
+        }
+      ]
+    },
+    {
+      "check": "admin created a second project",
+      "expected": 200,
+      "actual": 200,
+      "ok": true
+    },
+    {
+      "check": "another project cannot read the run",
+      "expected": 404,
+      "actual": 404,
+      "ok": true
+    },
+    {
+      "check": "another project sees no runs",
+      "expected": 0,
+      "actual": 0,
+      "ok": true
+    },
+    {
+      "check": "another project cannot delete the run",
+      "expected": 404,
+      "actual": 404,
+      "ok": true
+    },
+    {
+      "check": "owner deletes its own run",
+      "expected": 200,
+      "actual": 200,
+      "ok": true
+    },
+    {
+      "check": "the deleted run is gone (404)",
+      "expected": 404,
+      "actual": 404,
+      "ok": true
+    }
+  ],
+  "failed": 0,
+  "passed": 43
+}

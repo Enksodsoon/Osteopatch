@@ -12,6 +12,11 @@ Routes:
   GET  /v1/images, /v1/images/{id} -> the SAME handlers, at the G6-shaped paths
                                       the unified reviewer UI calls. Aliases, not
                                       copies: see the alias block below.
+  GET  /v1/live/capability          -> can this machine run a live pass? (live:read)
+  POST /v1/live/patches             -> import a patch + score it        (live:analyze)
+  POST /v1/live/slides              -> import a slide + tile + score   (live:analyze)
+  GET  /v1/live/runs[/{id}]         -> read runs back                  (live:read)
+  DELETE /v1/live/runs/{id}         -> delete a run + its uploads      (live:analyze)
 
 The review surface is enforced here (authz + tenancy) and then delegated to the
 G6 review logic. When the G6 package / its data store is not importable (e.g. in
@@ -22,7 +27,9 @@ Binds 127.0.0.1 only. No torch. No AWS.
 """
 from __future__ import annotations
 
-from fastapi import Depends, FastAPI, Header, HTTPException, Response
+from pathlib import PurePosixPath
+
+from fastapi import Depends, FastAPI, Header, HTTPException, Request, Response
 from fastapi.responses import JSONResponse, StreamingResponse
 from pydantic import BaseModel, Field
 
@@ -341,6 +348,157 @@ def unified_export(p: Principal = Depends(require("export:read")),
 
 
 # ---------------------------------------------------------------------------
+# Live inference (Phase 2) — imported files, scored by the RECOVERED head
+#
+# Two capabilities, deliberately split. `live:analyze` is a WRITER: it accepts
+# user bytes, spends CPU on a forward pass, and writes rows + artefacts.
+# `live:read` is a READER: it shows a stored run to anyone who may read the
+# review surface.
+#
+# Results land in `live_run` / `live_tile`, never in `prediction`. The database
+# enforces that (migration 0003 refuses a live row claiming the frozen model id
+# or bundle hash), so these routes cannot quietly contaminate the corpus.
+# ---------------------------------------------------------------------------
+async def _read_upload_bytes(request: Request) -> tuple[str, bytes]:
+    """Stream a raw request body to memory under a hard cap.
+
+    Raw bytes, not multipart: a whole-slide image is tens to hundreds of MB and
+    multipart would spool it to a temp file for no benefit, and it would add a
+    `python-multipart` dependency to a project that has kept its dependency list
+    short and audited. The browser sends ``fetch(url, {body: file})`` instead.
+
+    The filename arrives in `X-File-Name` and is treated as an untrusted LABEL
+    only: it is reduced to a bare basename and length-capped, and it is never
+    used to build a filesystem path (runs write to ``source.bin`` in a
+    server-generated directory).
+    """
+    from osteopatch import config as g6_config  # type: ignore
+
+    raw_name = (request.headers.get("x-file-name") or "upload").strip()
+    # basename only, so "../../etc/passwd" cannot even be STORED as a label
+    name = PurePosixPath(raw_name.replace("\\", "/")).name[:200] or "upload"
+
+    limit = g6_config.LIVE_MAX_UPLOAD_BYTES
+    buf = bytearray()
+    async for chunk in request.stream():
+        buf.extend(chunk)
+        if len(buf) > limit:
+            # Refuse as the bytes arrive rather than after buffering them all.
+            raise HTTPException(
+                status_code=413,
+                detail={"error": "upload too large", "limit_bytes": limit},
+            )
+    return name, bytes(buf)
+
+
+@app.get("/v1/live/capability")
+def live_capability(p: Principal = Depends(require("live:read")),
+                    x_project_id: str | None = Header(default=None, alias="X-Project-Id")):
+    """Can this machine run a live inference at all, and what does it accept?
+
+    Deliberately torch-free (it probes with importlib, not ``import torch``), so
+    the UI can render this on page load without loading a ~1 GB runtime.
+    """
+    return review_proxy.live_capability()
+
+
+@app.post("/v1/live/patches")
+async def live_predict_patch(request: Request,
+                             p: Principal = Depends(require("live:analyze")),
+                             x_project_id: str | None = Header(default=None, alias="X-Project-Id")):
+    """Import a single patch and score it. One forward pass, one stored run."""
+    name, data = await _read_upload_bytes(request)
+    result = review_proxy.live_predict_patch(x_project_id, name, data, reviewer=p.email)
+    audit.record(p.email, "live.predict_patch", result["run"]["run_id"],
+                 project_id=x_project_id,
+                 detail={"filename": name, "bytes": len(data),
+                         "model_id": result["run"]["model_id"],
+                         "predicted_class": result["prediction"]["predicted_class"],
+                         "confidence": result["prediction"]["confidence"]})
+    return result
+
+
+@app.post("/v1/live/slides")
+async def live_analyze_slide(request: Request,
+                             tile_px: int | None = None,
+                             stride: int | None = None,
+                             max_tiles: int | None = None,
+                             p: Principal = Depends(require("live:analyze")),
+                             x_project_id: str | None = Header(default=None, alias="X-Project-Id")):
+    """Import a whole-slide image, tile it deterministically, score every tile.
+
+    Returns the honest shape: the tile grid, a class mosaic, and the most
+    uncertain tiles. A grid larger than ``max_tiles`` is reported as
+    ``truncated: true`` with both counts — tiles are never silently dropped.
+    """
+    name, data = await _read_upload_bytes(request)
+    result = review_proxy.live_analyze_slide(
+        x_project_id, name, data, reviewer=p.email,
+        tile_px=tile_px, stride=stride, max_tiles=max_tiles,
+    )
+    audit.record(p.email, "live.analyze_slide", result["run"]["run_id"],
+                 project_id=x_project_id,
+                 detail={"filename": name, "bytes": len(data),
+                         "engine": result["run"]["engine"],
+                         "level_count": result["run"]["level_count"],
+                         "tiles": result["run"]["tile_count"],
+                         "truncated": result["run"]["truncated"],
+                         "model_id": result["run"]["model_id"]})
+    return result
+
+
+@app.get("/v1/live/runs")
+def live_runs(p: Principal = Depends(require("live:read")),
+              x_project_id: str | None = Header(default=None, alias="X-Project-Id"),
+              limit: int = 50):
+    """Recent live runs for this project. Never another project's."""
+    return {"runs": review_proxy.live_runs(x_project_id, limit=limit)}
+
+
+@app.get("/v1/live/runs/{run_id}")
+def live_run(run_id: str, p: Principal = Depends(require("live:read")),
+             x_project_id: str | None = Header(default=None, alias="X-Project-Id")):
+    """Read one run back with every tile. 404 across tenants."""
+    return review_proxy.live_run(x_project_id, run_id)
+
+
+@app.get("/v1/live/runs/{run_id}/mosaic.png")
+def live_mosaic(run_id: str, p: Principal = Depends(require("live:read")),
+                x_project_id: str | None = Header(default=None, alias="X-Project-Id")):
+    """Class mosaic: one cell per tile, grey where a tile could not be decoded."""
+    return Response(content=review_proxy.live_mosaic(x_project_id, run_id),
+                    media_type="image/png")
+
+
+@app.get("/v1/live/runs/{run_id}/tiles/{tile_index}/attribution")
+def live_tile_attribution(run_id: str, tile_index: int,
+                          p: Principal = Depends(require("live:read")),
+                          x_project_id: str | None = Header(default=None, alias="X-Project-Id"),
+                          target_a: str | None = None, target_b: str | None = None):
+    """Contrastive Grad-CAM over one imported tile.
+
+    Same recovered head, same hash guard and same recovery disclosure as corpus
+    attribution — explaining a live tile must not be a weaker claim than
+    explaining a corpus patch.
+    """
+    body, headers = review_proxy.live_tile_attribution(
+        x_project_id, run_id, tile_index, target_a=target_a, target_b=target_b
+    )
+    return Response(content=body, media_type="image/png", headers=headers)
+
+
+@app.delete("/v1/live/runs/{run_id}")
+def live_delete_run(run_id: str, p: Principal = Depends(require("live:analyze")),
+                    x_project_id: str | None = Header(default=None, alias="X-Project-Id")):
+    """Delete a run and the uploaded bytes behind it. A writer action: the
+    uploaded file is the user's own data."""
+    result = review_proxy.live_delete_run(x_project_id, run_id)
+    audit.record(p.email, "live.delete_run", run_id, project_id=x_project_id,
+                 detail={"deleted": True})
+    return result
+
+
+# ---------------------------------------------------------------------------
 # E4 — Governance (adjudication, batch sign-off, correction capture)
 # ---------------------------------------------------------------------------
 class AdjudicateBody(BaseModel):
@@ -548,3 +706,104 @@ def health():
     else:
         report["read_model"] = {"available": True, **read_model}
     return report
+
+
+# ---------------------------------------------------------------------------
+# Case reports
+#
+#   POST /v1/reports                   -> author + optionally sign        (report:write)
+#   GET  /v1/reports[/{id}]            -> read back, with hash verification (report:read)
+#   GET  /v1/reports/{id}/export.html  -> self-contained printable HTML   (report:read)
+#   GET  /v1/reports/{id}/export.md    -> Markdown, same typed source     (report:read)
+#
+# There is NO update or delete route, and that is deliberate: reports are
+# append-only. A revised report is a new row. Writing one touches no corpus
+# table, so producing a document can never change what was reviewed.
+# ---------------------------------------------------------------------------
+
+
+class ReportBody(BaseModel):
+    case_id: str
+    title: str
+    findings_text: str = ""
+    image_ids: list[str] = []
+    run_ids: list[str] = []
+    signer_email: str | None = None
+    signer_role: str | None = None
+    signoff_note: str | None = None
+
+
+@app.post("/v1/reports")
+def create_report(body: ReportBody, p: Principal = Depends(require("report:write")),
+                  x_project_id: str | None = Header(default=None, alias="X-Project-Id")):
+    """Author an append-only case report spanning several scored images."""
+    result = review_proxy.create_report(
+        x_project_id,
+        case_id=body.case_id,
+        title=body.title,
+        findings_text=body.findings_text,
+        image_ids=body.image_ids,
+        run_ids=body.run_ids,
+        author=p.email,
+        signer_email=body.signer_email,
+        signer_role=body.signer_role,
+        signoff_note=body.signoff_note,
+    )
+    audit.record(p.email, "report.create", result["report_id"],
+                 project_id=x_project_id,
+                 detail={"case_id": result["case_id"], "images": result["n_images"],
+                         "signed": result["is_signed"],
+                         "supported": result["n_supported"],
+                         "unresolved": result["n_unresolved"],
+                         "content_sha256": result["content_sha256"]})
+    return result
+
+
+@app.get("/v1/reports")
+def list_reports(p: Principal = Depends(require("report:read")),
+                 x_project_id: str | None = Header(default=None, alias="X-Project-Id"),
+                 limit: int = 50):
+    return {"reports": review_proxy.list_reports(x_project_id, limit=limit)}
+
+
+@app.get("/v1/reports/{report_id}")
+def get_report(report_id: str, p: Principal = Depends(require("report:read")),
+               x_project_id: str | None = Header(default=None, alias="X-Project-Id")):
+    """Read a report back, including a freshly recomputed hash check."""
+    return review_proxy.get_report(x_project_id, report_id)
+
+
+@app.get("/v1/reports/{report_id}/export.html")
+def export_report_html(report_id: str, p: Principal = Depends(require("report:read")),
+                       x_project_id: str | None = Header(default=None, alias="X-Project-Id")):
+    """Self-contained HTML. Opens offline and prints to PDF from the browser."""
+    body, media_type = review_proxy.render_report_export(x_project_id, report_id, "html")
+    return Response(
+        content=body,
+        media_type=media_type,
+        headers={"Content-Disposition": f'attachment; filename="{report_id}.html"'},
+    )
+
+
+@app.get("/v1/reports/{report_id}/export.md")
+def export_report_md(report_id: str, p: Principal = Depends(require("report:read")),
+                     x_project_id: str | None = Header(default=None, alias="X-Project-Id")):
+    """Markdown, rendered from the same typed source as the HTML."""
+    body, media_type = review_proxy.render_report_export(x_project_id, report_id, "md")
+    return Response(
+        content=body,
+        media_type=media_type,
+        headers={"Content-Disposition": f'attachment; filename="{report_id}.md"'},
+    )
+
+
+# ---------------------------------------------------------------------------
+# Unified frontend (LAST)
+#
+# Registered after every API route above so the SPA catch-all cannot shadow
+# one. No-op when the bundle has not been built; see static_ui for why this is
+# preferred over a CORS allowlist for a 127.0.0.1 demo.
+# ---------------------------------------------------------------------------
+from .static_ui import mount_frontend  # noqa: E402
+
+mount_frontend(app)

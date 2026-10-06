@@ -56,10 +56,13 @@ The model supports **educational review prioritization**, not clinical urgency. 
 
 ### Repository verification snapshot — 6 October 2026
 
-- **Backend (with the optional `model` extra installed):** 160 passed, 5 intentional environment-gated skips. Without that extra: 112 passed, 11 skipped — a smaller number from a different environment, not a regression. Which optional runtimes a machine actually has is recorded per-machine in [docs/evidence/runtime-capability.json](docs/evidence/runtime-capability.json).
+- **Backend (with the optional `model` extra installed):** 228 passed, 5 intentional environment-gated skips. Without that extra the torch-gated tests skip and the count is lower — a smaller number from a different environment, not a regression. Which optional runtimes a machine actually has is recorded per-machine in [docs/evidence/runtime-capability.json](docs/evidence/runtime-capability.json).
 - **G6 review UI:** 29 tests passed + production TypeScript/Vite build
 - **Enterprise UI:** 2 tests passed + production build
 - **Unified authenticated surface:** every new `/v1/*` route driven over real HTTP as all six demo personas, capability gates confirmed to reject, tenancy 404s confirmed on the pixel and attribution paths — [docs/evidence/unified-surface.json](docs/evidence/unified-surface.json)
+- **Live inference:** authenticated upload → real forward pass through the recovered head → read-back over HTTP, 43 checks; frozen corpus rows byte-identical before and after, canonical store never written — [docs/evidence/live-inference.json](docs/evidence/live-inference.json)
+- **Unified frontend:** 23 tests passed + production TypeScript/Vite build. The full journey — login → 50-image gallery → import a patch or slide → live result rendered with honest confidence banding — was exercised in a real browser against the running backend, as both a writer and a reader-only persona
+- **Demo slide:** reports `level_count: 1`, `is_pyramid: false`, mpp/vendor null — recorded as read, never claimed as a pyramid — [docs/evidence/demo-slide.json](docs/evidence/demo-slide.json)
 - **Recorded workshop-demo health:** `baseline-frozen-g4`, 50 indexed/predicted demo patches; verify live deployment separately
 - **Full local collection:** 1,144 patches
 - **Model scores:** uncalibrated; never presented as probabilities
@@ -161,21 +164,48 @@ uv run python scripts/prepare_runtime.py
 
 The script locates the local runtime bundle and verifies expected identities before the application uses it.
 
-### 3. Start the review API
+### 3. Start the unified app (the one to demo)
+
+This is the single app a user logs into. It serves the API and the built UI from
+**one origin**, so there is no CORS allowlist and no second terminal to keep alive.
+
+```bash
+npm --prefix app/g7-enterprise/frontend ci
+npm --prefix app/g7-enterprise/frontend run build     # writes frontend/dist
+uv run uvicorn enterprise.app:app \
+  --app-dir app/g7-enterprise/backend --host 127.0.0.1 --port 8140
+```
+
+Then seed the demo personas once, and open **http://127.0.0.1:8140**:
+
+```bash
+OSTEOPATCH_DB=runtime-artifacts/db/osteopatch_g6.sqlite3 \
+PYTHONPATH=app/g6/backend:app/g7-enterprise/backend \
+uv run python -m enterprise.seed
+```
+
+Sign in as `reviewer@demo` (chips are on the login card) for the full journey:
+the deterministic 50-image gallery, then **Live inference** — drop in your own
+patch or slide and watch a real forward pass run.
+
+`make unified-app` does all three steps.
+
+### 3b. The original G6 review app
+
+Still available, and still what the G6-only checks exercise:
 
 ```bash
 uv run uvicorn osteopatch.app:app --app-dir app/g6/backend --host 127.0.0.1 --port 8137
-```
-
-### 4. Start the UI
-
-```bash
-cd app/g6/frontend
-npm ci
-npm run dev
+cd app/g6/frontend && npm ci && npm run dev
 ```
 
 Open http://127.0.0.1:5173.
+
+### Frontend development (hot reload)
+
+`npm run dev` in `app/g7-enterprise/frontend` serves the UI on 5174 and proxies
+`/v1`, `/api` and `/auth` to the backend on 8140, so CORS never applies during
+development either. The production bundle is what the backend serves at `/`.
 
 ## Verification
 
@@ -225,6 +255,51 @@ python scripts/verify_unified_surface.py
 That seeds a demo project with a deterministic 50-image scope, copies the review
 store, and exercises every `/v1/*` route plus the capability and tenancy gates.
 The canonical database is hashed before and after and the run fails if it moved.
+
+### Live inference on a slide you import
+
+```bash
+python scripts/make_demo_slide.py            # build the demo WSI, report what the reader says
+python scripts/verify_live_inference.py       # upload -> predict -> read back, over real HTTP
+```
+
+`make_demo_slide.py` assembles real corpus patches into a tiled TIFF, then re-opens
+it through the same reader the app uses and prints what that reader *actually*
+reports. For the current artefact that is a single level with no mpp and no vendor:
+the file is valid input, but it is not a pyramid, and the script will not pretend
+otherwise (`--require-pyramid` exits non-zero).
+
+`verify_live_inference.py` copies the review store, seeds a demo project, and runs a
+real forward pass through the recovered head over HTTP as each persona. It checks the
+capability split (`live:analyze` is a writer action, `live:read` a reader action), the
+tenancy 404s, the upload error codes, and the honesty fields — then compares the frozen
+corpus **by row content** before and after, because writing live rows is supposed to
+change the database; only the corpus rows themselves must come out identical.
+
+Live runs are stored in their own `live_run` / `live_tile` tables, never in the frozen
+prediction set, and DB constraints make it impossible to stamp the absent original
+bundle's identity onto a live row. Responses say when a score is uncalibrated, when a
+prediction is indeterminate, and when input properties are simply absent.
+
+### How the UI refuses to look more certain than the model
+
+This is the part worth reviewing. A large, coloured class name reads as a
+conclusion no matter what the footnote underneath says, so:
+
+- an **indeterminate** result has no class name at all — the headline says
+  "Not determined", the tile is drawn with a hatch, and the score bars stay
+  visible so the numbers are still inspectable;
+- a **low** separation is reported with the actual top-two gap, and the ribbon
+  draws the 0.05 / 0.20 band edges so the thresholds are visible rather than
+  asserted;
+- mpp, objective power and vendor render as "not in file" — never 0, never blank;
+- `truncated` always reports both counts;
+- a role that cannot import (student, auditor) is told **why** in words and gets
+  no button that would 403. Reading every run stays open to all six personas.
+
+No webfont is loaded. The demo is expected to run without network, so typography
+is carried by scale, tracking and tabular numerals rather than by a download that
+might fail silently.
 
 ## Repository map
 

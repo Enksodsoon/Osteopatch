@@ -67,6 +67,14 @@ class SlideReader(Protocol):
     def read_region(self, x: int, y: int, level: int, width: int, height: int):
         """Return a PIL image for a level-``level`` region."""
 
+    def close(self) -> None:
+        """Release the underlying handle. Idempotent.
+
+        Both engines own something that must be released (an openslide handle,
+        an open PIL file), so every caller that opens a slide closes it. Declared
+        here so a caller holding only a ``SlideReader`` can do so without a cast.
+        """
+
 
 # ---------------------------------------------------------------------------
 # Optional OpenSlide engine
@@ -226,6 +234,22 @@ def open_slide(path: str | Path, *, engine: str | None = None) -> SlideReader:
 
     ``engine`` forces a specific one and raises rather than falling back, so a
     caller that genuinely requires OpenSlide never silently gets a weaker one.
+
+    Without an explicit engine, TWO different failures are handled differently:
+
+    * ``ReaderUnavailable`` — OpenSlide is not installed at all. Fall back to
+      Pillow, which is always present.
+    * ``SlideReadError``    — OpenSlide IS installed but cannot read THIS
+      file. That is a per-file outcome, not a missing capability: a generic
+      TIFF or a PNG, neither of which carries a vendor SVS/NDPI tag set, hits
+      it. Fall back too.
+
+    The second case used to propagate, so ``open_slide`` raised on every file
+    OpenSlide did not recognise while its own docstring promised a Pillow
+    fallback — which meant a PNG upload crashed instead of opening.
+
+    A fallback that ALSO fails still raises, naming both engines so the cause
+    is not reduced to whichever was tried first.
     """
     if engine:
         if engine == "openslide":
@@ -238,6 +262,14 @@ def open_slide(path: str | Path, *, engine: str | None = None) -> SlideReader:
         return OpenSlideReader(path)
     except ReaderUnavailable:
         return PillowTiffReader(path)
+    except SlideReadError as openslide_error:
+        try:
+            return PillowTiffReader(path)
+        except SlideReadError as pillow_error:
+            raise SlideReadError(
+                f"no engine could read {Path(path).name}: "
+                f"openslide -> {openslide_error}; pillow -> {pillow_error}"
+            ) from pillow_error
 
 
 def available_engines() -> list[str]:
@@ -262,7 +294,10 @@ def engine_report() -> dict:
         "fallback_note": (
             "The Pillow fallback reports only genuinely present metadata. "
             "mpp / objective_power / vendor are null when the file does not "
-            "carry them — they are never estimated."
+            "carry them — they are never estimated. open_slide() falls back to "
+            "Pillow both when OpenSlide is absent AND when OpenSlide is present "
+            "but cannot read this particular file (a generic TIFF or PNG, "
+            "which carry no vendor tag set)."
         ),
     }
 

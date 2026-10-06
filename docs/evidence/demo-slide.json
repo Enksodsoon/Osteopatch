@@ -1,0 +1,40 @@
+{
+  "generated_at": "2026-10-06T02:24:03+00:00",
+  "command": "scripts/make_demo_slide.py --cols 12 --rows 10 --tile-px 384",
+  "purpose": "What the slide reader ACTUALLY reports for the demo WSI. This record does not assert a pyramid: level_count is recorded exactly as read.",
+  "slide_path_relative": "runtime-artifacts/demo-slides/osteopatch-demo-slide.tif",
+  "slide_sha256": "7f0e8542db26ecd5815637d4f3163a94d366cee8ce0564c6cf4b653f8adee91c",
+  "manifest_path_relative": "runtime-artifacts/demo-slides/osteopatch-demo-slide.manifest.json",
+  "report": {
+    "path": "C:\\Users\\enkso\\.kiro\\crew\\workspace\\osteopatch\\OsteoPatch_Kiro_Handoff\\runtime-artifacts\\demo-slides\\osteopatch-demo-slide.tif",
+    "exists": true,
+    "bytes": 49127920,
+    "readable": true,
+    "engine": "pillow",
+    "format": "tiff",
+    "width": 4608,
+    "height": 3840,
+    "level_count": 1,
+    "level_dimensions": [
+      [
+        4608,
+        3840
+      ]
+    ],
+    "level_downsamples": [
+      1.0
+    ],
+    "mpp_x": null,
+    "mpp_y": null,
+    "objective_power": null,
+    "vendor": null,
+    "is_pyramid": false,
+    "honest_note": "The reader reports a SINGLE level. This file has no vendor SVS/NDPI tags and no OME-XML, so OpenSlide's format detection reads it as a flat generic TIFF even though extra reduced-resolution pages were written. The slide is still valid input and tiles fine; it is simply not a pyramid as far as any reader can see.",
+    "build_seconds": 5.82,
+    "engines_available": [
+      "openslide",
+      "pillow"
+    ]
+  },
+  "conclusion": "level_count=1, level_dimensions=[[4608, 3840]], mpp=None/None, vendor=None, is_pyramid=False. The reader is authoritative here. The reader reports a SINGLE level. This file has no vendor SVS/NDPI tags and no OME-XML, so OpenSlide's format detection reads it as a flat generic TIFF even though extra reduced-resolution pages were written. The slide is still valid input and tiles fine; it is simply not a pyramid as far as any reader can see."
+}

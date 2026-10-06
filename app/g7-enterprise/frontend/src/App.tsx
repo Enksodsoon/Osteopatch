@@ -5,8 +5,10 @@ import { DISCLAIMER_EN } from "./types";
 import { Login } from "./components/Login";
 import { ReviewScreen } from "./components/ReviewScreen";
 import { RegistryScreen } from "./components/RegistryScreen";
+import { LiveScreen } from "./components/live/LiveScreen";
+import { ReportScreen } from "./components/reports/ReportScreen";
 
-type Tab = "review" | "registry";
+type Tab = "review" | "live" | "report" | "registry";
 
 export function App() {
   const [me, setMe] = useState<Me | null>(null);
@@ -56,6 +58,12 @@ export function App() {
         <button className={tab === "review" ? "tab on" : "tab"} onClick={() => setTab("review")}>
           Review workbench
         </button>
+        <button className={tab === "live" ? "tab on" : "tab"} onClick={() => setTab("live")}>
+          Live inference
+        </button>
+        <button className={tab === "report" ? "tab on" : "tab"} onClick={() => setTab("report")}>
+          Case report
+        </button>
         {canRegistry && (
           <button className={tab === "registry" ? "tab on" : "tab"} onClick={() => setTab("registry")}>
             Model registry
@@ -65,6 +73,10 @@ export function App() {
 
       <main className="main">
         {tab === "review" && projectId && <ReviewScreen key={projectId} role={role} />}
+        {tab === "live" && projectId && <LiveScreen key={projectId} role={role} projectId={projectId} />}
+        {tab === "report" && projectId && (
+          <ReportScreen key={projectId} role={role} projectId={projectId} />
+        )}
         {tab === "registry" && canRegistry && <RegistryScreen />}
       </main>
     </div>

@@ -16,6 +16,7 @@ every call returns a labelled 503 — NEVER a fabricated prediction or review.
 from __future__ import annotations
 
 import json
+from pathlib import Path
 
 from fastapi import HTTPException, Response
 
@@ -284,3 +285,363 @@ def top_priority_image_ids(limit: int) -> list[str]:
         page_size=limit, project_id=None,
     )
     return [item["image_id"] for item in listing["items"]]
+
+
+# ---------------------------------------------------------------------------
+# Live inference (delegated down; torch stays lazy inside osteopatch)
+#
+# Same contract as the rest of this module: TENANCY is enforced HERE, before
+# osteopatch does any work, and every honest failure (torch absent, bundle hash
+# mismatch, undecodable upload, a slide too large to score fully) keeps its own
+# status instead of being flattened into a generic error.
+# ---------------------------------------------------------------------------
+def _require_live_owner(run_id: str, project_id: str) -> dict:
+    """404 unless this run belongs to the caller's project.
+
+    A live run carries uploaded user bytes and its derived tiles. Leaking it
+    across tenants is the same problem as leaking a corpus patch, so the answer
+    is 404 either way.
+    """
+    from osteopatch import live_inference  # type: ignore
+
+    run = live_inference.get_run(g6_conn(), run_id)
+    if run is None or run["project_id"] != _require_project(project_id):
+        raise HTTPException(status_code=404, detail="unknown live run")
+    return run
+
+
+def _live_error(exc: Exception) -> HTTPException:
+    """Map an osteopatch live-inference failure onto an honest HTTP status."""
+    from osteopatch import live_inference  # type: ignore
+
+    if isinstance(exc, live_inference.UnsupportedInput):
+        return HTTPException(status_code=422, detail={"error": str(exc)})
+    if isinstance(exc, live_inference.LiveInferenceError):
+        return HTTPException(status_code=503, detail={"error": str(exc)})
+    return HTTPException(status_code=503, detail={"error": f"{type(exc).__name__}: {exc}"})
+
+
+def _read_upload(filename: str, data: bytes) -> bytes:
+    """Validate an upload's size and extension before any model work happens.
+
+    Cheap rejections first: a 600 MB body should not cost a torch import.
+    """
+    from osteopatch import config as g6_config  # type: ignore
+
+    if not data:
+        raise HTTPException(status_code=400, detail="empty upload")
+    if len(data) > g6_config.LIVE_MAX_UPLOAD_BYTES:
+        raise HTTPException(
+            status_code=413,
+            detail={
+                "error": "upload too large",
+                "bytes": len(data),
+                "limit_bytes": g6_config.LIVE_MAX_UPLOAD_BYTES,
+            },
+        )
+    suffix = Path(filename or "").suffix.lower()
+    if suffix not in g6_config.LIVE_ALLOWED_SUFFIXES:
+        raise HTTPException(
+            status_code=415,
+            detail={
+                "error": f"unsupported file type {suffix or '(none)'}",
+                "allowed": list(g6_config.LIVE_ALLOWED_SUFFIXES),
+            },
+        )
+    return data
+
+
+def live_capability() -> dict:
+    """Whether a live run can execute on this machine. Torch-free by design."""
+    from osteopatch import config as g6_config  # type: ignore
+    from osteopatch import live_inference  # type: ignore
+
+    return {
+        **live_inference.runtime_available(),
+        "tile_px": g6_config.LIVE_TILE_PX,
+        "max_tiles": g6_config.LIVE_MAX_TILES,
+        "max_upload_bytes": g6_config.LIVE_MAX_UPLOAD_BYTES,
+        "allowed_suffixes": list(g6_config.LIVE_ALLOWED_SUFFIXES),
+    }
+
+
+def live_predict_patch(project_id: str | None, filename: str, data: bytes, *, reviewer: str) -> dict:
+    from osteopatch import live_inference  # type: ignore
+
+    pid = _require_project(project_id)
+    payload = _read_upload(filename, data)
+    try:
+        return live_inference.predict_patch_bytes(
+            g6_conn(), project_id=pid, filename=filename, data=payload,
+            requested_by=reviewer,
+        )
+    except Exception as exc:
+        raise _live_error(exc) from exc
+
+
+def live_analyze_slide(
+    project_id: str | None, filename: str, data: bytes, *, reviewer: str,
+    tile_px: int | None = None, stride: int | None = None, max_tiles: int | None = None,
+) -> dict:
+    from osteopatch import live_inference  # type: ignore
+
+    pid = _require_project(project_id)
+    payload = _read_upload(filename, data)
+    try:
+        return live_inference.analyze_slide_bytes(
+            g6_conn(), project_id=pid, filename=filename, data=payload,
+            requested_by=reviewer, tile_px=tile_px, stride=stride, max_tiles=max_tiles,
+        )
+    except Exception as exc:
+        raise _live_error(exc) from exc
+
+
+def live_run(project_id: str | None, run_id: str) -> dict:
+    """A stored run plus its tiles. 404 across tenants, like every other read."""
+    from osteopatch import live_inference  # type: ignore
+
+    pid = _require_project(project_id)
+    run = _require_live_owner(run_id, pid)
+    public = live_inference.public_run(g6_conn(), run_id)
+    tiles = live_inference.get_tiles(g6_conn(), run_id)
+    return {"run": public, "tiles": tiles, "n_tiles": len(tiles)}
+
+
+def live_runs(project_id: str | None, limit: int = 50) -> list[dict]:
+    from osteopatch import live_inference  # type: ignore
+
+    pid = _require_project(project_id)
+    return live_inference.list_runs(g6_conn(), pid, limit=limit)
+
+
+def live_mosaic(project_id: str | None, run_id: str) -> bytes:
+    from osteopatch import live_inference  # type: ignore
+
+    pid = _require_project(project_id)
+    _require_live_owner(run_id, pid)
+    data = live_inference.mosaic_bytes(run_id)
+    if data is None:
+        raise HTTPException(status_code=404, detail="no mosaic for this run (patch runs have none)")
+    return data
+
+
+def live_tile_attribution(
+    project_id: str | None, run_id: str, tile_index: int,
+    *, target_a: str | None = None, target_b: str | None = None,
+) -> tuple[bytes, dict[str, str]]:
+    """Contrastive Grad-CAM over one imported tile.
+
+    Uses the same recovered head, hash guard and recovery disclosure as corpus
+    attribution -- explaining a live tile must not be a weaker claim than
+    explaining a corpus patch.
+    """
+    from osteopatch import live_inference  # type: ignore
+
+    pid = _require_project(project_id)
+    _require_live_owner(run_id, pid)
+    tile_path = live_inference.run_dir(run_id) / f"tile-{int(tile_index):04d}.png"
+    if not tile_path.exists():
+        raise HTTPException(status_code=404, detail="unknown tile index for this run")
+    from osteopatch import attribution  # type: ignore
+
+    try:
+        result = attribution.compute_attribution(
+            tile_path, f"{run_id}:tile-{int(tile_index):04d}",
+            target_a or "NON_TUMOR", target_b or "VIABLE_TUMOR",
+        )
+    except Exception as exc:
+        raise _live_error(exc) from exc
+    return result.overlay_png, {
+        "X-Attrib-Recovered-Model": attribution.RECOVERED_MODEL_ID,
+        "X-Attrib-Run-Id": run_id,
+        "X-Attrib-Tile-Index": str(tile_index),
+        "X-Attrib-Target-A": result.target_a,
+        "X-Attrib-Target-B": result.target_b,
+    }
+
+
+def live_delete_run(project_id: str | None, run_id: str) -> dict:
+    """Delete a run and its uploaded bytes. A writer action: the user's data."""
+    from osteopatch import live_inference  # type: ignore
+
+    pid = _require_project(project_id)
+    _require_live_owner(run_id, pid)
+    conn = g6_conn()
+    live_inference.delete_run(conn, run_id)
+    return {"run_id": run_id, "deleted": True}
+
+
+# ---------------------------------------------------------------------------
+# Case reports (delegated down into osteopatch)
+#
+# Same contract as everything else in this module: tenancy is enforced HERE,
+# before osteopatch does any work, and an honest failure keeps its own status.
+#
+# A report is APPEND-ONLY and lives in its own tables. Authoring one writes
+# nothing to source_qc, prediction or review_event, so producing a document
+# cannot alter what was reviewed or by whom. There is deliberately NO update
+# route: a revised report is a new row.
+# ---------------------------------------------------------------------------
+def _require_report_owner(report_id: str, project_id: str) -> dict:
+    """404 unless this report belongs to the caller's project."""
+    from osteopatch import reporting  # type: ignore
+
+    conn = g6_conn()
+    row = conn.execute(
+        "SELECT report_id, project_id, case_id, title FROM case_report WHERE report_id = ?",
+        (report_id,),
+    ).fetchone()
+    if row is None or row["project_id"] != _require_project(project_id):
+        raise HTTPException(status_code=404, detail="unknown report")
+    return dict(row)
+
+
+def _report_error(exc: Exception) -> HTTPException:
+    """Map an osteopatch reporting failure onto an honest HTTP status."""
+    from osteopatch import reporting  # type: ignore
+
+    if isinstance(exc, reporting.ReportScopeError):
+        return HTTPException(status_code=404, detail={"error": str(exc)})
+    if isinstance(exc, reporting.SignoffError):
+        return HTTPException(status_code=422, detail={"error": str(exc)})
+    if isinstance(exc, reporting.ReportError):
+        return HTTPException(status_code=400, detail={"error": str(exc)})
+    return HTTPException(status_code=503, detail={"error": f"{type(exc).__name__}: {exc}"})
+
+
+def _collect_report_images(image_ids: list[str], run_ids: list[str], project_id: str) -> list[dict]:
+    """Gather the real rows a report will describe, from EITHER store.
+
+    A report may span corpus patches and imported live tiles. Both are read here
+    and copied into the document at write time, so the exported file stays
+    reproducible even if the source store later changes. An id that is unknown
+    — or belongs to another project — is a 404, never a silently skipped row.
+    """
+    pid = _require_project(project_id)
+    conn = g6_conn()
+    out: list[dict] = []
+    live_ids = [r for r in run_ids if r]
+
+    for image_id in image_ids or []:
+        row = conn.execute(
+            """SELECT s.image_id, s.source_group, p.predicted_class,
+                      p.top_two_margin, p.non_tumor_score, p.viable_tumor_score,
+                      p.necrosis_score, p.model_bundle_hash,
+                      (SELECT COUNT(*) FROM review_event e WHERE e.image_id = s.image_id)
+                        AS n_reviews
+               FROM source_qc s
+               LEFT JOIN prediction p ON p.image_id = s.image_id
+              WHERE s.image_id = ? AND s.project_id IN (?, '__default__')""",
+            (image_id, pid),
+        ).fetchone()
+        if row is None:
+            raise HTTPException(status_code=404, detail=f"unknown image: {image_id}")
+        out.append({
+            "image_id": row["image_id"],
+            "source_kind": "corpus",
+            "run_id": None,
+            "predicted_class": row["predicted_class"],
+            # A frozen corpus row carries a margin but no confidence band, so
+            # reporting.py decides from the margin.
+            "confidence": None,
+            "top_two_margin": row["top_two_margin"],
+            "scores": None if row["predicted_class"] is None else {
+                "NON_TUMOR": row["non_tumor_score"],
+                "VIABLE_TUMOR": row["viable_tumor_score"],
+                "NECROSIS": row["necrosis_score"],
+            },
+            "corroborated": bool(row["n_reviews"]),
+        })
+
+    for run_id in live_ids:
+        from osteopatch import live_inference  # type: ignore
+
+        run = live_inference.get_run(conn, run_id)
+        if run is None or run["project_id"] != pid:
+            raise HTTPException(status_code=404, detail=f"unknown live run: {run_id}")
+        tiles = live_inference.get_tiles(conn, run_id)
+        for t in tiles:
+            out.append({
+                "image_id": f"{run_id}#tile-{int(t['tile_index']):04d}",
+                "source_kind": "live",
+                "run_id": run_id,
+                "predicted_class": t["predicted_class"],
+                "confidence": t["confidence"],
+                "top_two_margin": t["top_two_margin"],
+                "scores": json.loads(t["scores_json"]) if t["scores_json"] else None,
+                "corroborated": False,
+            })
+    return out
+
+
+def create_report(
+    project_id: str | None,
+    *,
+    case_id: str,
+    title: str,
+    findings_text: str,
+    image_ids: list[str],
+    run_ids: list[str] | None,
+    author: str,
+    signer_email: str | None,
+    signer_role: str | None,
+    signoff_note: str | None,
+) -> dict:
+    """Author (and optionally sign) an append-only case report."""
+    from osteopatch import reporting  # type: ignore
+
+    pid = _require_project(project_id)
+    images = _collect_report_images(image_ids or [], run_ids or [], pid)
+    if not images:
+        raise HTTPException(
+            status_code=400,
+            detail={"error": "a report must cover at least one scored image"},
+        )
+    try:
+        doc = reporting.draft_document(
+            project_id=pid,
+            case_id=case_id,
+            title=title,
+            findings_text=findings_text,
+            author_email=author,
+            images=images,
+            signer_email=signer_email,
+            signer_role=signer_role,
+            signoff_note=signoff_note,
+        )
+        return reporting.store_document(g6_conn(), doc)
+    except Exception as exc:
+        raise _report_error(exc) from exc
+
+
+def list_reports(project_id: str | None, limit: int = 50) -> list[dict]:
+    from osteopatch import reporting  # type: ignore
+
+    return reporting.list_reports(g6_conn(), _require_project(project_id), limit=limit)
+
+
+def get_report(project_id: str | None, report_id: str) -> dict:
+    from osteopatch import reporting  # type: ignore
+
+    _require_report_owner(report_id, project_id)
+    doc = reporting.load_document(g6_conn(), report_id)
+    payload = reporting.public_report(doc)
+    payload["hash_verification"] = reporting.verify_hash(g6_conn(), report_id)
+    return payload
+
+
+def render_report_export(project_id: str | None, report_id: str, fmt: str) -> tuple[bytes, str]:
+    """Return ``(bytes, media_type)`` for one export format.
+
+    Both formats render from the SAME loaded typed document, which is what makes
+    it impossible for them to disagree.
+    """
+    from osteopatch import reporting  # type: ignore
+
+    _require_report_owner(report_id, project_id)
+    doc = reporting.load_document(g6_conn(), report_id)
+    if fmt == "md":
+        return doc.to_markdown().encode("utf-8"), "text/markdown; charset=utf-8"
+    if fmt == "html":
+        return doc.to_html().encode("utf-8"), "text/html; charset=utf-8"
+    raise HTTPException(status_code=404, detail=f"unknown export format: {fmt}")

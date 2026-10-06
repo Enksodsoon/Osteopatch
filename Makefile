@@ -3,11 +3,12 @@
 UV ?= uv
 PY := $(UV) run --locked python
 .DEFAULT_GOAL := help
-.PHONY: help setup test test-backend test-enterprise test-frontend test-tooling repo-check lint typecheck runtime capability unified bake verify-bake smoke e2e serve docs docs-check docs-serve
+.PHONY: help setup test test-backend test-enterprise test-frontend test-tooling repo-check lint typecheck runtime capability unified unified-app demo-slide verify-live bake verify-bake smoke e2e serve docs docs-check docs-serve
 
 help:
 	@echo "setup | test | lint | typecheck | repo-check | docs | docs-serve"
-	@echo "Runtime required: runtime | capability | unified | serve | smoke | e2e | bake | verify-bake"
+	@echo "Demo: unified-app | runtime | capability | unified | demo-slide | verify-live"
+	@echo "Also: serve | smoke | e2e | bake | verify-bake"
 	@echo "No target creates cloud resources or deletes runtime evidence."
 
 setup:
@@ -56,6 +57,18 @@ capability:
 unified:
 	$(PY) scripts/verify_unified_surface.py
 
+# Assemble the repeatable demo WSI from real corpus patches, then report what the
+# slide reader ACTUALLY reports about it. Honest by construction: it does not
+# claim a pyramid unless the reader confirms >1 level (--require-pyramid exits 1).
+demo-slide:
+	$(PY) scripts/make_demo_slide.py --report docs/evidence/demo-slide.json
+
+# Live inference over real HTTP: authenticated upload -> forward pass -> read
+# back, per persona. Copies the read model; the canonical database is never
+# written, and the frozen corpus is compared by ROW digest before and after.
+verify-live:
+	$(PY) scripts/verify_live_inference.py
+
 bake: runtime
 	$(PY) scripts/prepare_bake.py
 
@@ -70,6 +83,18 @@ e2e:
 
 serve:
 	$(UV) run --locked uvicorn osteopatch.app:app --app-dir app/g6/backend --host 127.0.0.1 --port 8137
+
+# The app to demo. Builds the unified frontend, seeds the six personas, then
+# serves API + UI from ONE origin on 8140, so no CORS allowlist is involved.
+#
+# NOTE: enterprise.seed's demo path deliberately RE-SCOPES 50 real corpus rows
+# in the G6 read model (project_id is reassigned). That is what populates the
+# gallery, and it is idempotent — but it is a write, so do not run it against a
+# store you need to keep at its original scope.
+unified-app:
+	npm --prefix app/g7-enterprise/frontend run build
+	cd app/g7-enterprise/backend && PYTHONPATH=../../g6/backend:. $(PY) -m enterprise.seed
+	$(UV) run --locked uvicorn enterprise.app:app --app-dir app/g7-enterprise/backend --host 127.0.0.1 --port 8140
 
 docs:
 	$(PY) scripts/build_site.py

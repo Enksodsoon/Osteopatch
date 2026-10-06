@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-10-06T01:39:49+00:00",
+  "generated_at": "2026-10-06T02:51:34+00:00",
   "canonical_db_unchanged": true,
-  "canonical_db_sha256": "0e4524db91f7a6e22dfbdc3395cf0fce6b7bf1b5628ac4cd1198be291d01ac40",
+  "canonical_db_sha256": "2b18cdec2a9169ce88ff79e7f714662f7898cdb4d804fe34ed4119d31219d46b",
   "read_model_used": "copy of runtime-artifacts/db (canonical never written)",
   "checks": [
     {
@@ -132,7 +132,7 @@
     {
       "check": "POST review (reviewer)",
       "ok": true,
-      "detail": "HTTP 200 {\"review_event_id\":\"rev-Case-3-A17-15765-20926-1-86a12028\",\"action\":\"ACCEPT\",\"selected_class\":null,\"reason\":null,\"note\":"
+      "detail": "HTTP 200 {\"review_event_id\":\"rev-Case-3-A17-15765-20926-1-403003b9\",\"action\":\"ACCEPT\",\"selected_class\":null,\"reason\":null,\"note\":"
     },
     {
       "check": "GET /v1/exports/reviews -> csv",
@@ -232,9 +232,9 @@
       "check": "created project has an id",
       "ok": true,
       "detail": {
-        "project_id": "prj_c90fee67d598",
+        "project_id": "prj_cc0466e06cac",
         "name": "Project B",
-        "created_by": "usr_6b43536a77d0"
+        "created_by": "usr_55cdb08a03a1"
       }
     },
     {

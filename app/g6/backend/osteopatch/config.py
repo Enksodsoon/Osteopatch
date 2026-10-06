@@ -147,6 +147,42 @@ ATTRIB_IMAGES_DIR = _env_path(
     "OSTEOPATCH_ATTRIB_IMAGES", str(RUNTIME_ARTIFACTS_ROOT / "images")
 )
 
+# ---------------------------------------------------------------------------
+# Live inference (uploaded slides / patches)
+#
+# User-supplied bytes and the artefacts derived from them are RUNTIME data, not
+# evidence: gitignored under runtime-artifacts/, rebuildable by re-running the
+# import. Nothing here is a corpus artifact.
+# ---------------------------------------------------------------------------
+LIVE_RUNS_DIR = _env_path(
+    "OSTEOPATCH_LIVE_RUNS", str(RUNTIME_ARTIFACTS_ROOT / "live-runs")
+)
+
+# Grid defaults for whole-slide analysis. `tile_px` matches the frozen
+# preprocessing contract (384x384), so a tile is scored at the size the encoder
+# was fitted for rather than being resized from an arbitrary crop.
+LIVE_TILE_PX = 384
+LIVE_MAX_TILES = 256
+
+# Confidence bands over the frozen top-two score margin. These rank ATTENTION;
+# they are not error probabilities and are labelled as such in every response.
+#   indeterminate -> the top two classes are effectively tied
+#   low           -> the model is close to guessing between two classes
+# These thresholds describe the recovered head's OUTPUT DISTRIBUTION on this
+# corpus. They are not calibrated and carry no clinical meaning.
+LIVE_MARGIN_INDETERMINATE = 0.05
+LIVE_MARGIN_LOW = 0.20
+
+#: Extensions the importer will read. OpenSlide handles the vendor WSI formats;
+#: everything else goes through the Pillow fallback, which reports only the
+#: metadata a file genuinely carries.
+LIVE_ALLOWED_SUFFIXES = (".svs", ".ndpi", ".tif", ".tiff", ".png", ".jpg", ".jpeg")
+
+#: Hard ceiling on an upload. A demo does not need a 4 GB scan, and an
+#: unbounded body is a denial-of-service surface on a local prototype.
+LIVE_MAX_UPLOAD_BYTES = 512 * 1024 * 1024
+
+
 # Torch hub cache. torchvision fetches the frozen encoder's ImageNet weights on
 # first use, so a demo run would otherwise need live internet. Pointing
 # TORCH_HOME at a directory under runtime-artifacts/ (gitignored, rebuildable
