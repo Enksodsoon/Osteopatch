@@ -1,0 +1,64 @@
+{
+  "disclaimer": "Educational / research prototype. NOT for diagnosis, treatment decisions, treatment-response prediction, or prognosis. Model scores are uncalibrated class scores, never disease probabilities.",
+  "encoder_weights": {
+    "checkpoint": "mobilenet_v3_small-047dcff4.pth",
+    "note": "ImageNet MobileNetV3-small encoder the recovered head was fitted against. This is NOT the recovered head bundle; that identity is recorded separately above.",
+    "path_relative": "runtime-artifacts/models/torch-hub/hub/checkpoints/mobilenet_v3_small-047dcff4.pth",
+    "present": true,
+    "sha256": "047dcff4addef86ea5bc2eff13c9614dc11f47ab1160d0a71a25e7db994f4e1f",
+    "sha256_matches_pin": true,
+    "torch_home_relative": "runtime-artifacts/models/torch-hub"
+  },
+  "generated_at": "2026-10-06T01:26:33Z",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "python": "3.12.10",
+  "read_model": {
+    "canonical_classes": [
+      "NON_TUMOR",
+      "VIABLE_TUMOR",
+      "NECROSIS"
+    ],
+    "db_path_relative": "runtime-artifacts/db/osteopatch_g6.sqlite3",
+    "images_indexed": 1144,
+    "predictions": 1144,
+    "present": true
+  },
+  "recovered_head": {
+    "model_id": "g4-behavioral-recovery-r1",
+    "original_frozen_model": {
+      "model_id": "baseline-frozen-g4",
+      "note": "The original G4 bundle is absent and stays absent. Its hash is never reassigned to the recovered head.",
+      "present": false,
+      "sha256": "01727fb832f9d5518bbe2e33b901e7041020929c94b89cdb7a5e5195b544df63"
+    },
+    "path_relative": "runtime-artifacts/models/g4-behavioral-recovery-r1.pt",
+    "present": true,
+    "sha256": "ffff1282f533758d7d7c8370ee6092f97f553da69918c5ee7e83632428176a73",
+    "sha256_matches_pin": true
+  },
+  "torch_stack": {
+    "installed": true,
+    "note": "Optional. The web serve path is torch-free by design; this stack is imported lazily by attribution and live inference only.",
+    "versions": {
+      "grad_cam": "1.5.7",
+      "torch": "2.12.1",
+      "torchvision": "0.27.1"
+    }
+  },
+  "wsi_engines": {
+    "available": [
+      "openslide",
+      "pillow"
+    ],
+    "fallback_note": "The Pillow fallback reports only genuinely present metadata. mpp / objective_power / vendor are null when the file does not carry them \u2014 they are never estimated.",
+    "openslide": {
+      "available": true,
+      "binding_version": "1.4.3",
+      "library_version": "4.0.1"
+    },
+    "preference": [
+      "openslide",
+      "pillow"
+    ]
+  }
+}

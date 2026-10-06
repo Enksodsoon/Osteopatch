@@ -6,8 +6,6 @@ NO torch — all predictions are precomputed.
 """
 from __future__ import annotations
 
-import csv
-import io
 import sqlite3
 import threading
 
@@ -15,7 +13,7 @@ from fastapi import FastAPI, Query, Request, Response
 from fastapi.responses import JSONResponse, StreamingResponse
 from pydantic import BaseModel, Field
 
-from . import config, db, images, modelcard, queries, repo, review_store
+from . import config, db, exports, images, modelcard, queries, repo, review_store
 
 # ---------------------------------------------------------------------------
 # App + per-request connection
@@ -413,24 +411,11 @@ def export_reviews(format: str = Query("csv")):
     conn = get_conn()
     rows = queries.export_rows(conn)
     if format == "json":
-        return {
-            "disclaimer": config.DISCLAIMER,
-            "model_version": config.MODEL_VERSION,
-            "model_bundle_sha256": config.EXPECTED_BUNDLE_SHA256,
-            "count": len(rows),
-            "rows": rows,
-        }
-    # CSV
-    buf = io.StringIO()
-    if rows:
-        writer = csv.DictWriter(buf, fieldnames=list(rows[0].keys()))
-        writer.writeheader()
-        writer.writerows(rows)
-    else:
-        buf.write("")
-    buf.seek(0)
+        return exports.json_envelope(rows)
     return StreamingResponse(
-        iter([buf.getvalue()]),
+        iter([exports.rows_to_csv(rows)]),
         media_type="text/csv",
-        headers={"Content-Disposition": "attachment; filename=osteopatch_reviews.csv"},
+        headers={
+            "Content-Disposition": f"attachment; filename={exports.CSV_FILENAME}",
+        },
     )

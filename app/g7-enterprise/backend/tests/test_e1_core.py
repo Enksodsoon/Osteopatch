@@ -19,6 +19,11 @@ def client(tmp_path, monkeypatch):
     monkeypatch.setenv("OSTEOPATCH_PROJECT_SCOPES", str(tmp_path / "scopes"))
     monkeypatch.setenv("OSTEOPATCH_JWT_SECRET", "test-secret")
     monkeypatch.delenv("OSTEOPATCH_OIDC_JWKS_URL", raising=False)
+    # The G6 READ MODEL must be isolated too. Without this, any enterprise code
+    # path that reaches the G6 store (including `projects.grant_images`) would
+    # re-scope real rows in the canonical 1,144-image database. config resolves
+    # DB_PATH at import, so the reload below is what actually redirects it.
+    monkeypatch.setenv("OSTEOPATCH_DB", str(tmp_path / "g6-empty.sqlite3"))
 
     # import AFTER env is set so module-level config picks it up
     import importlib
@@ -30,9 +35,12 @@ def client(tmp_path, monkeypatch):
     importlib.reload(seed)
     importlib.reload(app_module)
 
+    import osteopatch.config as g6_config
+    importlib.reload(g6_config)
+
     conn = store.connect(tmp_path / "ent.sqlite3")
     app_module.set_conn(conn)
-    seed.seed(conn)
+    seed.seed(conn)  # scope_size defaults to None -> grants nothing in G6
     return TestClient(app_module.app), conn
 
 

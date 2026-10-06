@@ -54,11 +54,12 @@ The model supports **educational review prioritization**, not clinical urgency. 
 | Enterprise layer | Project tenancy, RBAC, audit chain, governance, registry, drift monitoring |
 | Verification | Backend, frontend, build, static, smoke, and deployment evidence |
 
-### Repository verification snapshot — 5 October 2026
+### Repository verification snapshot — 6 October 2026
 
-- **Backend:** 112 passed, 11 intentional environment-gated skips
+- **Backend (with the optional `model` extra installed):** 160 passed, 5 intentional environment-gated skips. Without that extra: 112 passed, 11 skipped — a smaller number from a different environment, not a regression. Which optional runtimes a machine actually has is recorded per-machine in [docs/evidence/runtime-capability.json](docs/evidence/runtime-capability.json).
 - **G6 review UI:** 29 tests passed + production TypeScript/Vite build
 - **Enterprise UI:** 2 tests passed + production build
+- **Unified authenticated surface:** every new `/v1/*` route driven over real HTTP as all six demo personas, capability gates confirmed to reject, tenancy 404s confirmed on the pixel and attribution paths — [docs/evidence/unified-surface.json](docs/evidence/unified-surface.json)
 - **Recorded workshop-demo health:** `baseline-frozen-g4`, 50 indexed/predicted demo patches; verify live deployment separately
 - **Full local collection:** 1,144 patches
 - **Model scores:** uncalibrated; never presented as probabilities
@@ -135,6 +136,21 @@ uv sync --locked --extra dev --extra wsi     # OpenSlide path
 uv sync --locked --extra dev --extra model   # Torch / attribution path
 ```
 
+The `model` extra is what makes contrastive attribution return a real heatmap. It
+is ~1–2 GB and **never required to start or serve the app** — the review serve
+path is proven torch-free by `test_serve_path_torch_free.py`, which runs the
+routes in a subprocess that refuses to resolve torch. Fetch the frozen encoder
+weights once so a demo run needs no network:
+
+```bash
+uv run python scripts/runtime_capability.py --warm
+uv run python scripts/runtime_capability.py --out docs/evidence/runtime-capability.json
+```
+
+Without the extra, attribution degrades to an explicit 503 notice — never a
+fabricated heatmap. `scripts/runtime_capability.py` records what a given machine
+can actually do and exits 0 either way.
+
 ### 2. Prepare local runtime artifacts
 
 Runtime pixels and model binaries are intentionally not committed to Git.
@@ -199,6 +215,16 @@ python scripts/e2e_ui.py
 ```
 
 The browser suite covers priority sorting/filtering, H&E review, accept/correct/defer, model-card limitations, honest attribution failure behavior, and export provenance.
+
+For the authenticated unified surface over real HTTP, as each demo persona:
+
+```bash
+python scripts/verify_unified_surface.py
+```
+
+That seeds a demo project with a deterministic 50-image scope, copies the review
+store, and exercises every `/v1/*` route plus the capability and tenancy gates.
+The canonical database is hashed before and after and the run fails if it moved.
 
 ## Repository map
 

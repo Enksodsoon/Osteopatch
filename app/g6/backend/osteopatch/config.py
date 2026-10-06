@@ -146,6 +146,26 @@ RECOVERED_MODEL_SHA256 = "ffff1282f533758d7d7c8370ee6092f97f553da69918c5ee7e8363
 ATTRIB_IMAGES_DIR = _env_path(
     "OSTEOPATCH_ATTRIB_IMAGES", str(RUNTIME_ARTIFACTS_ROOT / "images")
 )
+
+# Torch hub cache. torchvision fetches the frozen encoder's ImageNet weights on
+# first use, so a demo run would otherwise need live internet. Pointing
+# TORCH_HOME at a directory under runtime-artifacts/ (gitignored, rebuildable
+# with scripts/prepare_runtime.py) keeps that fetch one-off and offline
+# afterwards. Consumers set it via ``os.environ.setdefault("TORCH_HOME", ...)``
+# so an operator-supplied TORCH_HOME still wins.
+TORCH_HUB_DIR = _env_path(
+    "OSTEOPATCH_TORCH_HOME",
+    str(RUNTIME_ARTIFACTS_ROOT / "models" / "torch-hub"),
+)
+
+# Filename + SHA-256 of the encoder checkpoint the recovered head was fitted
+# against. Recorded so a swapped weights file is visible in capability
+# evidence rather than silently changing what the model sees. This is NOT the
+# recovered head bundle: that identity lives in RECOVERED_MODEL_SHA256 above.
+ENCODER_CHECKPOINT_NAME = "mobilenet_v3_small-047dcff4.pth"
+ENCODER_CHECKPOINT_SHA256 = (
+    "047dcff4addef86ea5bc2eff13c9614dc11f47ab1160d0a71a25e7db994f4e1f"
+)
 # Deterministic Grad-CAM cache (rebuildable; kept under scratch, out of git).
 ATTRIB_CACHE_DIR = _env_path(
     "OSTEOPATCH_ATTRIB_CACHE",
