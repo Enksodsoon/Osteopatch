@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { newIdempotencyKey, submitReview } from "../api";
+import { newIdempotencyKey, submitReviewG6 as submitReview } from "../api";
 import type { CanonicalClass, ImageDetail, Meta, ReviewAction } from "../types";
 import { t, type StringKey } from "../strings";
 import { ClassChip } from "./Shared";
@@ -46,7 +46,7 @@ export function ReviewPanel({
       });
       if (res.conflict) {
         setMsg(t("review.conflict"));
-        onReviewed(); // reload latest state
+        onReviewed();
         return;
       }
       setMsg(t("review.saved"));

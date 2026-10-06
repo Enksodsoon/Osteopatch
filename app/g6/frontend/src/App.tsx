@@ -5,19 +5,38 @@ import { t } from "./strings";
 import { Disclaimer } from "./components/Shared";
 import { Workbench } from "./components/Workbench";
 import { PatchReview } from "./components/PatchReview";
+import { AnalysisWithImage } from "./components/AnalysisWithImage";
+import { Library } from "./components/Library";
 import { Attribution, ModelCard } from "./components/ModelCard";
-
 type View =
   | { name: "workbench" }
   | { name: "patch"; imageId: string }
+  | { name: "analysis"; imageId: string }
+  | { name: "library" }
   | { name: "model-card" }
   | { name: "attribution" };
-
 export default function App() {
   const [meta, setMeta] = useState<Meta | null>(null);
   const [health, setHealth] = useState<Health | null>(null);
   const [startupError, setStartupError] = useState(false);
   const [view, setView] = useState<View>({ name: "workbench" });
+  const [theme, setTheme] = useState<"light" | "dark">(() => {
+    try {
+      const stored = localStorage.getItem("osteopatch.theme");
+      if (stored === "light" || stored === "dark") return stored;
+    } catch {
+      /* ignore */
+    }
+    return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  });
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", theme);
+    try {
+      localStorage.setItem("osteopatch.theme", theme);
+    } catch {
+      /* ignore */
+    }
+  }, [theme]);
 
   useEffect(() => {
     let active = true;
@@ -78,9 +97,26 @@ export default function App() {
           >
             {t("nav.attribution")}
           </button>
+          <button
+            className={view.name === "library" ? "active" : ""}
+            onClick={() => setView({ name: "library" })}
+          >
+            {t("nav.library")}
+          </button>
         </nav>
 
         <div className="app-header-actions">
+          <button
+            type="button"
+            className="theme-toggle"
+            onClick={() => setTheme((t) => (t === "light" ? "dark" : "light"))}
+            aria-pressed={theme === "dark"}
+            aria-label={t("theme.toggleAria")}
+            data-testid="theme-toggle"
+          >
+            <span className="theme-toggle-icon" aria-hidden="true" />
+            {theme === "light" ? t("theme.light") : t("theme.dark")}
+          </button>
           <span
             className={health ? "system-status status-live" : "system-status status-offline"}
             role="status"
@@ -132,6 +168,15 @@ export default function App() {
             onNavigate={(imageId) => setView({ name: "patch", imageId })}
           />
         )}
+        {meta && view.name === "analysis" && (
+          <AnalysisWithImage
+            imageId={view.imageId}
+            meta={meta}
+            onBack={() => setView({ name: "workbench" })}
+            onOpenAnalysis={() => setView({ name: "analysis", imageId: view.imageId })}
+          />
+        )}
+        {view.name === "library" && <Library onOpen={(id) => setView({ name: "patch", imageId: id })} />}
         {view.name === "model-card" && <ModelCard />}
         {view.name === "attribution" && <Attribution />}
       </main>

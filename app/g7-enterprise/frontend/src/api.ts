@@ -3,14 +3,11 @@
 import type {
   Gallery, GalleryItem, LiveCapability, LivePatchResult, LiveRunDetail,
   LiveRunSummary, LiveSlideResult, Me, PublicReport, ReportSummary, ServingModel,
+  Meta, ModelCard, ImageList, ImageDetail, AttributionMeta,
 } from "./types";
 
 let token: string | null = null;
 let projectId: string | null = null;
-
-export function setToken(t: string | null) { token = t; }
-export function setProject(p: string | null) { projectId = p; }
-export function getProject() { return projectId; }
 
 function headers(withProject = false): Record<string, string> {
   const h: Record<string, string> = { "Content-Type": "application/json" };
@@ -31,6 +28,11 @@ async function j<T>(res: Response): Promise<T> {
   return res.json() as Promise<T>;
 }
 
+// ---- auth ----
+export function setToken(t: string | null) { token = t; }
+export function setProject(p: string | null) { projectId = p; }
+export function getProject() { return projectId; }
+
 export async function login(email: string): Promise<string> {
   const res = await fetch("/auth/login", {
     method: "POST", headers: headers(), body: JSON.stringify({ email }),
@@ -44,6 +46,117 @@ export async function me(): Promise<Me> {
   return j<Me>(await fetch("/auth/me", { headers: headers() }));
 }
 
+// ---- G6 review surface (ported, uses G7 auth headers) ----
+export async function getMeta(): Promise<Meta> {
+  return j<Meta>(await fetch("/v1/meta", { headers: headers(true) }));
+}
+
+export async function getHealth(): Promise<import("./types").Health> {
+  return j<import("./types").Health>(await fetch("/v1/health", { headers: headers() }));
+}
+
+export async function getModelCard(): Promise<ModelCard> {
+  return j<ModelCard>(await fetch("/v1/model-card", { headers: headers(true) }));
+}
+
+export async function listImages(params: {
+  sort?: string;
+  filter?: string;
+  q?: string;
+  page?: number;
+  page_size?: number;
+}): Promise<ImageList> {
+  const sp = new URLSearchParams();
+  if (params.sort) sp.set("sort", params.sort);
+  if (params.filter) sp.set("filter", params.filter);
+  if (params.q) sp.set("q", params.q);
+  sp.set("page", String(params.page ?? 1));
+  sp.set("page_size", String(params.page_size ?? 60));
+  return j<ImageList>(await fetch(`/v1/images?${sp.toString()}`, { headers: headers(true) }));
+}
+
+export async function getImage(imageId: string): Promise<ImageDetail> {
+  return j<ImageDetail>(await fetch(`/v1/images/${encodeURIComponent(imageId)}`, { headers: headers(true) }));
+}
+
+export async function submitReviewG6(
+  imageId: string,
+  body: {
+    prediction_id: string;
+    action: string;
+    selected_label?: string | null;
+    reason?: string | null;
+    note?: string | null;
+    expected_revision: number;
+    idempotency_key: string;
+  },
+): Promise<{ status: number; created: boolean; current_revision: number; review_event_id?: string; conflict?: boolean }> {
+  const res = await fetch(`/v1/images/${encodeURIComponent(imageId)}/reviews`, {
+    method: "POST",
+    headers: headers(true),
+    body: JSON.stringify(body),
+  });
+  if (res.status === 409) {
+    const d = await res.json().catch(() => ({}));
+    return {
+      status: 409,
+      created: false,
+      conflict: true,
+      current_revision: (d?.detail?.current_revision as number) ?? 0,
+    };
+  }
+  const data = await j<any>(res);
+  return {
+    status: res.status,
+    created: !!data.created,
+    current_revision: data.current_revision,
+    review_event_id: data.review_event_id,
+  };
+}
+
+export function thumbnailUrl(imageId: string): string {
+  return `/v1/images/${encodeURIComponent(imageId)}/thumbnail`;
+}
+
+export function fullUrl(imageId: string): string {
+  return `/v1/images/${encodeURIComponent(imageId)}/full`;
+}
+
+export function exportUrl(format: "csv" | "json"): string {
+  return `/v1/exports/reviews?format=${format}`;
+}
+
+// ---- G6 attribution ----
+export async function getAttributionMeta(imageId: string): Promise<AttributionMeta> {
+  return j<AttributionMeta>(
+    await fetch(`/v1/images/${encodeURIComponent(imageId)}/attribution/meta`, { headers: headers(true) }),
+  );
+}
+
+/** Overlay PNG URL for a specific contrastive pair. */
+export function attributionUrl(imageId: string, targetA: string, targetB: string): string {
+  const sp = new URLSearchParams({ target_a: targetA, target_b: targetB, format: "png" });
+  return `/v1/images/${encodeURIComponent(imageId)}/attribution?${sp.toString()}`;
+}
+
+export function newIdempotencyKey(): string {
+  return `ui-${Date.now()}-${Math.random().toString(16).slice(2, 10)}`;
+}
+
+/**
+ * Fetch an authenticated PNG as an object URL. The G7 backend requires a Bearer
+ * token for image endpoints, so a plain <img src> cannot work — this fetches
+ * with auth headers and hands the DOM a blob URL instead.
+ */
+export async function authenticatedImageUrl(path: string): Promise<string> {
+  const res = await fetch(path, { headers: headers(true) });
+  if (!res.ok) {
+    throw new Error(`${res.status}: ${path}`);
+  }
+  return URL.createObjectURL(await res.blob());
+}
+
+// ---- G7 enterprise: existing functions (unchanged) ----
 export async function gallery(sort = "priority", page = 1, pageSize = 24): Promise<Gallery> {
   const q = new URLSearchParams({ sort, page: String(page), page_size: String(pageSize) });
   return j<Gallery>(await fetch(`/api/v1/images?${q}`, { headers: headers(true) }));
@@ -91,34 +204,16 @@ export async function health() {
   return j(await fetch("/v1/health", { headers: headers() }));
 }
 
-// ---------------------------------------------------------------------------
-// Authenticated bytes
-//
-// Every PNG on this surface is behind `Authorization: Bearer`. An `<img src>`
-// cannot carry that header, so images are fetched and handed to the DOM as an
-// object URL instead. This is the only honest way to show them; dropping the
-// header would trade a visible image for a broken one.
-// ---------------------------------------------------------------------------
-
-/** Fetch a PNG as an object URL. Caller MUST revoke it when done. */
+// ---- Authenticated bytes (G7) ----
 export async function blobUrl(path: string): Promise<string> {
   const res = await fetch(path, { headers: headers(true) });
   if (!res.ok) {
-    // 404 here is the tenancy boundary working (not "not found to you").
     throw new Error(`${res.status}: ${path}`);
   }
   return URL.createObjectURL(await res.blob());
 }
 
-// ---------------------------------------------------------------------------
-// Live inference
-//
-// Uploads are a RAW BODY plus an `X-File-Name` header — not multipart. The
-// server does not have `python-multipart` and does not need it: the browser
-// sends the file bytes straight through and names them in a header. Do not
-// "fix" this by switching to FormData; it will 4xx.
-// ---------------------------------------------------------------------------
-
+// ---- Live inference (G7) ----
 export async function liveCapability(): Promise<LiveCapability> {
   return j<LiveCapability>(await fetch("/v1/live/capability", { headers: headers(true) }));
 }
@@ -181,13 +276,7 @@ export const thumbnailPath = (imageId: string) =>
 export const imageAttributionPath = (imageId: string) =>
   `/v1/images/${encodeURIComponent(imageId)}/attribution`;
 
-// ---------------------------------------------------------------------------
-// Case reports
-//
-// There is no update function and no update route: reports are append-only, so
-// a revised report is a new POST. Do not add one.
-// ---------------------------------------------------------------------------
-
+// ---- Case reports (G7) ----
 export async function createReport(body: {
   case_id: string;
   title: string;
@@ -219,14 +308,6 @@ export async function report(reportId: string): Promise<PublicReport> {
 export const reportExportPath = (reportId: string, fmt: "html" | "md") =>
   `/v1/reports/${encodeURIComponent(reportId)}/export.${fmt}`;
 
-/**
- * Download an export through the authenticated client.
- *
- * A plain `<a download>` cannot work here: the endpoint needs the bearer token,
- * and the browser will not attach it to a navigation. So the bytes are fetched
- * and handed to a temporary anchor as an object URL — the same reason images go
- * through `blobUrl`.
- */
 export async function downloadExport(reportId: string, fmt: "html" | "md"): Promise<void> {
   const res = await fetch(reportExportPath(reportId, fmt), { headers: headers(true) });
   if (!res.ok) {
