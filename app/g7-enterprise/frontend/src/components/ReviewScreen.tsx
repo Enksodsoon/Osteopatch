@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
 import * as api from "../api";
-import type { GalleryItem, Role, Scores } from "../types";
-import { CLASS_LABELS } from "../types";
-
-const CLASSES: (keyof Scores)[] = ["NON_TUMOR", "VIABLE_TUMOR", "NECROSIS"];
+import type { GalleryItem, Role } from "../types";
+import { CLASS_LABELS, CLASSES } from "../types";
+import { AuthenticatedImage } from "./AuthenticatedImage";
 
 export function ReviewScreen({ role }: { role?: Role }) {
   const [items, setItems] = useState<GalleryItem[]>([]);
@@ -61,9 +60,51 @@ export function ReviewScreen({ role }: { role?: Role }) {
       </aside>
 
       <section className="detail">
-        {!sel ? <p className="muted">Select a patch.</p> : (
+        {items.length === 0 ? (
+          <div className="empty-state">
+            <h3>No images in this project&rsquo;s scope</h3>
+            <p className="muted">
+              The gallery is empty because this project owns no images yet. Scope is
+              granted explicitly — a project never sees the whole corpus by accident.
+            </p>
+            <p className="muted small">
+              For the demo, seed one with the deterministic 50-image scope:
+            </p>
+            <pre className="hint"><code>python -m enterprise.seed</code></pre>
+            <p className="muted small">
+              Or ask an admin to grant specific ids via{" "}
+              <code>POST /v1/projects/&lt;id&gt;/scope</code>. Unknown ids are rejected,
+              never silently skipped.
+            </p>
+          </div>
+        ) : !sel ? <p className="muted">Select a patch.</p> : (
           <>
             <h2>{sel.image_id} <span className="muted">· group {sel.source_group}</span></h2>
+
+            <div className="pixel-cols">
+              <figure className="pixel">
+                <figcaption className="muted small">H&amp;E patch</figcaption>
+                <AuthenticatedImage
+                  className="patch-view"
+                  path={api.fullImagePath(sel.image_id)}
+                  alt={`H&E patch ${sel.image_id}`}
+                  label="Patch pixels"
+                />
+              </figure>
+              <figure className="pixel">
+                <figcaption className="muted small">Contrastive Grad-CAM</figcaption>
+                <AuthenticatedImage
+                  className="attr-view"
+                  path={api.imageAttributionPath(sel.image_id)}
+                  alt={`Contrastive Grad-CAM overlay for ${sel.image_id}`}
+                  label="Attribution"
+                />
+                <p className="muted small">
+                  Attribution only — this is not a segmentation and not a diagnosis.
+                </p>
+              </figure>
+            </div>
+
             {sel.prediction ? (
               <>
                 <div className="scores">
@@ -96,10 +137,6 @@ export function ReviewScreen({ role }: { role?: Role }) {
                 {msg && <p className="ok">{msg}</p>}
               </>
             ) : <p className="muted">No prediction for this patch.</p>}
-            <p className="muted small">
-              Attribution (Grad-CAM) renders here when pixel assets are present; it degrades
-              honestly to a notice when they are not — never a fabricated heatmap.
-            </p>
           </>
         )}
       </section>

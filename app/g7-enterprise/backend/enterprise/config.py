@@ -42,6 +42,35 @@ CAPABILITIES: dict[str, tuple[str, ...]] = {
     "model:manage": (Role.ML_ENGINEER, Role.ADMIN),
     # read the audit log
     "audit:read": (Role.AUDITOR, Role.ADMIN),
+    # LIVE INFERENCE — two capabilities, deliberately split.
+    #
+    # `live:analyze` is the WRITER: it accepts an uploaded file, spends CPU on a
+    # forward pass, and writes rows plus on-disk artefacts. Excluded: STUDENT
+    # (running inference is not a learning action, and it is the expensive one)
+    # and AUDITOR (read-only by role across this whole capability map).
+    "live:analyze": (Role.REVIEWER, Role.PATHOLOGIST, Role.ML_ENGINEER, Role.ADMIN),
+    # `live:read` is the READER: view a stored run, its tiles and its mosaic.
+    # Everyone who can read the review surface can read a live result — there is
+    # nothing in an uploaded-file result that a learner may not see.
+    "live:read": (
+        Role.STUDENT, Role.REVIEWER, Role.PATHOLOGIST,
+        Role.ML_ENGINEER, Role.ADMIN, Role.AUDITOR,
+    ),
+    # CASE REPORTS — two capabilities, same writer/reader shape as live inference.
+    #
+    # `report:write` is the WRITER: it produces a signed clinical-style document
+    # and appends a row that can never be edited. Deliberately excludes AUDITOR
+    # (an audit trail must not be writable by whoever audits it) and STUDENT
+    # (a learner drafts practice notes, not the case record). ML_ENGINEER is
+    # excluded too: this is a clinical document, and the roles that may author
+    # one are the ones that review cases.
+    "report:write": (Role.REVIEWER, Role.PATHOLOGIST, Role.ADMIN),
+    # `report:read`: a report is derived from data every role may read, so
+    # nothing in it is withheld from a learner or an auditor.
+    "report:read": (
+        Role.STUDENT, Role.REVIEWER, Role.PATHOLOGIST,
+        Role.ML_ENGINEER, Role.ADMIN, Role.AUDITOR,
+    ),
 }
 # normalize enum members to their string values
 CAPABILITIES = {

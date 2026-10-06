@@ -27,6 +27,7 @@ import pytest
 
 BACKEND_DIR = Path(__file__).resolve().parents[1]
 PROJECT_ROOT = Path(__file__).resolve().parents[4]
+ENTERPRISE_DIR = Path(__file__).resolve().parents[3] / "g7-enterprise" / "backend"
 
 FROZEN_HASH = "01727fb832f9d5518bbe2e33b901e7041020929c94b89cdb7a5e5195b544df63"
 
@@ -48,19 +49,47 @@ def _have_torch() -> bool:
 # Python instead of an indented template string.
 # --------------------------------------------------------------------------
 _TRIPWIRE = '''
-class _TorchTripwire:
-    """Refuses to resolve the optional model stack.
+import importlib.machinery
 
-    Raises rather than returns None, so the caller sees a stack trace naming
-    the import site instead of a silently slower request.
+
+class _BlockingLoader:
+    """Wraps a real loader and refuses to EXECUTE it.
+
+    Blocking in ``exec_module`` rather than in ``find_spec`` is the precise
+    distinction: ``import torch`` dies, while ``importlib.util.find_spec`` --
+    which the live capability endpoint legitimately uses to answer "is torch
+    installed?" without loading a ~1 GB runtime -- still works. Blocking
+    discovery instead would have failed a route that never imports anything.
     """
+
+    def __init__(self, inner, name):
+        self._inner = inner
+        self._name = name
+
+    def create_module(self, spec):
+        return self._inner.create_module(spec)
+
+    def exec_module(self, module):
+        raise AssertionError("serve path imported " + self._name)
+
+    def __getattr__(self, name):
+        return getattr(self._inner, name)
+
+
+class _TorchTripwire:
+    """Refuses to EXECUTE the optional model stack on the serve path."""
 
     BLOCKED = BLOCKED_HERE
 
     def find_spec(self, fullname, path=None, target=None):
-        if fullname.split(".")[0] in self.BLOCKED:
-            raise AssertionError("serve path imported " + fullname)
-        return None
+        root = fullname.split(".")[0]
+        if root not in self.BLOCKED:
+            return None
+        spec = importlib.machinery.PathFinder.find_spec(fullname, path)
+        if spec is None or spec.loader is None:
+            return None
+        spec.loader = _BlockingLoader(spec.loader, fullname)
+        return spec
 
 
 sys.meta_path.insert(0, _TorchTripwire())
@@ -100,19 +129,28 @@ print("SERVE_PATH_TORCH_FREE_OK")
 """
 
 _TRIPWIRE_SELFTEST = """
+import importlib.util
 import sys
 
 sys.path.insert(0, BACKEND_DIR_HERE)
 
 TRIPWIRE_HERE
 
+# A real import must die.
 try:
     import torch  # noqa: F401
 except AssertionError as exc:
     assert "imported torch" in str(exc), exc
-    print("TRIPWIRE_FIRES_OK")
 else:
-    raise SystemExit("tripwire did not fire: the guard would be worthless")
+    raise SystemExit("tripwire did not fire on import: the guard would be worthless")
+
+# A capability PROBE must still work: it does not execute the module, which is
+# exactly why the live endpoint may use it. If this ever fails, the guard has
+# become stricter than "may not import" and is rejecting a legitimate question.
+assert importlib.util.find_spec("torch") is not None
+assert "torch" not in sys.modules
+
+print("TRIPWIRE_FIRES_OK")
 """
 
 _ATTRIBUTION_PROBE = """
@@ -127,6 +165,52 @@ from osteopatch import attribution
 
 assert attribution.get_state()["target_layer_name"] == "model.features[-1]"
 print("ATTRIBUTION_LOADS_TORCH_OK")
+"""
+
+#: The live-inference READ routes live on the enterprise app, not the G6 one, so
+#: they get their own probe. Only the two inference POSTs may load torch;
+#: reading a capability, listing runs or reading one back must stay cheap.
+#: (path, expected status) -- an unknown run is a 404, which is the point.
+LIVE_READ_PATHS = (
+    ("/v1/health", 200),
+    ("/v1/live/capability", 200),
+    ("/v1/live/runs", 200),
+    ("/v1/live/runs/live-doesnotexist", 404),
+)
+
+_LIVE_READ_PROBE = """
+import os
+import sys
+
+sys.path.insert(0, BACKEND_DIR_HERE)
+sys.path.insert(0, ENTERPRISE_DIR_HERE)
+
+TRIPWIRE_HERE
+
+from fastapi.testclient import TestClient
+
+from enterprise import app as ent_app, seed, store
+
+conn = store.connect(ENT_DB_HERE)
+ent_app.set_conn(conn)
+seeded = seed.seed(conn)  # scope_size defaults to None -> grants nothing in G6
+
+client = TestClient(ent_app.app)
+token = client.post("/auth/login", json={"email": "reviewer@demo"}).json()["access_token"]
+headers = {"Authorization": "Bearer " + token,
+           "X-Project-Id": seeded["project_id"]}
+
+for path, expected in LIVE_READ_PATHS_HERE:
+    response = client.get(path, headers=headers)
+    assert response.status_code == expected, "%s -> %s (expected %s): %s" % (
+        path, response.status_code, expected, response.text[:200])
+
+# The capability probe must be answerable WITHOUT a model loaded.
+assert client.get("/v1/live/capability", headers=headers).json()["available"] is True
+
+leaked = [m for m in sys.modules if m.split(".")[0] in _TorchTripwire.BLOCKED]
+assert not leaked, "model stack resident after the live read path: %s" % sorted(leaked)
+print("LIVE_READ_PATH_TORCH_FREE_OK")
 """
 
 #: The request paths a reviewer actually exercises. Attribution is deliberately
@@ -209,3 +293,34 @@ def test_attribution_is_the_one_path_that_does_load_torch():
     proc = _run(_substitute(_ATTRIBUTION_PROBE, backend_dir=BACKEND_DIR))
     assert proc.returncode == 0, proc.stderr
     assert "ATTRIBUTION_LOADS_TORCH_OK" in proc.stdout
+
+
+@pytest.mark.skipif(not _have_torch(), reason="torch absent; the invariant is trivially true")
+def test_live_read_paths_never_import_torch(tmp_path, monkeypatch):
+    """Reading the live surface must not load the model.
+
+    Only the two inference POSTs may. If `/v1/live/capability` or a run
+    read-back pulled torch in, a page load would cost ~1 GB before the user had
+    asked for a single prediction — and the capability endpoint exists
+    specifically so the UI can decide that cheaply.
+    """
+    work = tmp_path / "live"
+    work.mkdir()
+    monkeypatch.setenv("OSTEOPATCH_ENT_DB", str(work / "ent.sqlite3"))
+    monkeypatch.setenv("OSTEOPATCH_AUDIT_LOG", str(work / "audit.jsonl"))
+    monkeypatch.setenv("OSTEOPATCH_PROJECT_SCOPES", str(work / "scopes"))
+    monkeypatch.setenv("OSTEOPATCH_DB", str(work / "g6-empty.sqlite3"))
+
+    source = _substitute(
+        _LIVE_READ_PROBE,
+        backend_dir=BACKEND_DIR,
+        enterprise_dir=ENTERPRISE_DIR,
+        ent_db=(work / "ent.sqlite3").as_posix(),
+        live_read_paths=LIVE_READ_PATHS,
+    )
+    proc = _run(source)
+    assert proc.returncode == 0, (
+        "the live read path touched torch or a route failed:\n"
+        f"stdout:\n{proc.stdout}\nstderr:\n{proc.stderr}"
+    )
+    assert "LIVE_READ_PATH_TORCH_FREE_OK" in proc.stdout
