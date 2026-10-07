@@ -7,7 +7,7 @@ const DEMO_USERS = [
   "admin@demo", "path@demo", "reviewer@demo", "student@demo", "mle@demo", "auditor@demo",
 ];
 
-export function Login({ onLoggedIn }: { onLoggedIn: (m: Me) => void }) {
+export function Login({ onLoggedIn, sessionExpired = false }: { onLoggedIn: (m: Me) => void; sessionExpired?: boolean }) {
   const [email, setEmail] = useState("reviewer@demo");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -29,7 +29,8 @@ export function Login({ onLoggedIn }: { onLoggedIn: (m: Me) => void }) {
     <div className="login-wrap">
       <form className="login-card" onSubmit={doLogin}>
         <h1>OsteoPatch <span className="brand-ent">Enterprise</span></h1>
-        <p className="muted">Sign in (local stand-in IdP — swappable for OIDC/Cognito)</p>
+        <p className="muted">Sign in to the local educational demo.</p>
+        {sessionExpired && <p role="alert" className="err">Your session expired. Sign in again to continue.</p>}
         <input
           aria-label="email"
           value={email}
@@ -37,7 +38,7 @@ export function Login({ onLoggedIn }: { onLoggedIn: (m: Me) => void }) {
           placeholder="you@org"
         />
         <button type="submit" disabled={busy}>{busy ? "Signing in…" : "Sign in"}</button>
-        {error && <p className="err">{error}</p>}
+        {error && <p className="err" role="alert">{error === "Failed to fetch" ? "The local demo server is unavailable. Start it with the documented demo command, then retry sign-in." : error}</p>}
         <div className="demo-users">
           <span className="muted">Demo users:</span>
           {DEMO_USERS.map((u) => (

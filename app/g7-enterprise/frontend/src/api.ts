@@ -17,6 +17,7 @@ function headers(withProject = false): Record<string, string> {
 }
 
 async function j<T>(res: Response): Promise<T> {
+  expireSession(res);
   if (!res.ok) {
     let detail: unknown = res.statusText;
     try {
@@ -122,8 +123,71 @@ export function fullUrl(imageId: string): string {
   return `/v1/images/${encodeURIComponent(imageId)}/full`;
 }
 
-export function exportUrl(format: "csv" | "json"): string {
+export function exportReviewsUrl(format: "csv" | "json"): string {
   return `/v1/exports/reviews?format=${format}`;
+}
+
+function expireSession(res: Response) {
+  if (res.status === 401 && token) {
+    token = null;
+    projectId = null;
+    window.dispatchEvent(new Event("osteopatch:session-expired"));
+  }
+}
+
+async function download(path: string, filename: string): Promise<void> {
+  const res = await fetch(path, { headers: headers(true) });
+  expireSession(res);
+  if (!res.ok) throw new Error(`${res.status}: could not download ${filename}`);
+  saveBlob(await res.blob(), filename);
+}
+
+function saveBlob(blob: Blob, filename: string): void {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  window.setTimeout(() => URL.revokeObjectURL(url), 0);
+}
+
+export function downloadJson(data: unknown, filename: string): void {
+  saveBlob(new Blob([JSON.stringify(data, null, 2)], { type: "application/json" }), filename);
+}
+
+export interface SlideMeta {
+  slide_id: string; project_id: string; filename: string; source_sha256: string; byte_size: number;
+  width: number; height: number; engine: string; level_count: number; created_at: string;
+  level_downsamples: number[]; tile_size: number; mpp_x: number | null; mpp_y: number | null;
+}
+export type SlideRegion = { x: number; y: number; width: number; height: number };
+export async function slides(): Promise<SlideMeta[]> {
+  return (await j<{ slides: SlideMeta[] }>(await fetch("/v1/slides", { headers: headers(true) }))).slides;
+}
+export async function uploadSlide(file: File): Promise<SlideMeta> {
+  return j(await fetch("/v1/slides", { method: "POST", body: file,
+    headers: { ...headers(true), "Content-Type": "application/octet-stream", "X-File-Name": encodeURIComponent(file.name) } }));
+}
+export const slideRegionPath = (id: string, region: SlideRegion) =>
+  `/v1/slides/${id}/region.png?${new URLSearchParams({ x: String(region.x), y: String(region.y), width: String(region.width), height: String(region.height) })}`;
+export const slideTilePath = (id: string, level: number, x: number, y: number) =>
+  `/v1/slides/${id}/tiles/${level}/${x}/${y}.png`;
+export function slideTileHeaders() { return headers(true); }
+export const slideThumbnailPath = (id: string) => `/v1/slides/${id}/thumbnail.png`;
+export function downloadSlide(id: string, filename: string): Promise<void> {
+  return download(`/v1/slides/${id}/source`, filename);
+}
+export function downloadRegion(id: string, region: SlideRegion): Promise<void> {
+  return download(slideRegionPath(id, region), `${id}-region.png`);
+}
+export async function analyzeSlide(id: string, region: SlideRegion | null): Promise<LivePatchResult | LiveSlideResult> {
+  return j(await fetch(`/v1/slides/${id}/analyze`, { method: "POST", headers: headers(true), body: JSON.stringify(region) }));
+}
+
+export function downloadReviews(format: "csv" | "json"): Promise<void> {
+  return download(exportReviewsUrl(format), `osteopatch-reviews.${format}`);
 }
 
 // ---- G6 attribution ----
@@ -149,11 +213,7 @@ export function newIdempotencyKey(): string {
  * with auth headers and hands the DOM a blob URL instead.
  */
 export async function authenticatedImageUrl(path: string): Promise<string> {
-  const res = await fetch(path, { headers: headers(true) });
-  if (!res.ok) {
-    throw new Error(`${res.status}: ${path}`);
-  }
-  return URL.createObjectURL(await res.blob());
+  return blobUrl(path);
 }
 
 // ---- G7 enterprise: existing functions (unchanged) ----
@@ -207,6 +267,7 @@ export async function health() {
 // ---- Authenticated bytes (G7) ----
 export async function blobUrl(path: string): Promise<string> {
   const res = await fetch(path, { headers: headers(true) });
+  expireSession(res);
   if (!res.ok) {
     throw new Error(`${res.status}: ${path}`);
   }
@@ -264,6 +325,9 @@ export async function deleteLiveRun(runId: string): Promise<{ deleted: boolean }
 export const mosaicPath = (runId: string) =>
   `/v1/live/runs/${encodeURIComponent(runId)}/mosaic.png`;
 
+export const liveThumbnailPath = (runId: string) =>
+  `/v1/live/runs/${encodeURIComponent(runId)}/thumbnail.png`;
+
 export const tileAttributionPath = (runId: string, tileIndex: number) =>
   `/v1/live/runs/${encodeURIComponent(runId)}/tiles/${tileIndex}/attribution`;
 
@@ -281,8 +345,11 @@ export async function createReport(body: {
   case_id: string;
   title: string;
   findings_text: string;
+  findings_html?: string;
   image_ids: string[];
   run_ids: string[];
+  slide_ids?: string[];
+  revision_of?: string | null;
   signer_email?: string | null;
   signer_role?: string | null;
   signoff_note?: string | null;
@@ -309,17 +376,5 @@ export const reportExportPath = (reportId: string, fmt: "html" | "md") =>
   `/v1/reports/${encodeURIComponent(reportId)}/export.${fmt}`;
 
 export async function downloadExport(reportId: string, fmt: "html" | "md"): Promise<void> {
-  const res = await fetch(reportExportPath(reportId, fmt), { headers: headers(true) });
-  if (!res.ok) {
-    throw new Error(`${res.status}: could not export ${fmt}`);
-  }
-  const blob = await res.blob();
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `${reportId}.${fmt}`;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  URL.revokeObjectURL(url);
+  return download(reportExportPath(reportId, fmt), `${reportId}.${fmt}`);
 }

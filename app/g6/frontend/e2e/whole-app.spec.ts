@@ -155,6 +155,13 @@ test.describe("whole app — reviewer journey", () => {
     const modelScores = before.prediction.scores;
 
     await openPatch(page, id);
+    const noteBounds = await page.getByTestId("review-note").boundingBox();
+    expect(noteBounds?.width).toBeGreaterThan(200);
+    expect(noteBounds?.height).toBeGreaterThanOrEqual(60);
+    await page.getByTestId("review-note-expand").click();
+    await expect(page.getByTestId("review-note")).toHaveAttribute("rows", "10");
+    await page.getByTestId("review-note-expand").click();
+    await expect(page.getByTestId("review-note")).toHaveAttribute("rows", "4");
     await expect(page.getByTestId("suggested-class")).toContainText(predicted);
 
     await page.getByTestId("action-ACCEPT").click();
@@ -185,6 +192,7 @@ test.describe("whole app — reviewer journey", () => {
     const other = predicted === "NON_TUMOR" ? "NECROSIS" : "NON_TUMOR";
     await page.getByTestId(`class-${other}`).click();
     await page.getByTestId("review-note").fill("e2e: reviewer disagrees");
+    await expect(page.getByTestId("review-note")).toHaveValue("e2e: reviewer disagrees");
     await page.getByTestId("save-review").click();
     await expect(page.getByTestId("review-msg")).toContainText(/saved/i);
 
@@ -257,6 +265,24 @@ test.describe("whole app — reviewer journey", () => {
         { timeout: 10_000 },
       )
       .toBe(firstSrc);
+  });
+
+  test("wheel zoom and reset do not scroll the page or emit browser errors", async ({ page }) => {
+    const errors: string[] = [];
+    page.on("console", m => { if (m.type() === "error") errors.push(m.text()); });
+    page.on("pageerror", e => errors.push(e.message));
+    await openWorkbench(page);
+    await page.getByTestId("gallery").locator("button.card").first().click();
+    const viewer = page.getByTestId("image-viewer");
+    await expect(viewer.locator("img")).toBeVisible();
+    await viewer.locator(".viewer-stage").hover();
+    const initialScroll = await page.evaluate(() => window.scrollY);
+    await page.mouse.wheel(0, -80);
+    await expect(viewer.locator(".viewer-scale")).toHaveText("115%");
+    expect(await page.evaluate(() => window.scrollY)).toBe(initialScroll);
+    await viewer.getByRole("button", { name: /reset view/i }).click();
+    await expect(viewer.locator(".viewer-scale")).toHaveText("100%");
+    expect(errors).toEqual([]);
   });
 });
 
@@ -331,10 +357,14 @@ test.describe("whole app — attribution honesty", () => {
 
     const overlay = page.getByTestId("attribution-overlay-img");
     const error = page.getByTestId("attribution-error");
-    await expect(overlay.or(error).first()).toBeVisible();
+    const unavailable = page.getByTestId("attribution-unavailable");
+    await expect(overlay.or(error).or(unavailable).first()).toBeVisible();
 
     // If the torch-free environment refused, there must be no image.
-    if (await error.isVisible()) {
+    if (await unavailable.isVisible()) {
+      await expect(unavailable).toContainText(/unavailable in this runtime/i);
+      await expect(overlay).toHaveCount(0);
+    } else if (await error.isVisible()) {
       await expect(error).toContainText(/no heatmap is shown/i);
       await expect(overlay).toHaveCount(0);
     } else {

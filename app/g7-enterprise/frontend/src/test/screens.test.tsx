@@ -1,5 +1,6 @@
 import { describe, expect, it, vi, afterEach } from "vitest";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { ImportPanel } from "../components/live/ImportPanel";
 import { LiveScreen } from "../components/live/LiveScreen";
 import { ReportScreen } from "../components/reports/ReportScreen";
 import * as api from "../api";
@@ -117,7 +118,7 @@ describe("LiveScreen — assembled wiring", () => {
     fireEvent.click(screen.getByRole("button", { name: /import and score$/i }));
 
     await waitFor(() => expect(calls.some((c) => c.url.includes("/v1/live/patches"))).toBe(true));
-    expect(await screen.findByRole("heading", { name: "NECROSIS" })).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "Necrosis" })).toBeInTheDocument();
     expect(screen.getByText(/not a corpus prediction/i)).toBeInTheDocument();
   });
 
@@ -130,7 +131,7 @@ describe("LiveScreen — assembled wiring", () => {
     });
     render(<LiveScreen role="reviewer" projectId="prj_1" />);
     await screen.findByText("g4-behavioral-recovery-r1");
-    await waitFor(() => expect(screen.getByText(/recent runs in this project/i)).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText(/recorded demo runs/i)).toBeInTheDocument());
   });
 
   it("tells a reader-only persona why there is no import control", async () => {
@@ -154,7 +155,7 @@ describe("LiveScreen — assembled wiring", () => {
 
     render(<LiveScreen role="reviewer" projectId="prj_1" />);
     await screen.findByText("g4-behavioral-recovery-r1");
-    const file = new File([new Uint8Array([1])], "paper.pdf", { type: "application/pdf" });
+    const file = new File([new Uint8Array([1])], "invalid.png", { type: "image/png" });
     fireEvent.change(screen.getByLabelText(/choose a patch or slide/i), { target: { files: [file] } });
     fireEvent.click(screen.getByRole("button", { name: /import and score$/i }));
 
@@ -201,7 +202,12 @@ describe("ReportScreen — assembled wiring", () => {
     content_sha256: "f".repeat(64),
     disclaimer: "Educational research prototype.", n_images: 2,
     n_supported: 1, n_unresolved: 1,
-    images: [], model_card: {}, limitations_summary: {}, limitations_text: [],
+    images: [{
+      ordinal: 1, image_id: "Case-3-A10-10547-25283", source_kind: "corpus", run_id: null,
+      predicted_class: "NECROSIS", confidence: "clear", top_two_margin: 0.7,
+      scores: { NON_TUMOR: 0.1, VIABLE_TUMOR: 0.2, NECROSIS: 0.7 }, caveat: null,
+      corroborated: false, determinate: true,
+    }], model_card: {}, limitations_summary: {}, limitations_text: [],
     score_label: "uncalibrated",
     export_endpoints: { html: "/v1/reports/rep-abc/export.html", markdown: "/v1/reports/rep-abc/export.md" },
     hash_verification: {
@@ -215,7 +221,7 @@ describe("ReportScreen — assembled wiring", () => {
   it("warns before submitting that a tied patch cannot become a finding", async () => {
     enterProject();
     mockApi({ "/api/v1/images": GALLERY, "/v1/reports": { reports: [] } });
-    render(<ReportScreen role="reviewer" projectId="prj_1" />);
+    render(<ReportScreen role="reviewer" projectId="prj_1" userEmail="reviewer@demo" />);
     await screen.findByLabelText(/include Case-3-A10-10547-25283/i);
 
     // the first image has margin 0.000 -> would be recorded as no-call
@@ -223,8 +229,7 @@ describe("ReportScreen — assembled wiring", () => {
     fireEvent.click(screen.getByLabelText(/include Case-3-A10-10566-40206/i));
 
     const warn = await screen.findByRole("status");
-    expect(warn).toHaveTextContent(/sign-off will be marked/i);
-    expect(warn).toHaveTextContent(/PARTIAL/i);
+    expect(warn).toHaveTextContent(/sign-off partial/i);
   });
 
   it("posts the picked images and shows the recomputed hash", async () => {
@@ -236,6 +241,10 @@ describe("ReportScreen — assembled wiring", () => {
     globalThis.fetch = (async (url: string, init: RequestInit = {}) => {
       const u = String(url);
       calls.push({ url: u, init: init ?? {} });
+      if (u.endsWith("/v1/reports/rep-abc")) {
+        return new Response(JSON.stringify(MADE), { status: 200,
+          headers: { "Content-Type": "application/json" } });
+      }
       if (u.endsWith("/v1/reports") && init.method === "POST") {
         return new Response(JSON.stringify(MADE), { status: 200,
           headers: { "Content-Type": "application/json" } });
@@ -248,21 +257,23 @@ describe("ReportScreen — assembled wiring", () => {
         headers: { "Content-Type": "application/json" } });
     }) as typeof fetch;
 
-    render(<ReportScreen role="reviewer" projectId="prj_1" />);
+    render(<ReportScreen role="reviewer" projectId="prj_1" userEmail="reviewer@demo" />);
     await screen.findByLabelText(/include Case-3-A10-10547-25283/i);
     fireEvent.click(screen.getByLabelText(/include Case-3-A10-10547-25283/i));
-    fireEvent.change(screen.getByLabelText("Findings"),
-      { target: { value: "Necrosis dominates." } });
-    fireEvent.click(screen.getByRole("button", { name: /write report covering/i }));
+    const editor = screen.getByRole("textbox", { name: "Findings" });
+    editor.innerHTML = "<p>Necrosis dominates.</p>";
+    fireEvent.input(editor);
+    fireEvent.click(screen.getByRole("button", { name: /save report/i }));
 
     await waitFor(() => expect(calls.some((c) => c.init.method === "POST")).toBe(true));
     const post = calls.find((c) => c.init.method === "POST")!;
     const body = JSON.parse(String(post.init.body));
     expect(body.image_ids).toEqual(["Case-3-A10-10547-25283"]);
     expect(body.findings_text).toBe("Necrosis dominates.");
+    expect(body.findings_html).toBe("<p>Necrosis dominates.</p>");
     expect(body.signer_email).toBe("reviewer@demo");
 
-    expect(await screen.findByText(/recomputed and matching/i)).toBeInTheDocument();
+    expect(await screen.findByText(/content check · verified/i)).toBeInTheDocument();
     expect(screen.getByText(MADE.content_sha256)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /download html/i })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /download markdown/i })).toBeInTheDocument();
@@ -272,6 +283,10 @@ describe("ReportScreen — assembled wiring", () => {
     enterProject();
     globalThis.fetch = (async (url: string, init: RequestInit = {}) => {
       const u = String(url);
+      if (u.endsWith("/v1/reports/rep-abc")) {
+        return new Response(JSON.stringify(MADE), { status: 200,
+          headers: { "Content-Type": "application/json" } });
+      }
       if (u.endsWith("/v1/reports") && init.method === "POST") {
         return new Response(JSON.stringify(MADE), { status: 200,
           headers: { "Content-Type": "application/json" } });
@@ -284,12 +299,12 @@ describe("ReportScreen — assembled wiring", () => {
         { status: 200, headers: { "Content-Type": "application/json" } });
     }) as typeof fetch;
 
-    render(<ReportScreen role="reviewer" projectId="prj_1" />);
+    render(<ReportScreen role="reviewer" projectId="prj_1" userEmail="reviewer@demo" />);
     await screen.findByLabelText(/include Case-3-A10-10547-25283/i);
     fireEvent.click(screen.getByLabelText(/include Case-3-A10-10547-25283/i));
-    fireEvent.click(screen.getByRole("button", { name: /write report covering/i }));
+    fireEvent.click(screen.getByRole("button", { name: /save report/i }));
 
-    await screen.findByText(/signed — partial/i);
+    await screen.findByText(/signed\s+—\s+partial/i);
     // The tally chip and the explanation both name the no-call count; assert the
     // explanation, which is the one carrying the meaning.
     expect(screen.getByText(/no determinable class/i)).toBeInTheDocument();
@@ -298,8 +313,86 @@ describe("ReportScreen — assembled wiring", () => {
   it("offers no authoring control to a reader-only persona", async () => {
     enterProject();
     mockApi({ "/api/v1/images": GALLERY, "/v1/reports": { reports: [] } });
-    render(<ReportScreen role="student" projectId="prj_1" />);
-    await screen.findByText(/authoring is not available to your role/i);
-    expect(screen.queryByRole("button", { name: /write report covering/i })).not.toBeInTheDocument();
+    render(<ReportScreen role="student" projectId="prj_1" userEmail="student@demo" />);
+    await screen.findByText(/writing reports is not available to your role/i);
+    expect(screen.queryByRole("button", { name: /save report/i })).not.toBeInTheDocument();
+  });
+
+  it("uses one picker with thumbnails and rich-text tools", async () => {
+    enterProject();
+    const slide = { slide_id: "a".repeat(32), project_id: "prj_1", filename: "teaching.svs",
+      source_sha256: "b".repeat(64), byte_size: 100, width: 2048, height: 1024,
+      engine: "openslide", level_count: 2, created_at: "2026-10-06T00:00:00Z",
+      level_downsamples: [1, 4], mpp_x: null, mpp_y: null };
+    const calls = mockApi({
+      "/api/v1/images": GALLERY,
+      "/v1/live/runs": { runs: [SUMMARY] },
+      "/v1/slides": { slides: [slide] },
+      "/v1/reports": { reports: [] },
+    });
+    render(<ReportScreen role="reviewer" projectId="prj_1" userEmail="reviewer@demo" />);
+    await screen.findByText("teaching.svs");
+    expect(screen.getByText(/AI analyzed · teaching set/i)).toBeInTheDocument();
+    expect(screen.getByText(/AI analyzed · uploaded images/i)).toBeInTheDocument();
+    expect(screen.getByText(/Not yet analyzed · uploaded slides/i)).toBeInTheDocument();
+    const bold = screen.getByRole("button", { name: "Bold" });
+    expect(bold.querySelector("svg")).toBeInTheDocument();
+    expect(bold.textContent).toBe("");
+    fireEvent.change(screen.getByLabelText("Search slide library"), {
+      target: { value: "teaching.svs · uploaded slide" },
+    });
+    expect(screen.getByLabelText("Include teaching.svs")).toBeChecked();
+    expect(screen.getByLabelText("Report name")).toHaveValue("Case review — teaching.svs");
+    fireEvent.change(screen.getByLabelText("Report name"), { target: { value: "My teaching slide report" } });
+    expect(screen.getByLabelText("Report name")).toHaveValue("My teaching slide report");
+    expect(await screen.findByTestId(`slide-thumbnail-${slide.slide_id}`)).toBeInTheDocument();
+    await waitFor(() => expect(calls.some((call) => call.url.includes("/thumbnail"))).toBe(true));
+    expect(calls.some((call) => call.url.includes("/live/runs/live-abc123/thumbnail.png"))).toBe(true);
+  });
+
+  it("opens a saved report and starts an append-only revision with its content", async () => {
+    enterProject();
+    const history = [{ report_id: MADE.report_id, case_id: MADE.case_id, title: MADE.title,
+      author_email: MADE.author_email, created_at: MADE.created_at, signer_email: MADE.signer_email,
+      content_sha256: MADE.content_sha256, n_images: 1 }];
+    const calls: { url: string; init: RequestInit }[] = [];
+    globalThis.fetch = (async (url: string, init: RequestInit = {}) => {
+      const u = String(url); calls.push({ url: u, init });
+      if (u.endsWith("/v1/reports/rep-abc")) return new Response(JSON.stringify(MADE), { status: 200 });
+      if (u.endsWith("/v1/reports") && init.method === "POST") return new Response(JSON.stringify(MADE), { status: 200 });
+      if (u.includes("/api/v1/images")) return new Response(JSON.stringify(GALLERY), { status: 200 });
+      if (u.includes("/v1/live/runs")) return new Response(JSON.stringify({ runs: [] }), { status: 200 });
+      if (u.endsWith("/v1/slides")) return new Response(JSON.stringify({ slides: [] }), { status: 200 });
+      return new Response(JSON.stringify({ reports: history }), { status: 200 });
+    }) as typeof fetch;
+
+    render(<ReportScreen role="reviewer" projectId="prj_1" userEmail="reviewer@demo" />);
+    fireEvent.click(await screen.findByRole("button", { name: /Case review/i }));
+    fireEvent.click(await screen.findByRole("button", { name: /Edit as new revision/i }));
+    expect(screen.getByRole("textbox", { name: "Findings" })).toHaveTextContent("Necrosis dominates.");
+    expect(screen.getByLabelText(/include Case-3-A10-10547-25283/i)).toBeChecked();
+    fireEvent.click(screen.getByRole("button", { name: /Save revision/i }));
+    await waitFor(() => expect(calls.some((call) => call.init.method === "POST")).toBe(true));
+    const body = JSON.parse(String(calls.find((call) => call.init.method === "POST")?.init.body));
+    expect(body.revision_of).toBe("rep-abc");
+    expect(body.image_ids).toContain("Case-3-A10-10547-25283");
+  });
+});
+
+describe("import validation", () => {
+  it("rejects unsupported, empty and oversized files before calling inference", () => {
+    const onImport = vi.fn();
+    render(<ImportPanel role="reviewer" capability={{ ...CAPABILITY, max_upload_bytes: 5 }} busy={false} onImport={onImport} />);
+    const input = screen.getByLabelText("Choose a patch or slide to import");
+    for (const file of [new File(["x"], "bad.pdf"), new File([], "empty.png"), new File(["123456"], "large.png")]) {
+      fireEvent.change(input, { target: { files: [file] } });
+      expect(screen.getByRole("alert")).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: /^Import and score$/ })).toBeDisabled();
+    }
+    expect(onImport).not.toHaveBeenCalled();
+    const file = new File(["123"], "ok.png");
+    fireEvent.change(input, { target: { files: [file] } });
+    fireEvent.click(screen.getByRole("button", { name: /^Import and score$/ }));
+    expect(onImport).toHaveBeenCalledWith(file, "patch");
   });
 });

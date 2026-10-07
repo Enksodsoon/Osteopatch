@@ -92,6 +92,8 @@ export interface AttributionBlock {
 export interface AttributionMeta {
   image_id: string;
   attribution_enabled: boolean;
+  attribution_runtime_available?: boolean;
+  attribution_unavailable_reason?: string | null;
   predicted_class: CanonicalClass;
   default_pair: AttributionPair;
   pairs: AttributionPair[];

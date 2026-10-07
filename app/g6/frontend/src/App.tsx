@@ -19,6 +19,7 @@ export default function App() {
   const [meta, setMeta] = useState<Meta | null>(null);
   const [health, setHealth] = useState<Health | null>(null);
   const [startupError, setStartupError] = useState(false);
+  const [retryVersion, setRetryVersion] = useState(0);
   const [view, setView] = useState<View>({ name: "workbench" });
   const [theme, setTheme] = useState<"light" | "dark">(() => {
     try {
@@ -57,7 +58,7 @@ export default function App() {
     return () => {
       active = false;
     };
-  }, []);
+  }, [retryVersion]);
 
   const reviewerView = view.name === "workbench" || view.name === "patch";
 
@@ -102,6 +103,18 @@ export default function App() {
             onClick={() => setView({ name: "library" })}
           >
             {t("nav.library")}
+          </button>
+          <button
+            className={view.name === "analysis" ? "active" : ""}
+            onClick={() => {
+              if (view.name === "patch") {
+                setView({ name: "analysis", imageId: view.imageId });
+              }
+            }}
+            disabled={view.name !== "patch"}
+            title={t("analysis.title")}
+          >
+            {t("analysis.title")}
           </button>
         </nav>
 
@@ -151,6 +164,9 @@ export default function App() {
             <div>
               <strong>{t("app.loadErrorTitle")}</strong>
               <p>{t("app.loadErrorBody")}</p>
+              <button type="button" className="btn-link" onClick={() => { setStartupError(false); setMeta(null); setRetryVersion((n) => n + 1); }}>
+                {t("common.retry")}
+              </button>
             </div>
           </section>
         )}
@@ -166,14 +182,14 @@ export default function App() {
             meta={meta}
             onBack={() => setView({ name: "workbench" })}
             onNavigate={(imageId) => setView({ name: "patch", imageId })}
+            onOpenAnalysis={(imageId) => setView({ name: "analysis", imageId })}
           />
         )}
         {meta && view.name === "analysis" && (
           <AnalysisWithImage
             imageId={view.imageId}
             meta={meta}
-            onBack={() => setView({ name: "workbench" })}
-            onOpenAnalysis={() => setView({ name: "analysis", imageId: view.imageId })}
+            onBack={() => setView({ name: "patch", imageId: view.imageId })}
           />
         )}
         {view.name === "library" && <Library onOpen={(id) => setView({ name: "patch", imageId: id })} />}

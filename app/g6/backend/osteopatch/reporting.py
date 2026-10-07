@@ -39,6 +39,7 @@ import sqlite3
 import uuid
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
+from html.parser import HTMLParser
 from typing import Any
 
 from . import limitations, modelcard
@@ -97,6 +98,10 @@ class ReportImage:
     #: Whether the model made a call at all. Drives the supported/unresolved
     #: split; computed once here so both renderings agree.
     determinate: bool = True
+    analysis_status: str | None = None
+    #: Small PNG preview captured when the report is written. This is inside
+    #: document_json, so the report hash also protects the exported image.
+    preview_png_base64: str | None = None
 
     @property
     def class_label(self) -> str:
@@ -129,6 +134,8 @@ class ReportDocument:
     limitations_summary: dict[str, Any] = field(default_factory=dict)
     limitations_text: list[dict[str, Any]] = field(default_factory=list)
     disclaimer: str = DISCLAIMER
+    findings_html: str | None = None
+    revision_of: str | None = None
 
     # -- provenance ---------------------------------------------------------
 
@@ -140,10 +147,19 @@ class ReportDocument:
         characters rather than escapes, so the hash is over the text a reader
         would see.
         """
-        return json.dumps(
-            asdict(self), sort_keys=True, separators=(",", ":"), ensure_ascii=False,
-            default=str,
-        )
+        payload = asdict(self)
+        # Omit absent additions so reports written before rich findings and
+        # report revisions continue to reproduce their original content hash.
+        if self.findings_html is None:
+            payload.pop("findings_html")
+        if self.revision_of is None:
+            payload.pop("revision_of")
+        for image in payload["images"]:
+            if image["analysis_status"] is None:
+                image.pop("analysis_status")
+            if image["preview_png_base64"] is None:
+                image.pop("preview_png_base64")
+        return json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False, default=str)
 
     @property
     def content_sha256(self) -> str:
@@ -158,12 +174,16 @@ class ReportDocument:
     @property
     def supported(self) -> list[ReportImage]:
         """Images the document is willing to state a class for."""
-        return [i for i in self.images if i.determinate]
+        return [i for i in self.images if i.determinate and i.analysis_status != "not_analyzed"]
 
     @property
     def unresolved(self) -> list[ReportImage]:
         """Images that produced NO call. Never presented as findings."""
-        return [i for i in self.images if not i.determinate]
+        return [i for i in self.images if not i.determinate and i.analysis_status != "not_analyzed"]
+
+    @property
+    def not_analyzed(self) -> list[ReportImage]:
+        return [i for i in self.images if i.analysis_status == "not_analyzed"]
 
     @property
     def signoff_covers_all(self) -> bool:
@@ -199,6 +219,77 @@ def _classify(scores: dict[str, float] | None, margin: float | None,
     if margin is None or scores is None:
         return False
     return margin > INDETERMINATE_MARGIN
+
+
+class _FindingsHTML(HTMLParser):
+    """Keep a small formatting allowlist and derive the signed plain text."""
+
+    allowed = {"p", "div", "br", "strong", "b", "em", "i", "u", "h2", "h3", "ul", "ol", "li", "blockquote"}
+    blocked = {"script", "style", "iframe", "object", "svg", "math"}
+    block = {"p", "div", "h2", "h3", "li", "blockquote"}
+
+    def __init__(self) -> None:
+        super().__init__(convert_charrefs=True)
+        self.output: list[str] = []
+        self.text: list[str] = []
+        self.stack: list[str] = []
+        self.skip: list[str] = []
+
+    def _break(self) -> None:
+        if self.text and not self.text[-1].endswith("\n"):
+            self.text.append("\n")
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        if self.skip:
+            if tag in self.blocked:
+                self.skip.append(tag)
+            return
+        if tag in self.blocked:
+            self.skip.append(tag)
+            return
+        if tag not in self.allowed:
+            return
+        if tag in self.block:
+            self._break()
+        if tag == "br":
+            self.output.append("<br>")
+            self.text.append("\n")
+        else:
+            self.output.append(f"<{tag}>")
+            self.stack.append(tag)
+
+    def handle_endtag(self, tag: str) -> None:
+        if self.skip:
+            if tag in self.skip:
+                self.skip = self.skip[:len(self.skip) - 1 - self.skip[::-1].index(tag)]
+            return
+        if tag not in self.stack:
+            return
+        while self.stack:
+            current = self.stack.pop()
+            self.output.append(f"</{current}>")
+            if current == tag:
+                break
+        if tag in self.block:
+            self._break()
+
+    def handle_data(self, data: str) -> None:
+        if self.skip:
+            return
+        self.output.append(html.escape(data, quote=False))
+        self.text.append(data)
+
+    def finish(self) -> tuple[str, str]:
+        while self.stack:
+            self.output.append(f"</{self.stack.pop()}>")
+        return "".join(self.output).strip(), "".join(self.text).strip()
+
+
+def sanitize_findings_html(value: str) -> tuple[str, str]:
+    parser = _FindingsHTML()
+    parser.feed(value)
+    parser.close()
+    return parser.finish()
 
 
 def model_card_excerpt() -> dict[str, Any]:
@@ -254,6 +345,8 @@ def draft_document(
     case_id: str,
     title: str,
     findings_text: str,
+    findings_html: str | None = None,
+    revision_of: str | None = None,
     author_email: str,
     images: list[dict[str, Any]],
     signer_email: str | None = None,
@@ -265,6 +358,7 @@ def draft_document(
     """Assemble a typed document from real rows. Does not write anything."""
     report_id = report_id or f"rep-{uuid.uuid4().hex[:16]}"
     created_at = created_at or datetime.now(timezone.utc).isoformat(timespec="seconds")
+    safe_html, rich_text = sanitize_findings_html(findings_html) if findings_html is not None else (None, None)
 
     built: list[ReportImage] = []
     for n, raw in enumerate(images, start=1):
@@ -284,6 +378,8 @@ def draft_document(
                 caveat=raw.get("caveat"),
                 corroborated=bool(raw.get("corroborated")),
                 determinate=_classify(scores, margin, confidence),
+                analysis_status=raw.get("analysis_status"),
+                preview_png_base64=raw.get("preview_png_base64"),
             )
         )
 
@@ -293,7 +389,7 @@ def draft_document(
         project_id=project_id,
         case_id=case_id,
         title=title.strip() or f"Case {case_id}",
-        findings_text=findings_text.strip(),
+        findings_text=rich_text if rich_text is not None else findings_text.strip(),
         author_email=author_email,
         created_at=created_at,
         images=built,
@@ -304,6 +400,8 @@ def draft_document(
         model_card=model_card_excerpt(),
         limitations_summary=summary,
         limitations_text=lim_items,
+        findings_html=safe_html,
+        revision_of=revision_of,
     )
 
 
@@ -318,15 +416,19 @@ def store_document(conn: sqlite3.Connection, doc: ReportDocument) -> dict[str, A
         """INSERT INTO case_report (
              report_id, project_id, case_id, title, findings_text, author_email,
              signer_email, signer_role, signed_at, signoff_note, created_at,
-             revision, document_json, content_sha256
-           ) VALUES (?,?,?,?,?,?,?,?,?,?,?,1,?,?)""",
+             revision, supersedes_report_id, document_json, content_sha256
+           ) VALUES (?,?,?,?,?,?,?,?,?,?,?,1,?,?,?)""",
         (
             doc.report_id, doc.project_id, doc.case_id, doc.title, doc.findings_text,
             doc.author_email, doc.signer_email, doc.signer_role, doc.signed_at,
-            doc.signoff_note, doc.created_at, doc.canonical_json(), doc.content_sha256,
+            doc.signoff_note, doc.created_at, doc.revision_of, doc.canonical_json(), doc.content_sha256,
         ),
     )
     for img in doc.images:
+        # Uploaded WSI references live in document_json. The normalized image
+        # table predates slide sources and intentionally remains schema-stable.
+        if img.source_kind == "slide":
+            continue
         conn.execute(
             """INSERT INTO case_report_image (
                  report_id, ordinal, image_id, source_kind, run_id,
@@ -350,6 +452,8 @@ def public_report(doc: ReportDocument) -> dict[str, Any]:
         "case_id": doc.case_id,
         "title": doc.title,
         "findings_text": doc.findings_text,
+        "findings_html": doc.findings_html,
+        "revision_of": doc.revision_of,
         "author_email": doc.author_email,
         "created_at": doc.created_at,
         "is_signed": doc.is_signed,
@@ -363,7 +467,12 @@ def public_report(doc: ReportDocument) -> dict[str, Any]:
         "n_images": len(doc.images),
         "n_supported": len(doc.supported),
         "n_unresolved": len(doc.unresolved),
-        "images": [asdict(i) for i in doc.images],
+        "n_not_analyzed": len(doc.not_analyzed),
+        "images": [
+            {**{k: v for k, v in asdict(i).items() if k != "preview_png_base64"},
+             "preview_attached": bool(i.preview_png_base64)}
+            for i in doc.images
+        ],
         "model_card": doc.model_card,
         "limitations_summary": doc.limitations_summary,
         "limitations_text": doc.limitations_text,
@@ -404,6 +513,8 @@ def _from_json(raw: dict[str, Any]) -> ReportDocument:
         limitations_summary=raw.get("limitations_summary", {}),
         limitations_text=raw.get("limitations_text", []),
         disclaimer=raw.get("disclaimer", DISCLAIMER),
+        findings_html=raw.get("findings_html"),
+        revision_of=raw.get("revision_of"),
     )
 
 
@@ -442,16 +553,20 @@ def verify_hash(conn: sqlite3.Connection, report_id: str) -> dict[str, Any]:
 def list_reports(conn: sqlite3.Connection, project_id: str, limit: int = 50) -> list[dict]:
     rows = conn.execute(
         """SELECT report_id, case_id, title, author_email, created_at, signer_email,
-                  content_sha256,
-                  (SELECT COUNT(*) FROM case_report_image i WHERE i.report_id = r.report_id)
-                    AS n_images
+                  content_sha256, supersedes_report_id AS revision_of, document_json
              FROM case_report r
             WHERE project_id = ?
             ORDER BY created_at DESC, report_id DESC
             LIMIT ?""",
         (project_id, limit),
     ).fetchall()
-    return [dict(r) for r in rows]
+    reports = []
+    for row in rows:
+        item = dict(row)
+        document = json.loads(item.pop("document_json"))
+        item["n_images"] = len(document.get("images", []))
+        reports.append(item)
+    return reports
 
 
 # ---------------------------------------------------------------------------
@@ -463,6 +578,28 @@ def _score_lines(img: ReportImage) -> list[str]:
     if not img.scores:
         return ["- scores: not recorded"]
     return [f"- {k}: {img.scores[k]:.4f}" for k in CANONICAL_CLASSES if k in img.scores]
+
+
+def _markdown_preview(img: ReportImage) -> list[str]:
+    if not img.preview_png_base64:
+        return []
+    return [
+        f"![Attached image preview for report item {img.ordinal}]"
+        f"(data:image/png;base64,{img.preview_png_base64})",
+        "",
+    ]
+
+
+def _html_preview(img: ReportImage) -> str:
+    if not img.preview_png_base64:
+        return ""
+    return (
+        '<figure class="report-preview">'
+        f'<img alt="Attached image preview for report item {img.ordinal}" '
+        f'src="data:image/png;base64,{html.escape(img.preview_png_base64, quote=True)}">'
+        "<figcaption>Attached image preview · included in the content SHA-256.</figcaption>"
+        "</figure>"
+    )
 
 
 def render_markdown(doc: ReportDocument) -> str:
@@ -478,6 +615,8 @@ def render_markdown(doc: ReportDocument) -> str:
     L.append(f"- Project: `{doc.project_id}`")
     L.append(f"- Author: {doc.author_email}")
     L.append(f"- Created: {doc.created_at}")
+    if doc.revision_of:
+        L.append(f"- Revision of: `{doc.revision_of}`")
     L.append(f"- Content SHA-256: `{doc.content_sha256}`")
     if doc.is_signed:
         L.append(f"- Signed by: {doc.signer_email} ({doc.signer_role}) at {doc.signed_at}")
@@ -492,7 +631,7 @@ def render_markdown(doc: ReportDocument) -> str:
 
     L.append("## Reviewer findings")
     L.append("")
-    L.append(doc.findings_text or "_No findings text was supplied._")
+    L.append(doc.findings_html or doc.findings_text or "_No findings text was supplied._")
     L.append("")
 
     L.append("## Patches with a determinable class")
@@ -513,6 +652,7 @@ def render_markdown(doc: ReportDocument) -> str:
             L.extend(_score_lines(img))
             if img.caveat:
                 L.append(f"- Caveat: {img.caveat}")
+            L.extend(_markdown_preview(img))
             L.append("")
     else:
         L.append("_None. No patch in this report produced a determinable class._")
@@ -537,6 +677,21 @@ def render_markdown(doc: ReportDocument) -> str:
             L.extend(_score_lines(img))
             if img.caveat:
                 L.append(f"- Caveat: {img.caveat}")
+            L.extend(_markdown_preview(img))
+            L.append("")
+    else:
+        L.append("_None._")
+        L.append("")
+
+    L.append("## Uploaded images without an AI run")
+    L.append("")
+    if doc.not_analyzed:
+        for img in doc.not_analyzed:
+            L.append(f"### {img.ordinal}. `{img.image_id}` — not analyzed")
+            L.append("")
+            L.append(f"- Source: {img.source_kind}")
+            L.append(f"- Note: {img.caveat or 'No model run was attached to this image.'}")
+            L.extend(_markdown_preview(img))
             L.append("")
     else:
         L.append("_None._")
@@ -611,6 +766,8 @@ def render_html(doc: ReportDocument) -> str:
     parts.append(head("Project", doc.project_id or ""))
     parts.append(head("Author", doc.author_email or ""))
     parts.append(head("Created", doc.created_at or ""))
+    if doc.revision_of:
+        parts.append(head("Revision of", doc.revision_of))
     parts.append(head("Content SHA-256", doc.content_sha256 or ""))
     if doc.is_signed:
         parts.append(head("Signed by", f"{doc.signer_email or ''} ({doc.signer_role or ''}) at {doc.signed_at or ''}"))
@@ -625,12 +782,8 @@ def render_html(doc: ReportDocument) -> str:
     parts.append("</dl>")
 
     parts.append("<h2>Reviewer findings</h2>")
-    parts.append(
-        "<p class=\"prose\">"
-        + (e(doc.findings_text).replace("\n", "<br>")
-           if doc.findings_text else "<em>No findings text was supplied.</em>")
-        + "</p>"
-    )
+    findings = doc.findings_html or (e(doc.findings_text).replace("\n", "<br>") if doc.findings_text else "<em>No findings text was supplied.</em>")
+    parts.append(f'<div class="prose">{findings}</div>')
 
     parts.append("<h2>Patches with a determinable class</h2>")
     if doc.supported:
@@ -651,7 +804,9 @@ def render_html(doc: ReportDocument) -> str:
                   f"{'yes' if img.corroborated else 'no'}</li>"
                 + "".join(f"<li class=\"mono\">{e(s)}</li>" for s in _score_lines(img))
                 + (f"<li class=\"caveat\">Caveat: {e(img.caveat or '')}</li>" if img.caveat else "")
-                + "</ul></article>"
+                + "</ul>"
+                + _html_preview(img)
+                + "</article>"
             )
     else:
         parts.append(
@@ -675,7 +830,21 @@ def render_html(doc: ReportDocument) -> str:
                    else "<li>Top-two separation: not recorded</li>")
                 + "".join(f"<li class=\"mono\">{e(s)}</li>" for s in _score_lines(img))
                 + (f"<li class=\"caveat\">Caveat: {e(img.caveat or '')}</li>" if img.caveat else "")
-                + "</ul></article>"
+                + "</ul>"
+                + _html_preview(img)
+                + "</article>"
+            )
+    else:
+        parts.append("<p class=\"empty\"><em>None.</em></p>")
+
+    parts.append("<h2>Uploaded images without an AI run</h2>")
+    if doc.not_analyzed:
+        for img in doc.not_analyzed:
+            parts.append(
+                '<article class="img not-analyzed">'
+                f"<h3>{img.ordinal}. {e(img.image_id)} — not analyzed</h3>"
+                f"<p>{e(img.caveat or 'No model run was attached to this image.')}</p>"
+                f"{_html_preview(img)}</article>"
             )
     else:
         parts.append("<p class=\"empty\"><em>None.</em></p>")
@@ -747,6 +916,9 @@ dl.meta dt { color:var(--muted); }
 dl.meta dd { margin:0; overflow-wrap:anywhere; }
 dl.meta dt.warn, dl.meta dd.warn { color:var(--warn); }
 .mono { font-family:ui-monospace, Menlo, Consolas, monospace; font-size:13px; }
+.report-preview { margin:12px 0; }
+.report-preview img { display:block; max-width:100%; max-height:360px; object-fit:contain; border:1px solid var(--line); }
+.report-preview figcaption { color:var(--muted); font:12px/1.4 system-ui, sans-serif; margin-top:4px; }
 ul { margin:6px 0 12px; padding-left:20px; }
 li { margin:3px 0; }
 .prose { white-space:normal; }

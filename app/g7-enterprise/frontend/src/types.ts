@@ -59,6 +59,12 @@ export const CLASS_LABELS: Record<keyof Scores, string> = {
   NECROSIS: "Necrosis / เนื้อตาย",
 };
 
+export const CLASS_NAMES: Record<keyof Scores, string> = {
+  NON_TUMOR: "Non-tumor",
+  VIABLE_TUMOR: "Viable tumor",
+  NECROSIS: "Necrosis",
+};
+
 // ---------------------------------------------------------------------------
 // Live inference (mirrors app/g6/backend/osteopatch/live_inference.py)
 // ---------------------------------------------------------------------------
@@ -233,7 +239,8 @@ export const SUPPORT_FLAG_LABELS: Record<string, string> = {
 export interface ReportImage {
   ordinal: number;
   image_id: string;
-  source_kind: "corpus" | "live";
+  source_kind: "corpus" | "live" | "slide";
+  analysis_status?: "not_analyzed" | null;
   run_id: string | null;
   predicted_class: keyof Scores | null;
   confidence: Confidence | null;
@@ -243,6 +250,8 @@ export interface ReportImage {
   corroborated: boolean;
   /** False when the model made no call. Such an image is never a finding. */
   determinate: boolean;
+  /** A preview snapshot was captured into the signed report document. */
+  preview_attached?: boolean;
 }
 
 /**
@@ -256,6 +265,8 @@ export interface PublicReport {
   case_id: string;
   title: string;
   findings_text: string;
+  findings_html?: string | null;
+  revision_of?: string | null;
   author_email: string;
   created_at: string;
   is_signed: boolean;
@@ -269,6 +280,7 @@ export interface PublicReport {
   n_images: number;
   n_supported: number;
   n_unresolved: number;
+  n_not_analyzed?: number;
   images: ReportImage[];
   model_card: Record<string, unknown>;
   limitations_summary: { total?: number; by_severity?: Record<string, number> };
@@ -296,6 +308,7 @@ export interface ReportSummary {
   signer_email: string | null;
   content_sha256: string;
   n_images: number;
+  revision_of?: string | null;
 }
 
 /** Roles that may author a signed document. Mirrors `report:write`. */
@@ -390,6 +403,8 @@ export interface AttributionBlock {
 export interface AttributionMeta {
   image_id: string;
   attribution_enabled: boolean;
+  attribution_runtime_available?: boolean;
+  attribution_unavailable_reason?: string | null;
   predicted_class: CanonicalClass;
   default_pair: AttributionPair;
   pairs: AttributionPair[];

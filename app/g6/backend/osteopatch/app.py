@@ -60,6 +60,14 @@ def set_conn(conn: sqlite3.Connection) -> None:
     _conn = conn
 
 
+def close_current_connection() -> None:
+    """Release the calling thread's runtime connection (e.g. demo seeding)."""
+    conn = getattr(_thread_conn, "conn", None)
+    if conn is not None:
+        conn.close()
+        del _thread_conn.conn
+
+
 # ---------------------------------------------------------------------------
 # Error handling
 # ---------------------------------------------------------------------------
@@ -269,9 +277,19 @@ def get_attribution_meta(image_id: str):
     if pred is None:
         return JSONResponse(status_code=404, content={"error": "unknown image_id"})
     da, db_ = _default_pair_for(pred)
+    import importlib.util
+
+    from . import live_inference
+    capability = live_inference.runtime_available()
+    attribution_available = capability["available"] and importlib.util.find_spec("pytorch_grad_cam") is not None
+    unavailable_reason = capability.get("reason")
+    if capability["available"] and not attribution_available:
+        unavailable_reason = "pytorch-grad-cam is not installed (install the optional `model` extra)"
     return {
         "image_id": image_id,
         "attribution_enabled": True,
+        "attribution_runtime_available": attribution_available,
+        "attribution_unavailable_reason": unavailable_reason,
         "predicted_class": pred["predicted_class"],
         "default_pair": {"a": da, "b": db_},
         "pairs": CONTRASTIVE_PAIRS,

@@ -23,6 +23,7 @@ export function ProvenanceStrip({ run }: { run: LiveRun }) {
   return (
     <dl className="provenance">
       {fact("engine", run.engine)}
+      {fact("recorded", run.created_at)}
       {fact("levels read", run.level_count)}
       {fact("mpp", run.mpp_x !== null && run.mpp_y !== null ? `${run.mpp_x} × ${run.mpp_y}` : null)}
       {fact("objective", run.objective_power)}
@@ -37,6 +38,10 @@ export function ProvenanceStrip({ run }: { run: LiveRun }) {
       <div className="fact wide">
         <dt>bundle sha256</dt>
         <dd className="mono">{run.model_bundle_sha256}</dd>
+      </div>
+      <div className="fact wide">
+        <dt>source sha256</dt>
+        <dd className="mono">{run.source_sha256}</dd>
       </div>
     </dl>
   );

@@ -221,7 +221,7 @@ describe("Workbench", () => {
 describe("PatchReview", () => {
   it("shows all three model scores and the uncalibrated badge", async () => {
     (api.getImage as any).mockResolvedValue(makeDetail());
-    render(<PatchReview imageId="img-1" meta={META} onBack={() => {}} onNavigate={() => {}} />);
+    render(<PatchReview imageId="img-1" meta={META} onBack={() => {}} onNavigate={() => {}} onOpenAnalysis={() => {}} />);
     await screen.findByTestId("review-panel");
     expect(screen.getByTestId("score-NON_TUMOR")).toBeInTheDocument();
     expect(screen.getByTestId("score-VIABLE_TUMOR")).toBeInTheDocument();
@@ -231,7 +231,7 @@ describe("PatchReview", () => {
 
   it("accepts a patch", async () => {
     (api.getImage as any).mockResolvedValue(makeDetail());
-    render(<PatchReview imageId="img-1" meta={META} onBack={() => {}} onNavigate={() => {}} />);
+    render(<PatchReview imageId="img-1" meta={META} onBack={() => {}} onNavigate={() => {}} onOpenAnalysis={() => {}} />);
     await screen.findByTestId("action-ACCEPT");
     fireEvent.click(screen.getByTestId("action-ACCEPT"));
     fireEvent.click(screen.getByTestId("save-review"));
@@ -243,7 +243,7 @@ describe("PatchReview", () => {
 
   it("corrects a patch to another class", async () => {
     (api.getImage as any).mockResolvedValue(makeDetail());
-    render(<PatchReview imageId="img-1" meta={META} onBack={() => {}} onNavigate={() => {}} />);
+    render(<PatchReview imageId="img-1" meta={META} onBack={() => {}} onNavigate={() => {}} onOpenAnalysis={() => {}} />);
     await screen.findByTestId("action-CORRECT");
     fireEvent.click(screen.getByTestId("action-CORRECT"));
     fireEvent.click(screen.getByTestId("class-NECROSIS"));
@@ -256,7 +256,7 @@ describe("PatchReview", () => {
 
   it("defers a patch with a reason and never forces a class", async () => {
     (api.getImage as any).mockResolvedValue(makeDetail());
-    render(<PatchReview imageId="img-1" meta={META} onBack={() => {}} onNavigate={() => {}} />);
+    render(<PatchReview imageId="img-1" meta={META} onBack={() => {}} onNavigate={() => {}} onOpenAnalysis={() => {}} />);
     await screen.findByTestId("action-DEFER");
     fireEvent.click(screen.getByTestId("action-DEFER"));
     // no class picker is shown for DEFER
@@ -278,7 +278,7 @@ describe("PatchReview", () => {
         history: [{ review_event_id: "r1", action: "CORRECT", selected_class: "NON_TUMOR", reason: null, note: null, reviewer: "me", created_at: "2026-10-03T16:00:00Z", revision_number: 1, prediction_id: "pred-img-1-abc" }],
       }),
     );
-    render(<PatchReview imageId="img-1" meta={META} onBack={() => {}} onNavigate={() => {}} />);
+    render(<PatchReview imageId="img-1" meta={META} onBack={() => {}} onNavigate={() => {}} onOpenAnalysis={() => {}} />);
     await screen.findByTestId("review-history");
     // suggested (model) class still VIABLE_TUMOR; history shows human correction to NON_TUMOR
     expect(screen.getByTestId("suggested-class").textContent).toMatch(/VIABLE_TUMOR/);
@@ -288,7 +288,7 @@ describe("PatchReview", () => {
   it("navigates to the next patch", async () => {
     (api.getImage as any).mockResolvedValue(makeDetail());
     const onNavigate = vi.fn();
-    render(<PatchReview imageId="img-1" meta={META} onBack={() => {}} onNavigate={onNavigate} />);
+    render(<PatchReview imageId="img-1" meta={META} onBack={() => {}} onNavigate={onNavigate} onOpenAnalysis={() => {}} />);
     await screen.findByTestId("next-patch");
     await waitFor(() => expect((api.listImages as any)).toHaveBeenCalled());
     fireEvent.click(screen.getByTestId("next-patch"));
@@ -370,9 +370,21 @@ describe("AttributionPanel (G7 contrastive)", () => {
     expect(screen.getByTestId("attribution-recovery-disclosure")).toBeInTheDocument();
   });
 
+  it("does not request an overlay when the verified runtime is unavailable", async () => {
+    (api.getAttributionMeta as any).mockResolvedValueOnce({
+      ...ATTRIB_META,
+      attribution_runtime_available: false,
+      attribution_unavailable_reason: "torch is not installed",
+    });
+    render(<AttributionPanel imageId="img-1" />);
+    expect(await screen.findByTestId("attribution-unavailable")).toHaveTextContent(/torch is not installed/i);
+    expect(screen.queryByTestId("attribution-pair")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("attribution-overlay-img")).not.toBeInTheDocument();
+  });
+
   it("review actions still work after interacting with attribution", async () => {
     (api.getImage as any).mockResolvedValue(makeDetail());
-    render(<PatchReview imageId="img-1" meta={META} onBack={() => {}} onNavigate={() => {}} />);
+    render(<PatchReview imageId="img-1" meta={META} onBack={() => {}} onNavigate={() => {}} onOpenAnalysis={() => {}} />);
     await screen.findByTestId("review-panel");
     await screen.findByTestId("attribution-panel");
     const sel = screen.getByTestId("attribution-pair") as HTMLSelectElement;

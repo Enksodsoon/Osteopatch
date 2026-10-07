@@ -15,6 +15,7 @@ every call returns a labelled 503 — NEVER a fabricated prediction or review.
 """
 from __future__ import annotations
 
+import base64
 import json
 from pathlib import Path
 
@@ -110,12 +111,12 @@ def project_image_ids(project_id: str) -> list[str]:
 # ---------------------------------------------------------------------------
 # Delegated calls
 # ---------------------------------------------------------------------------
-def list_images(project_id: str | None, *, sort: str, filt: str, page: int, page_size: int) -> dict:
+def list_images(project_id: str | None, *, sort: str, filt: str, page: int, page_size: int, q: str | None = None) -> dict:
     pid = _require_project(project_id)
     conn = _g6().get_conn()
     from osteopatch import queries  # type: ignore
     return queries.list_images(
-        conn, sort=sort, filt=filt, q=None, page=page, page_size=page_size, project_id=pid
+        conn, sort=sort, filt=filt, q=q, page=page, page_size=page_size, project_id=pid
     )
 
 
@@ -140,18 +141,25 @@ def submit_review(project_id: str | None, image_id: str, body: dict, *, reviewer
     if queries.get_image(conn, image_id, project_id=pid) is None:
         raise HTTPException(status_code=404, detail="unknown image_id (or out of project scope)")
 
-    event, created = review_store.submit_review(
-        conn,
-        image_id=image_id,
-        prediction_id=body["prediction_id"],
-        action=body["action"],
-        expected_revision=body.get("expected_revision", 0),
-        idempotency_key=body["idempotency_key"],
-        selected_label=body.get("selected_label"),
-        reason=body.get("reason"),
-        note=body.get("note"),
-        reviewer=reviewer,
-    )
+    from osteopatch.repo import ReviewError
+
+    try:
+        event, created = review_store.submit_review(
+            conn,
+            image_id=image_id,
+            prediction_id=body["prediction_id"],
+            action=body["action"],
+            expected_revision=body.get("expected_revision", 0),
+            idempotency_key=body["idempotency_key"],
+            selected_label=body.get("selected_label"),
+            reason=body.get("reason"),
+            note=body.get("note"),
+            reviewer=reviewer,
+        )
+    except ReviewError as exc:
+        # The delegated G6 app's exception handlers do not run in this app.
+        raise HTTPException(status_code=exc.http_status,
+                            detail={"error": exc.message, **(exc.detail or {})}) from exc
     payload = queries._event_dict(event)
     payload["created"] = created
     return payload
@@ -404,6 +412,12 @@ def live_run(project_id: str | None, run_id: str) -> dict:
     run = _require_live_owner(run_id, pid)
     public = live_inference.public_run(g6_conn(), run_id)
     tiles = live_inference.get_tiles(g6_conn(), run_id)
+    artifact_error = live_inference.verify_run_artifacts(run, tiles)
+    if artifact_error:
+        raise HTTPException(
+            status_code=503,
+            detail={"error": "recorded run artifacts are unavailable", "reason": artifact_error},
+        )
     return {"run": public, "tiles": tiles, "n_tiles": len(tiles)}
 
 
@@ -422,6 +436,25 @@ def live_mosaic(project_id: str | None, run_id: str) -> bytes:
     data = live_inference.mosaic_bytes(run_id)
     if data is None:
         raise HTTPException(status_code=404, detail="no mosaic for this run (patch runs have none)")
+    return data
+
+
+def live_thumbnail(project_id: str | None, run_id: str) -> bytes:
+    """Return the first real tile image for a project-scoped uploaded run."""
+    from osteopatch import live_inference  # type: ignore
+
+    pid = _require_project(project_id)
+    _require_live_owner(run_id, pid)
+    tiles = live_inference.get_tiles(g6_conn(), run_id)
+    tile = next((item for item in tiles if item.get("tile_png_filename")), None)
+    if tile is None:
+        raise HTTPException(status_code=404, detail="no tile image is available for this run")
+    index = int(tile["tile_index"])
+    if tile["tile_png_filename"] != f"tile-{index:04d}.png":
+        raise HTTPException(status_code=503, detail="recorded tile filename is invalid")
+    data = live_inference.tile_png_bytes(run_id, index)
+    if data is None or not data.startswith(b"\x89PNG\r\n\x1a\n"):
+        raise HTTPException(status_code=503, detail="recorded tile image is unavailable")
     return data
 
 
@@ -484,8 +517,6 @@ def live_delete_run(project_id: str | None, run_id: str) -> dict:
 # ---------------------------------------------------------------------------
 def _require_report_owner(report_id: str, project_id: str) -> dict:
     """404 unless this report belongs to the caller's project."""
-    from osteopatch import reporting  # type: ignore
-
     conn = g6_conn()
     row = conn.execute(
         "SELECT report_id, project_id, case_id, title FROM case_report WHERE report_id = ?",
@@ -509,8 +540,19 @@ def _report_error(exc: Exception) -> HTTPException:
     return HTTPException(status_code=503, detail={"error": f"{type(exc).__name__}: {exc}"})
 
 
-def _collect_report_images(image_ids: list[str], run_ids: list[str], project_id: str) -> list[dict]:
-    """Gather the real rows a report will describe, from EITHER store.
+def _report_preview_png(load) -> str | None:
+    """Capture an available PNG as base64; missing pixels never block notes."""
+    try:
+        data = load()
+    except (HTTPException, OSError):
+        return None
+    if not data or not data.startswith(b"\x89PNG\r\n\x1a\n"):
+        return None
+    return base64.b64encode(data).decode("ascii")
+
+
+def _collect_report_images(image_ids: list[str], run_ids: list[str], slide_ids: list[str], project_id: str) -> list[dict]:
+    """Gather teaching patches, analyzed runs, and uploaded images for a report.
 
     A report may span corpus patches and imported live tiles. Both are read here
     and copied into the document at write time, so the exported file stays
@@ -551,6 +593,7 @@ def _collect_report_images(image_ids: list[str], run_ids: list[str], project_id:
                 "NECROSIS": row["necrosis_score"],
             },
             "corroborated": bool(row["n_reviews"]),
+            "preview_png_base64": _report_preview_png(lambda image_id=image_id: thumbnail_png(pid, image_id)),
         })
 
     for run_id in live_ids:
@@ -560,6 +603,14 @@ def _collect_report_images(image_ids: list[str], run_ids: list[str], project_id:
         if run is None or run["project_id"] != pid:
             raise HTTPException(status_code=404, detail=f"unknown live run: {run_id}")
         tiles = live_inference.get_tiles(conn, run_id)
+        preview = None
+        if tiles:
+            first = tiles[0]
+            index = int(first["tile_index"])
+            if first.get("tile_png_filename") == f"tile-{index:04d}.png":
+                preview = _report_preview_png(
+                    lambda run_id=run_id, index=index: live_inference.tile_png_bytes(run_id, index)
+                )
         for t in tiles:
             out.append({
                 "image_id": f"{run_id}#tile-{int(t['tile_index']):04d}",
@@ -568,8 +619,29 @@ def _collect_report_images(image_ids: list[str], run_ids: list[str], project_id:
                 "predicted_class": t["predicted_class"],
                 "confidence": t["confidence"],
                 "top_two_margin": t["top_two_margin"],
-                "scores": json.loads(t["scores_json"]) if t["scores_json"] else None,
+                "scores": t["scores"],
                 "corroborated": False,
+                "preview_png_base64": preview if int(t["tile_index"]) == int(tiles[0]["tile_index"]) and tiles else None,
+            })
+
+    if slide_ids:
+        from . import slides as slide_store
+
+        for slide_id in slide_ids:
+            meta = slide_store.get(pid, slide_id)
+            out.append({
+                "image_id": f"slide:{slide_id}",
+                "source_kind": "slide",
+                "analysis_status": "not_analyzed",
+                "run_id": None,
+                "predicted_class": None,
+                "confidence": None,
+                "top_two_margin": None,
+                "scores": None,
+                "caveat": f"{meta['filename']} was included without an AI run. No model result is attached.",
+                "preview_png_base64": _report_preview_png(
+                    lambda slide_id=slide_id: slide_store.preview(pid, slide_id)
+                ),
             })
     return out
 
@@ -580,8 +652,11 @@ def create_report(
     case_id: str,
     title: str,
     findings_text: str,
+    findings_html: str | None,
     image_ids: list[str],
     run_ids: list[str] | None,
+    slide_ids: list[str] | None,
+    revision_of: str | None,
     author: str,
     signer_email: str | None,
     signer_role: str | None,
@@ -591,11 +666,13 @@ def create_report(
     from osteopatch import reporting  # type: ignore
 
     pid = _require_project(project_id)
-    images = _collect_report_images(image_ids or [], run_ids or [], pid)
+    if revision_of:
+        _require_report_owner(revision_of, pid)
+    images = _collect_report_images(image_ids or [], run_ids or [], slide_ids or [], pid)
     if not images:
         raise HTTPException(
             status_code=400,
-            detail={"error": "a report must cover at least one scored image"},
+            detail={"error": "a report must include at least one item"},
         )
     try:
         doc = reporting.draft_document(
@@ -603,6 +680,8 @@ def create_report(
             case_id=case_id,
             title=title,
             findings_text=findings_text,
+            findings_html=findings_html,
+            revision_of=revision_of,
             author_email=author,
             images=images,
             signer_email=signer_email,

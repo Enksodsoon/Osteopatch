@@ -1,28 +1,38 @@
 import { useRef, useState, useCallback, useEffect } from "react";
-import { fullUrl } from "../api";
+import { authenticatedImageUrl, fullUrl } from "../api";
 import { t } from "../strings";
 
 export function ImageViewer({ imageId }: { imageId: string }) {
   const [scale, setScale] = useState(1);
   const [tx, setTx] = useState(0);
   const [ty, setTy] = useState(0);
-  const [imgSrc, setImgSrc] = useState<string | null>(null);
+  const [loadedImage, setLoadedImage] = useState<{ imageId: string; src: string } | null>(null);
+  const [failedImageId, setFailedImageId] = useState<string | null>(null);
   const dragging = useRef<{ x: number; y: number } | null>(null);
-
-  const loadImage = useCallback(async () => {
-    try {
-      const { authenticatedImageUrl } = await import("../api");
-      const url = await authenticatedImageUrl(fullUrl(imageId));
-      setImgSrc(url);
-    } catch {
-      setImgSrc(null);
-    }
-  }, [imageId]);
+  const stage = useRef<HTMLDivElement>(null);
+  const [retry, setRetry] = useState(0);
 
   useEffect(() => {
-    loadImage();
-    return () => { if (imgSrc) URL.revokeObjectURL(imgSrc); };
-  }, [loadImage, imgSrc]);
+    let current = true;
+    let objectUrl: string | null = null;
+    setLoadedImage(null);
+    setFailedImageId(null);
+    dragging.current = null;
+    setScale(1);
+    setTx(0);
+    setTy(0);
+    authenticatedImageUrl(fullUrl(imageId))
+      .then((url) => {
+        objectUrl = url;
+        if (!current) URL.revokeObjectURL(url);
+        else setLoadedImage({ imageId, src: url });
+      })
+      .catch(() => { if (current) setFailedImageId(imageId); });
+    return () => {
+      current = false;
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
+    };
+  }, [imageId, retry]);
 
   const reset = useCallback(() => {
     setScale(1);
@@ -34,13 +44,19 @@ export function ImageViewer({ imageId }: { imageId: string }) {
     setScale((s) => Math.min(8, Math.max(0.5, +(s * factor).toFixed(3))));
   }, []);
 
-  const onWheel = (e: React.WheelEvent) => {
-    e.preventDefault();
-    zoom(e.deltaY < 0 ? 1.15 : 1 / 1.15);
-  };
+  useEffect(() => {
+    const element = stage.current;
+    const wheel = (e: WheelEvent) => {
+      e.preventDefault();
+      zoom(e.deltaY < 0 ? 1.15 : 1 / 1.15);
+    };
+    element?.addEventListener("wheel", wheel, { passive: false });
+    return () => element?.removeEventListener("wheel", wheel);
+  }, [zoom]);
 
   const onPointerDown = (e: React.PointerEvent) => {
-    (e.target as HTMLElement).setPointerCapture(e.pointerId);
+    if ((e.target as HTMLElement).closest("button")) return;
+    e.currentTarget.setPointerCapture(e.pointerId);
     dragging.current = { x: e.clientX - tx, y: e.clientY - ty };
   };
   const onPointerMove = (e: React.PointerEvent) => {
@@ -62,23 +78,33 @@ export function ImageViewer({ imageId }: { imageId: string }) {
       </div>
       <div
         className="viewer-stage"
-        onWheel={onWheel}
+        ref={stage}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
+        onPointerCancel={onPointerUp}
+        onLostPointerCapture={onPointerUp}
       >
-        {imgSrc ? (
+        {loadedImage?.imageId === imageId ? (
           <img
-            src={imgSrc}
+            src={loadedImage.src}
             alt={imageId}
             draggable={false}
             style={{ transform: `translate(${tx}px, ${ty}px) scale(${scale})` }}
+            onError={() => {
+              URL.revokeObjectURL(loadedImage.src);
+              setLoadedImage(null);
+              setFailedImageId(imageId);
+            }}
           />
-        ) : (
+        ) : failedImageId === imageId ? (
           <div className="img-missing">
             <span className="img-missing-tag">no pixels</span>
             <span>{t("patch.loadError")}</span>
+            <button type="button" className="btn" onClick={() => setRetry(n => n + 1)}>Retry image</button>
           </div>
+        ) : (
+          <div className="img-loading" role="status">Loading image…</div>
         )}
       </div>
     </div>

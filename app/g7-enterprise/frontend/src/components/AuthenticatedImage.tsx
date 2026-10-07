@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import type { CSSProperties } from "react";
 import * as api from "../api";
 
 /**
@@ -18,29 +19,39 @@ export function AuthenticatedImage({
   alt,
   className,
   label,
+  style,
+  onLoad,
+  onUnavailable,
+  testId,
 }: {
   path: string;
   alt: string;
   className?: string;
   label?: string;
+  style?: CSSProperties;
+  onLoad?: () => void;
+  onUnavailable?: () => void;
+  testId?: string;
 }) {
-  const [url, setUrl] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [loaded, setLoaded] = useState<{ path: string; url: string } | null>(null);
+  const [failure, setFailure] = useState<{ path: string; error: string } | null>(null);
 
   useEffect(() => {
     let cancelled = false;
     let objectUrl: string | null = null;
-    setUrl(null);
-    setError(null);
+    setLoaded(null);
 
     api.blobUrl(path)
       .then((u) => {
         objectUrl = u;
         if (cancelled) { URL.revokeObjectURL(u); return; }
-        setUrl(u);
+        setLoaded({ path, url: u });
       })
       .catch((e: unknown) => {
-        if (!cancelled) setError(String(e instanceof Error ? e.message : e));
+        if (!cancelled) {
+          setFailure({ path, error: String(e instanceof Error ? e.message : e) });
+          onUnavailable?.();
+        }
       });
 
     return () => {
@@ -49,7 +60,10 @@ export function AuthenticatedImage({
       // the decoded bitmap in memory for the life of the tab.
       if (objectUrl) URL.revokeObjectURL(objectUrl);
     };
-  }, [path]);
+  }, [path, onUnavailable]);
+
+  const current = loaded?.path === path ? loaded.url : null;
+  const error = failure?.path === path ? failure.error : null;
 
   if (error) {
     return (
@@ -57,16 +71,22 @@ export function AuthenticatedImage({
         <span className="img-missing-tag">no pixels</span>
         <span>
           {label ? `${label}: ` : ""}
-          not available here ({error.split(":")[0]}). Nothing is shown rather than
-          substituted.
+          not available here. Nothing is shown in place of missing pixels.
         </span>
       </div>
     );
   }
 
-  if (!url) {
+  if (!current) {
     return <div className={`img-loading ${className ?? ""}`} aria-hidden="true" />;
   }
 
-  return <img className={className} src={url} alt={alt} />;
+  return <img className={className} src={current} alt={alt} style={style} onLoad={onLoad}
+    data-testid={testId}
+    onError={() => {
+      URL.revokeObjectURL(current);
+      setLoaded(null);
+      setFailure({ path, error: "image bytes could not be decoded" });
+      onUnavailable?.();
+    }} />;
 }

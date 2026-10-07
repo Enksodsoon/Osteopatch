@@ -72,7 +72,7 @@ for _stream in (sys.stdout, sys.stderr):
 REPO = Path(__file__).resolve().parent.parent
 G6_BACKEND = REPO / "app" / "g6" / "backend"
 FRONTEND = REPO / "app" / "g6" / "frontend"
-RUNTIME = REPO / "runtime-artifacts"
+RUNTIME = Path(os.environ.get("OSTEOPATCH_RUNTIME_ARTIFACTS", REPO / "runtime-artifacts")).resolve()
 CANON_DB = RUNTIME / "db" / "osteopatch_g6.sqlite3"
 DEFAULT_OUT = REPO / "docs" / "evidence" / "e2e-ui-result.json"
 #: Evidence path per browser. Without this split, a bare ``--browser edge`` would

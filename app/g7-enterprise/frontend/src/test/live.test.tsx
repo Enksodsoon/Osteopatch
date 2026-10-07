@@ -136,7 +136,7 @@ describe("VerdictCard — an uncertain result must not look certain", () => {
     const r = patchResult();
     render(<VerdictCard run={r.run} prediction={r.prediction} />);
     expect(screen.getByRole("heading", { name: /not determined/i })).toBeInTheDocument();
-    expect(screen.queryByRole("heading", { name: "NON_TUMOR" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Non-tumor" })).not.toBeInTheDocument();
     expect(screen.getByText(/no class is being asserted/i)).toBeInTheDocument();
   });
 
@@ -146,8 +146,15 @@ describe("VerdictCard — an uncertain result must not look certain", () => {
       scores: { NON_TUMOR: 0.5, VIABLE_TUMOR: 0.001, NECROSIS: 0.499 },
     });
     render(<VerdictCard run={r.run} prediction={r.prediction} />);
-    expect(screen.getByRole("heading", { name: "NON_TUMOR" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Non-tumor" })).toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: /not determined/i })).not.toBeInTheDocument();
+  });
+
+  it("uses a friendly source label for a slide and hides the technical file hash", () => {
+    const r = patchResult();
+    render(<VerdictCard run={r.run} prediction={r.prediction} sourceLabel="Selected slide view" />);
+    expect(screen.getByText("Selected slide view")).toBeInTheDocument();
+    expect(screen.queryByText(/a{16}/)).not.toBeInTheDocument();
   });
 
   it("always states that the score is uncalibrated and not a probability", () => {

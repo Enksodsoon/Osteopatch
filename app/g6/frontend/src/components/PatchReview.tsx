@@ -12,34 +12,39 @@ export function PatchReview({
   meta,
   onBack,
   onNavigate,
+  onOpenAnalysis,
 }: {
   imageId: string;
   meta: Meta;
   onBack: () => void;
   onNavigate: (id: string) => void;
+  onOpenAnalysis: (id: string) => void;
 }) {
   const [image, setImage] = useState<ImageDetail | null>(null);
   const [queue, setQueue] = useState<ImageSummary[]>([]);
   const [failed, setFailed] = useState(false);
+  const [reloadVersion, setReloadVersion] = useState(0);
 
   const reload = useCallback(() => {
+    setReloadVersion((version) => version + 1);
+  }, []);
+
+  useEffect(() => {
+    let current = true;
+    setImage((loaded) => loaded?.image_id === imageId ? loaded : null);
     setFailed(false);
     getImage(imageId)
-      .then(setImage)
-      .catch(() => {
-        setImage(null);
-        setFailed(true);
-      });
-  }, [imageId]);
+      .then((next) => { if (current) setImage(next); })
+      .catch(() => { if (current) { setImage(null); setFailed(true); } });
+    return () => { current = false; };
+  }, [imageId, reloadVersion]);
 
   useEffect(() => {
-    reload();
-  }, [reload]);
-
-  useEffect(() => {
+    let current = true;
     listImages({ sort: "priority", filter: "all", page: 1, page_size: 60 })
-      .then((d) => setQueue(d.items))
-      .catch(() => setQueue([]));
+      .then((d) => { if (current) setQueue(d.items); })
+      .catch(() => { if (current) setQueue([]); });
+    return () => { current = false; };
   }, []);
 
   if (failed) {
@@ -52,7 +57,7 @@ export function PatchReview({
     );
   }
 
-  if (!image) return <div className="page-loading">Loading patch…</div>;
+  if (!image || image.image_id !== imageId) return <div className="page-loading" role="status">Loading patch…</div>;
   const pred = image.prediction;
 
   const idx = queue.findIndex((q) => q.image_id === imageId);
@@ -111,6 +116,9 @@ export function PatchReview({
             </div>
           )}
         </div>
+        <button className="btn-link analysis-open" type="button" onClick={() => onOpenAnalysis(image.image_id)}>
+          Open analysis
+        </button>
         <ImageViewer imageId={image.image_id} />
         <AttributionPanel imageId={image.image_id} />
       </section>

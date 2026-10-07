@@ -164,32 +164,22 @@ uv run python scripts/prepare_runtime.py
 
 The script locates the local runtime bundle and verifies expected identities before the application uses it.
 
-### 3. Start the unified app (the one to demo)
+### 3. Start the local educational demo
 
-This is the single app a user logs into. It serves the API and the built UI from
-**one origin**, so there is no CORS allowlist and no second terminal to keep alive.
-
-```bash
-npm --prefix app/g7-enterprise/frontend ci
-npm --prefix app/g7-enterprise/frontend run build     # writes frontend/dist
-uv run uvicorn enterprise.app:app \
-  --app-dir app/g7-enterprise/backend --host 127.0.0.1 --port 8140
-```
-
-Then seed the demo personas once, and open **http://127.0.0.1:8140**:
+Run one command from the repository root:
 
 ```bash
-OSTEOPATCH_DB=runtime-artifacts/db/osteopatch_g6.sqlite3 \
-PYTHONPATH=app/g6/backend:app/g7-enterprise/backend \
-uv run python -m enterprise.seed
+make unified-app
 ```
 
-Sign in as `reviewer@demo` (chips are on the login card) for the full journey:
-the deterministic 50-image gallery, then **Live inference** — drop in your own
-patch or slide and watch a real forward pass run.
-
-`make unified-app` does all three steps.
-
+It verifies and copies the review database, patch pixels, and available recorded
+inference artifacts into a temporary workspace, then serves the built UI and API
+from one local origin. Open the URL printed by the command and sign in as
+`reviewer@demo`. Review changes and uploads stay in that temporary copy. Press
+Ctrl+C and run `make unified-app` again for a clean reset. The source runtime
+bundle remains read-only. Real inference appears only when pinned runtime model
+and capability checks pass; recorded results retain their original timestamp
+and provenance and do not run inference again.
 ### 3b. The original G6 review app
 
 Still available, and still what the G6-only checks exercise:

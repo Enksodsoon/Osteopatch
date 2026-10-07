@@ -25,10 +25,10 @@ import sqlite3
 from pathlib import Path
 
 import pytest
-from PIL import Image
-
-from osteopatch import config, db, integrity, live_inference as li
+from osteopatch import config, db, integrity
+from osteopatch import live_inference as li
 from osteopatch.pathology import reader
+from PIL import Image
 
 try:
     import torch  # noqa: F401
@@ -547,3 +547,14 @@ def test_a_slide_larger_than_max_tiles_is_reported_not_silently_truncated(live_d
     assert run["tile_count"] == 4
     assert run["tiles_available"] == 6          # what the grid would have yielded
     assert "Only 4 of 6 tiles" in (run["notes"] or "")
+
+
+def test_derived_png_omits_oversized_scanner_metadata_without_mutating_pixels():
+    image = Image.new("RGB", (8, 8), (80, 30, 120))
+    image.info["icc_profile"] = b"scanner metadata" * 100000
+    encoded = li._png(image)
+    with Image.open(io.BytesIO(encoded)) as decoded:
+        decoded.load()
+        assert decoded.tobytes() == image.tobytes()
+        assert "icc_profile" not in decoded.info
+    assert "icc_profile" in image.info
