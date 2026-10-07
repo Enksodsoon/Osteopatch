@@ -30,10 +30,22 @@ from __future__ import annotations
 from pathlib import PurePosixPath
 
 from fastapi import Depends, FastAPI, Header, HTTPException, Request, Response
-from fastapi.responses import JSONResponse, StreamingResponse
+from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 from pydantic import BaseModel, Field
 
-from . import audit, auth, config, governance, ingestion, inference, observability, registry, review_proxy, store
+from . import (
+    audit,
+    auth,
+    config,
+    governance,
+    inference,
+    ingestion,
+    observability,
+    registry,
+    review_proxy,
+    slides,
+    store,
+)
 from .deps import Principal, require
 
 app = FastAPI(
@@ -207,8 +219,9 @@ def read_audit(p: Principal = Depends(require("audit:read", project_scoped=False
 @app.get("/api/v1/images")
 def gallery(p: Principal = Depends(require("review:read")),
             x_project_id: str | None = Header(default=None, alias="X-Project-Id"),
-            sort: str = "priority", filter: str = "all", page: int = 1, page_size: int = 50):
-    return review_proxy.list_images(x_project_id, sort=sort, filt=filter, page=page, page_size=page_size)
+            sort: str = "priority", filter: str = "all", page: int = 1, page_size: int = 50,
+            q: str | None = None):
+    return review_proxy.list_images(x_project_id, sort=sort, filt=filter, page=page, page_size=page_size, q=q)
 
 
 @app.get("/api/v1/images/{image_id}")
@@ -470,6 +483,13 @@ def live_mosaic(run_id: str, p: Principal = Depends(require("live:read")),
                     media_type="image/png")
 
 
+@app.get("/v1/live/runs/{run_id}/thumbnail.png")
+def live_thumbnail(run_id: str, p: Principal = Depends(require("live:read")),
+                    x_project_id: str | None = Header(default=None, alias="X-Project-Id")):
+    return Response(content=review_proxy.live_thumbnail(x_project_id, run_id),
+                    media_type="image/png")
+
+
 @app.get("/v1/live/runs/{run_id}/tiles/{tile_index}/attribution")
 def live_tile_attribution(run_id: str, tile_index: int,
                           p: Principal = Depends(require("live:read")),
@@ -726,8 +746,11 @@ class ReportBody(BaseModel):
     case_id: str
     title: str
     findings_text: str = ""
+    findings_html: str | None = None
     image_ids: list[str] = []
     run_ids: list[str] = []
+    slide_ids: list[str] = []
+    revision_of: str | None = None
     signer_email: str | None = None
     signer_role: str | None = None
     signoff_note: str | None = None
@@ -737,16 +760,24 @@ class ReportBody(BaseModel):
 def create_report(body: ReportBody, p: Principal = Depends(require("report:write")),
                   x_project_id: str | None = Header(default=None, alias="X-Project-Id")):
     """Author an append-only case report spanning several scored images."""
+    role = p.role_in(x_project_id) if x_project_id else None
+    if body.signer_email is not None and body.signer_email != p.email:
+        raise HTTPException(status_code=403, detail="signer_email must match the authenticated user")
+    if body.signer_role is not None and body.signer_role != role:
+        raise HTTPException(status_code=403, detail="signer_role must match the current project role")
     result = review_proxy.create_report(
         x_project_id,
         case_id=body.case_id,
         title=body.title,
         findings_text=body.findings_text,
+        findings_html=body.findings_html,
         image_ids=body.image_ids,
         run_ids=body.run_ids,
+        slide_ids=body.slide_ids,
+        revision_of=body.revision_of,
         author=p.email,
-        signer_email=body.signer_email,
-        signer_role=body.signer_role,
+        signer_email=p.email if body.signer_email is not None else None,
+        signer_role=role if body.signer_email is not None else None,
         signoff_note=body.signoff_note,
     )
     audit.record(p.email, "report.create", result["report_id"],
@@ -795,6 +826,80 @@ def export_report_md(report_id: str, p: Principal = Depends(require("report:read
         media_type=media_type,
         headers={"Content-Disposition": f'attachment; filename="{report_id}.md"'},
     )
+
+
+# ---------------------------------------------------------------------------
+# Slide workspace: viewing does not require a model or change corpus records.
+# ---------------------------------------------------------------------------
+@app.get("/v1/slides")
+def slide_list(p: Principal = Depends(require("live:read")),
+               x_project_id: str | None = Header(default=None, alias="X-Project-Id")):
+    return {"slides": slides.listing(x_project_id)}
+
+
+@app.post("/v1/slides")
+async def slide_upload(request: Request, p: Principal = Depends(require("live:analyze")),
+                       x_project_id: str | None = Header(default=None, alias="X-Project-Id")):
+    from urllib.parse import unquote
+    name, data = await _read_upload_bytes(request)
+    name = PurePosixPath(unquote(name).replace("\\", "/")).name
+    meta = slides.upload(x_project_id, name, data)
+    audit.record(p.email, "slide.upload", meta["slide_id"], project_id=x_project_id)
+    return meta
+
+
+@app.get("/v1/slides/{slide_id}/region.png")
+def slide_region(slide_id: str, region: slides.Region = Depends(),
+                 p: Principal = Depends(require("live:read")),
+                 x_project_id: str | None = Header(default=None, alias="X-Project-Id")):
+    return Response(slides.pixels(x_project_id, slide_id, region), media_type="image/png")
+
+
+@app.get("/v1/slides/{slide_id}/tiles/{level}/{x}/{y}.png")
+def slide_tile(slide_id: str, level: int, x: int, y: int,
+               p: Principal = Depends(require("live:read")),
+               x_project_id: str | None = Header(default=None, alias="X-Project-Id")):
+    return Response(slides.tile(x_project_id, slide_id, level, x, y), media_type="image/png",
+                    headers={"Cache-Control": "private, no-store"})
+
+
+@app.get("/v1/slides/{slide_id}/thumbnail.png")
+def slide_thumbnail(slide_id: str, p: Principal = Depends(require("live:read")),
+                    x_project_id: str | None = Header(default=None, alias="X-Project-Id")):
+    return Response(slides.preview(x_project_id, slide_id), media_type="image/png")
+
+
+@app.get("/v1/slides/{slide_id}/source")
+def slide_source(slide_id: str, p: Principal = Depends(require("live:read")),
+                 x_project_id: str | None = Header(default=None, alias="X-Project-Id")):
+    meta = slides.get(x_project_id, slide_id)
+    return FileResponse(slides.source(x_project_id, slide_id), filename=meta["filename"])
+
+
+@app.post("/v1/slides/{slide_id}/analyze")
+def slide_analyze(slide_id: str, region: slides.Region | None = None,
+                  p: Principal = Depends(require("live:analyze")),
+                  x_project_id: str | None = Header(default=None, alias="X-Project-Id")):
+    meta = slides.get(x_project_id, slide_id)
+    if region:
+        data = slides.pixels(x_project_id, slide_id, region)
+        result = review_proxy.live_predict_patch(x_project_id, f"{slide_id}-region.png", data, reviewer=p.email)
+        # Region coordinates and parent source identity are separate from model scores.
+        result["source_region"] = {"slide_id": slide_id, "source_sha256": meta["source_sha256"], **region.model_dump()}
+        conn = review_proxy.g6_conn()
+        provenance = f"Parent slide {slide_id}, SHA-256 {meta['source_sha256']}; region {region.model_dump()}. Other tissues/stains may be outside model evidence."
+        conn.execute("UPDATE live_run SET notes = COALESCE(notes, '') || ? WHERE run_id = ?",
+                     ("\n" + provenance, result["run"]["run_id"]))
+        conn.commit()
+        result["run"]["notes"] = (result["run"].get("notes") or "") + "\n" + provenance
+    else:
+        # ponytail: first 16 tiles bound CPU demo time; use existing worker jobs for larger runs.
+        result = review_proxy.live_analyze_slide(x_project_id, meta["filename"],
+                                               slides.source(x_project_id, slide_id).read_bytes(),
+                                               reviewer=p.email, max_tiles=16)
+    audit.record(p.email, "slide.analyze", slide_id, project_id=x_project_id,
+                 detail={"run_id": result["run"]["run_id"], "region": region.model_dump() if region else None})
+    return result
 
 
 # ---------------------------------------------------------------------------

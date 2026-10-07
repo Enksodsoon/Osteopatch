@@ -56,6 +56,7 @@ import sqlite3
 import time
 import uuid
 from dataclasses import asdict, dataclass, field
+from functools import lru_cache
 from pathlib import Path
 
 from . import config
@@ -169,11 +170,11 @@ def support_flags_for(image) -> list[str]:
 
     small = image.convert("RGB").resize((32, 32))
     px = list(small.getdata())
-    channels = list(zip(*px))
+    channels = list(zip(*px, strict=True))
     spreads = [max(c) - min(c) for c in channels]
     channel_gap = max(
-        max(abs(a - b) for a, b in zip(channels[0], channels[1])),
-        max(abs(a - b) for a, b in zip(channels[1], channels[2])),
+        max(abs(a - b) for a, b in zip(channels[0], channels[1], strict=True)),
+        max(abs(a - b) for a, b in zip(channels[1], channels[2], strict=True)),
     )
     if max(spreads) <= 1:
         flags.append("uniform_image: the input carries almost no structure")
@@ -185,10 +186,11 @@ def support_flags_for(image) -> list[str]:
 def _predict_array(state: dict, pil_image) -> LivePrediction:
     """Forward pass + honest banding. Requires the recovered head to be loadable."""
     torch = state["torch"]
+    from .attribution import _LOCK
     flags = support_flags_for(pil_image)
     try:
         tensor = state["transform"](pil_image.convert("RGB")).unsqueeze(0)
-        with torch.no_grad():
+        with _LOCK, torch.no_grad():
             logits = state["model"](tensor)[0]
     except Exception as exc:  # pragma: no cover - model/runtime dependent
         raise LiveInferenceError(f"forward pass failed: {type(exc).__name__}: {exc}") from exc
@@ -232,6 +234,13 @@ def runtime_available() -> dict:
             "reason": "torch is not installed (install the optional `model` extra)",
             "hint": "uv sync --locked --extra dev --extra model",
         }
+    for package in ("torchvision",):
+        if importlib.util.find_spec(package) is None:
+            return {
+                "available": False,
+                "reason": f"{package} is not installed (install the optional `model` extra)",
+                "hint": "uv sync --locked --extra dev --extra model",
+            }
     from . import attribution
 
     if not attribution.RECOVERED_BUNDLE.exists():
@@ -239,6 +248,25 @@ def runtime_available() -> dict:
             "available": False,
             "reason": f"recovered head bundle missing: {attribution.RECOVERED_BUNDLE}",
             "hint": "run scripts/prepare_runtime.py",
+        }
+    if not _pinned_file(attribution.RECOVERED_BUNDLE, config.RECOVERED_MODEL_SHA256):
+        return {
+            "available": False,
+            "reason": "recovered head bundle failed its pinned SHA-256 check",
+            "hint": "restore the verified runtime bundle",
+        }
+    encoder = config.TORCH_HUB_DIR / "hub" / "checkpoints" / config.ENCODER_CHECKPOINT_NAME
+    if not encoder.is_file():
+        return {
+            "available": False,
+            "reason": "pinned MobileNetV3 encoder checkpoint is missing",
+            "hint": "run scripts/runtime_capability.py --warm",
+        }
+    if not _pinned_file(encoder, config.ENCODER_CHECKPOINT_SHA256):
+        return {
+            "available": False,
+            "reason": "MobileNetV3 encoder checkpoint failed its pinned SHA-256 check",
+            "hint": "restore the verified runtime bundle",
         }
     return {
         "available": True,
@@ -250,6 +278,20 @@ def runtime_available() -> dict:
             "Results are never stored as corpus predictions."
         ),
     }
+
+
+def _pinned_file(path: Path, expected: str) -> bool:
+    try:
+        stat = path.stat()
+        return _pinned_file_cached(str(path.resolve()), expected, stat.st_size, stat.st_mtime_ns)
+    except OSError:
+        return False
+
+
+@lru_cache(maxsize=8)
+def _pinned_file_cached(path: str, expected: str, size: int, mtime_ns: int) -> bool:
+    from . import attribution
+    return attribution._sha256_file(Path(path)) == expected
 
 
 # ---------------------------------------------------------------------------
@@ -372,6 +414,40 @@ def get_tiles(conn: sqlite3.Connection, run_id: str) -> list[dict]:
         d["support_flags"] = json.loads(d["support_flags"] or "[]")
         out.append(d)
     return out
+
+
+def verify_run_artifacts(run: dict, tiles: list[dict]) -> str | None:
+    """Verify the stored source and tile images before replaying a run."""
+    run_id = str(run.get("run_id", ""))
+    if not run_id or Path(run_id).name != run_id or "\\" in run_id:
+        return "run identifier is invalid"
+    directory = config.LIVE_RUNS_DIR / run_id
+    source_name = run.get("stored_filename")
+    if source_name != "source.bin":
+        return "stored source filename is invalid"
+    source = directory / source_name
+    try:
+        with source.open("rb") as handle:
+            source_hash = hashlib.file_digest(handle, "sha256").hexdigest()
+    except OSError:
+        return "stored source image is missing"
+    if source_hash != run.get("source_sha256"):
+        return "stored source image does not match its recorded SHA-256"
+
+    for tile in tiles:
+        filename = tile.get("tile_png_filename")
+        if filename is None:
+            continue
+        if not isinstance(filename, str) or Path(filename).name != filename or "\\" in filename:
+            return "stored tile filename is invalid"
+        tile_path = directory / filename
+        try:
+            with tile_path.open("rb") as handle:
+                if handle.read(8) != b"\x89PNG\r\n\x1a\n":
+                    return "stored tile image is invalid"
+        except OSError:
+            return "stored tile image is missing"
+    return None
 
 
 def list_runs(conn: sqlite3.Connection, project_id: str, limit: int = 50) -> list[dict]:
@@ -653,6 +729,10 @@ def _slide_note(truncated: bool, available: int, scored: int, tiles: list[dict])
 
 
 def _png(pil_image) -> bytes:
+    # Derived PNGs carry RGB pixels, not arbitrarily large scanner ICC/text
+    # metadata. The source file and its original metadata remain untouched.
+    pil_image = pil_image.copy()
+    pil_image.info.clear()
     buf = io.BytesIO()
     pil_image.save(buf, format="PNG")
     return buf.getvalue()

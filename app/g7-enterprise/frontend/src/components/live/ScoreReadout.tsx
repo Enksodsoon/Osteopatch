@@ -41,7 +41,7 @@ export function ScoreReadout({
           const isTop = c === predictedClass;
           return (
             <div className={`bar-row${isTop ? " top" : ""}`} key={c}>
-              <span className="bar-label">{CLASS_LABELS[c]}</span>
+              <span className="bar-label"><i className={`class-swatch cl-${c}`} aria-hidden="true" />{CLASS_LABELS[c]}</span>
               <div className="bar-track">
                 <div
                   className={`bar-fill cl-${c}`}

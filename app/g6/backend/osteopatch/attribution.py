@@ -67,9 +67,9 @@ def _build_state() -> dict:
 
     import torch
     import torch.nn as nn
-    from torchvision.models import mobilenet_v3_small, MobileNet_V3_Small_Weights
-    from torchvision.transforms import v2
     import torchvision
+    from torchvision.models import MobileNet_V3_Small_Weights, mobilenet_v3_small
+    from torchvision.transforms import v2
 
     if not RECOVERED_BUNDLE.exists():
         raise AttributionError(
@@ -222,8 +222,8 @@ def compute_attribution(
                                  meta, cache_key, round((time.time() - t0) * 1000, 2), True)
 
     torch = st["torch"]
-    from pytorch_grad_cam import GradCAM
     from PIL import Image
+    from pytorch_grad_cam import GradCAM
 
     t0 = time.time()
     idx_a = config.CLASS_TO_IDX[target_a]
@@ -235,13 +235,15 @@ def compute_attribution(
         rgb_384 = np.asarray(rgb.resize((384, 384))).astype(np.float32) / 255.0
 
     # prediction scores (float32) — for metadata ONLY; never written to DB
-    with torch.no_grad():
-        logits = st["model"](input_tensor)[0].numpy()
+    # ponytail: one shared CPU model; serialise hooks/forward passes. Use separate
+    # worker processes if concurrent model throughput becomes a requirement.
+    with _LOCK:
+        with torch.no_grad():
+            logits = st["model"](input_tensor)[0].numpy()
+        targets = [ _ClosureTarget(_contrastive_target(idx_a, idx_b)) ]
+        with GradCAM(model=st["model"], target_layers=[st["target_layer"]]) as cam_engine:
+            grayscale = cam_engine(input_tensor=input_tensor, targets=targets)[0]
     probs = _softmax(logits)
-
-    targets = [ _ClosureTarget(_contrastive_target(idx_a, idx_b)) ]
-    with GradCAM(model=st["model"], target_layers=[st["target_layer"]]) as cam_engine:
-        grayscale = cam_engine(input_tensor=input_tensor, targets=targets)[0]  # (384,384) in [0,1]
     cam = np.asarray(grayscale, dtype=np.float32)
 
     overlay_png, heatmap_png = _render(rgb_384, cam)
@@ -301,6 +303,7 @@ def _render(rgb_384: np.ndarray, cam: np.ndarray) -> tuple[bytes, bytes]:
     Uses a pure-numpy jet colormap to avoid a matplotlib dependency.
     """
     import io
+
     from PIL import Image
 
     heat_rgb = _jet(cam)  # (H,W,3) float [0,1]
@@ -331,8 +334,8 @@ def validate_target_layer(image_path: Path) -> dict:
     are non-zero, CAM is finite/non-empty and VARIES with the target pair."""
     st = get_state()
     torch = st["torch"]
-    from pytorch_grad_cam import GradCAM
     from PIL import Image
+    from pytorch_grad_cam import GradCAM
 
     with Image.open(image_path) as im:
         x = st["transform"](im.convert("RGB")).unsqueeze(0)
@@ -376,10 +379,9 @@ def gauge_invariance_check(image_path: Path, common_scale: float = 3.7) -> dict:
     import copy
     st = get_state()
     torch = st["torch"]
-    import torch.nn as nn
+    from PIL import Image
     from pytorch_grad_cam import GradCAM
     from pytorch_grad_cam.utils.model_targets import ClassifierOutputTarget
-    from PIL import Image
 
     with Image.open(image_path) as im:
         x = st["transform"](im.convert("RGB")).unsqueeze(0)

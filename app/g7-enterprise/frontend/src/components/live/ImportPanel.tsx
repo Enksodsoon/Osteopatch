@@ -30,6 +30,7 @@ export function ImportPanel({
   const [kind, setKind] = useState<"patch" | "slide">("patch");
   const [file, setFile] = useState<File | null>(null);
   const [over, setOver] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const mayAnalyze = role !== undefined && LIVE_ANALYZE_ROLES.includes(role);
@@ -37,11 +38,18 @@ export function ImportPanel({
   const maxBytes = capability?.max_upload_bytes ?? 0;
 
   function accept(f: File | undefined | null) {
-    if (f) setFile(f);
+    if (!f || busy) return;
+    setError(null); setFile(null);
+    if (!suffixes.some(s => f.name.toLowerCase().endsWith(s.toLowerCase()))) {
+      setError(`Unsupported file. Choose ${suffixes.join(", ")}.`);
+    } else if (f.size === 0 || (maxBytes > 0 && f.size > maxBytes)) {
+      setError(`Choose a non-empty image smaller than ${Math.round(maxBytes / 1e6)} MB.`);
+    } else setFile(f);
+    if (inputRef.current) inputRef.current.value = "";
   }
 
   // ---- runtime missing: nothing here can work, so say exactly why ----------
-  if (capability && !capability.available) {
+  if (mayAnalyze && capability && !capability.available) {
     return (
       <div className="import-blocked" role="status">
         <h3>Live inference is not available on this machine</h3>
@@ -57,6 +65,8 @@ export function ImportPanel({
       </div>
     );
   }
+
+  if (!capability) return <p className="muted" role="status">Checking inference availability…</p>;
 
   // ---- role cannot import: explain, do not disable -----------------------
   if (!mayAnalyze) {
@@ -81,6 +91,7 @@ export function ImportPanel({
       <div className="kind-toggle" role="group" aria-label="What are you importing?">
         <button
           type="button"
+          disabled={busy}
           className={kind === "patch" ? "kind on" : "kind"}
           aria-pressed={kind === "patch"}
           onClick={() => setKind("patch")}
@@ -89,6 +100,7 @@ export function ImportPanel({
         </button>
         <button
           type="button"
+          disabled={busy}
           className={kind === "slide" ? "kind on" : "kind"}
           aria-pressed={kind === "slide"}
           onClick={() => setKind("slide")}
@@ -123,13 +135,14 @@ export function ImportPanel({
                 ? ` · will tile at ${capability.tile_px}px`
                 : ""}
             </span>
-            <button type="button" className="btn-ghost" onClick={() => setFile(null)}>
+            <button type="button" className="btn-ghost" disabled={busy} onClick={() => setFile(null)}>
               Choose another
             </button>
           </div>
         ) : (
           <button
             type="button"
+            disabled={busy}
             className="drop-cta"
             onClick={() => inputRef.current?.click()}
           >
@@ -141,6 +154,7 @@ export function ImportPanel({
           </button>
         )}
       </div>
+      {error && <p role="alert" className="err">{error}</p>}
 
       <button
         type="button"
@@ -154,9 +168,8 @@ export function ImportPanel({
       </button>
 
       <p className="muted small">
-        Sent as a raw request body with the filename in <code>X-File-Name</code> — this API
-        deliberately does not use multipart. Results are stored separately from the frozen
-        corpus and never overwrite it.
+        Use educational images without patient information. Results are stored separately
+        from the frozen corpus and never overwrite it.
       </p>
     </div>
   );

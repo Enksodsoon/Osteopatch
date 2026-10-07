@@ -755,7 +755,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .viewer { min-height: min(64vh, 720px); border: 0; border-radius: 14px; box-shadow: var(--shadow-md); }
 .viewer-toolbar { padding: 7px 9px; background: #181615; }
 .viewer-toolbar button { border: 1px solid #3b3734; background: #282522; }
-.viewer-stage { background: #171514; }
+.viewer-stage { background: #171514; touch-action: none; user-select: none; }
 
 .prediction-heading { padding-bottom: 10px; border-bottom: 1px solid var(--line); }
 .pr-right > .disclaimer {

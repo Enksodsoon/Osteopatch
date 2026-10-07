@@ -1,4 +1,4 @@
-import { defineConfig } from "vite";
+import { defineConfig } from "vitest/config";
 import react from "@vitejs/plugin-react";
 
 // Dev server binds 127.0.0.1 only and proxies the enterprise API (port 8140).
@@ -18,5 +18,6 @@ export default defineConfig({
     environment: "jsdom",
     setupFiles: ["./src/test/setup.ts"],
     css: false,
+    include: ["src/**/*.test.ts", "src/**/*.test.tsx"],
   },
 });

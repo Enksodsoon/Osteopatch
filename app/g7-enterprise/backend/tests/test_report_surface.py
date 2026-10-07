@@ -16,6 +16,7 @@ Educational research prototype. Not for diagnosis or treatment decisions.
 from __future__ import annotations
 
 import importlib
+from concurrent.futures import ThreadPoolExecutor
 
 import pytest
 from fastapi.testclient import TestClient
@@ -48,7 +49,8 @@ def stack(tmp_path, monkeypatch):
     from enterprise import config as cfg
 
     importlib.reload(cfg)
-    from enterprise import audit, app as app_module, seed, store
+    from enterprise import app as app_module
+    from enterprise import audit, seed, store
 
     for module in (audit, store, seed, app_module):
         importlib.reload(module)
@@ -56,7 +58,9 @@ def stack(tmp_path, monkeypatch):
     import osteopatch.config as g6_config
 
     importlib.reload(g6_config)
-    from osteopatch import app as g6_app, db as g6_db, integrity, repo
+    from osteopatch import app as g6_app
+    from osteopatch import db as g6_db
+    from osteopatch import integrity, repo
 
     g6_config.TIFFS_DIR = tmp_path / "tiffs"
     g6_config.THUMBS_DIR = tmp_path / "thumbs"
@@ -84,6 +88,7 @@ def stack(tmp_path, monkeypatch):
     return {
         "client": TestClient(app_module.app),
         "g6_conn": g6_conn,
+        "ent_conn": ent_conn,
         "integrity": integrity,
         "pid": pid,
         "images": [s[0] for s in SEED_IMAGES],
@@ -127,6 +132,16 @@ def test_a_reviewer_can_author_a_report(stack):
     assert body["author_email"] == "reviewer@demo"
     assert body["is_signed"] is False
     assert len(body["content_sha256"]) == 64
+
+
+@pytest.mark.parametrize("route", ["/v1/images", "/api/v1/images"])
+def test_gallery_search_is_applied_inside_project_scope(stack, route):
+    headers = _h(stack, "reviewer@demo")
+    response = stack["client"].get(route, headers=headers, params={"q": "10547"})
+    assert response.status_code == 200
+    assert [item["image_id"] for item in response.json()["items"]] == [stack["images"][0]]
+    missing = stack["client"].get(route, headers=headers, params={"q": "not-in-the-corpus"})
+    assert missing.json()["total"] == 0
 
 
 def test_a_reader_only_persona_cannot_author_a_report(stack):
@@ -197,13 +212,26 @@ def test_a_report_with_no_images_is_400(stack):
 
 def test_a_signed_report_records_who_and_when(stack):
     r = _post_report(stack, "reviewer@demo",
-                     signer_email="path@demo", signer_role="pathologist",
+                     signer_email="reviewer@demo", signer_role="reviewer",
                      signoff_note="Reviewed against the frozen predictions.")
     body = r.json()
     assert body["is_signed"] is True
-    assert body["signer_email"] == "path@demo"
-    assert body["signer_role"] == "pathologist"
+    assert body["signer_email"] == "reviewer@demo"
+    assert body["signer_role"] == "reviewer"
     assert body["signed_at"]
+
+
+def test_a_report_cannot_be_signed_as_another_user(stack):
+    response = _post_report(stack, "reviewer@demo",
+                            signer_email="path@demo", signer_role="pathologist")
+    assert response.status_code == 403
+    assert response.json()["detail"] == "signer_email must match the authenticated user"
+
+
+def test_a_report_cannot_claim_another_project_role(stack):
+    response = _post_report(stack, "reviewer@demo",
+                            signer_email="reviewer@demo", signer_role="pathologist")
+    assert response.status_code == 403
 
 
 def test_signoff_is_partial_when_any_image_is_unresolved(stack):
@@ -211,10 +239,39 @@ def test_signoff_is_partial_when_any_image_is_unresolved(stack):
     stack["g6_conn"].execute(
         "UPDATE prediction SET top_two_margin=0.0 WHERE image_id=?", (stack["images"][1],))
     stack["g6_conn"].commit()
-    body = _post_report(stack, "reviewer@demo", signer_email="path@demo",
-                        signer_role="pathologist").json()
+    body = _post_report(stack, "reviewer@demo", signer_email="reviewer@demo",
+                        signer_role="reviewer").json()
     assert body["n_unresolved"] == 1
     assert body["signoff_covers_all"] is False
+
+
+def test_role_downgrade_applies_to_tokens_already_issued(stack):
+    headers = _h(stack, "reviewer@demo")
+    user = stack["ent_conn"].execute(
+        "SELECT user_id FROM app_user WHERE email=?", ("reviewer@demo",),
+    ).fetchone()
+    stack["ent_conn"].execute(
+        "UPDATE membership SET role='student' WHERE user_id=? AND project_id=?",
+        (user["user_id"], stack["pid"]),
+    )
+    stack["ent_conn"].commit()
+    response = stack["client"].post(
+        "/v1/reports",
+        headers=headers,
+        json={"case_id": "Case-3-A10", "title": "Demo", "image_ids": stack["images"]},
+    )
+    assert response.status_code == 403
+
+
+def test_parallel_membership_checks_use_independent_connections(stack):
+    from enterprise import deps, store
+
+    user = store.get_user_by_email(stack["ent_conn"], "reviewer@demo")
+    with ThreadPoolExecutor(max_workers=12) as pool:
+        roles = list(pool.map(
+            lambda _: deps._live_role(user["user_id"], stack["pid"]), range(48)
+        ))
+    assert roles == ["reviewer"] * 48
 
 
 # ---------------------------------------------------------------------------
@@ -245,6 +302,28 @@ def test_the_html_export_opens_offline_and_prints(stack):
     assert "http://" not in html.replace("http://www.w3.org", "")
     assert "https://" not in html
     assert "@media print" in html
+
+
+def test_exports_attach_the_selected_image_preview(stack):
+    from osteopatch import config
+    from PIL import Image
+
+    image_id = stack["images"][0]
+    source = config.TIFFS_DIR / f"{image_id}.tiff"
+    source.parent.mkdir(parents=True, exist_ok=True)
+    Image.new("RGB", (24, 18), (176, 52, 117)).save(source, format="TIFF")
+
+    created = _post_report(stack, "reviewer@demo", image_ids=[image_id], run_ids=[]).json()
+    assert created["images"][0]["preview_attached"] is True
+    assert "preview_png_base64" not in created["images"][0]
+    html = stack["client"].get(
+        f"/v1/reports/{created['report_id']}/export.html", headers=_h(stack, "reviewer@demo"),
+    ).text
+    markdown = stack["client"].get(
+        f"/v1/reports/{created['report_id']}/export.md", headers=_h(stack, "reviewer@demo"),
+    ).text
+    assert "<img alt=\"Attached image preview" in html
+    assert "data:image/png;base64," in html and "data:image/png;base64," in markdown
 
 
 def test_an_unknown_export_format_is_404(stack):

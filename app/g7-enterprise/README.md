@@ -1,5 +1,7 @@
 # OsteoPatch Enterprise (E1) — Multi-User Core
 
+> **Current application and demo instructions:** this file preserves the phase-specific E1 implementation notes and contains older standalone commands and status descriptions. For the supported unified app (G7 UI + enterprise API + G6 review API), current capabilities, safe data handling and current tests, use the repository-root [AI agent handoff](../../docs/agent-handoff.md), [data inventory](../../docs/data-inventory.md) and [demo readiness record](../../docs/evidence/demo-readiness.md). Start the populated demo with `make unified-app` or the `scripts/demo.py` command there; do not use the manual seed commands below against the source runtime database.
+
 > **Status:** E1 built and runnable locally. E2–E6 are gated scaffolds (see
 > `scaffolds/`). No AWS mutation, no spend — binds `127.0.0.1` only.
 >

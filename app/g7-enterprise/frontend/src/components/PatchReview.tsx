@@ -1,45 +1,55 @@
 import { useCallback, useEffect, useState } from "react";
 import { getImage, listImages } from "../api";
-import type { ImageDetail, ImageSummary, Meta } from "../types";
+import type { CanonicalClass, ImageDetail, ImageSummary, Meta } from "../types";
 import { t } from "../strings";
 import { ImageViewer } from "./ImageViewer";
 import { AttributionPanel } from "./AttributionPanel";
 import { ReviewHistory, ReviewPanel } from "./ReviewPanel";
 import { ClassChip, Disclaimer, QcBadges, ScoreBars, UncalibratedBadge } from "./Shared";
 
+type SelfCheck = { imageId: string | null; active: boolean; guess: CanonicalClass | null; revealed: boolean };
+
 export function PatchReview({
   imageId,
   meta,
   onBack,
   onNavigate,
+  canReview = true,
 }: {
   imageId: string;
   meta: Meta;
+  canReview?: boolean;
   onBack: () => void;
-  onNavigate: (id: string) => void;
+        onNavigate: (id: string) => void;
 }) {
   const [image, setImage] = useState<ImageDetail | null>(null);
   const [queue, setQueue] = useState<ImageSummary[]>([]);
   const [failed, setFailed] = useState(false);
+  const [reloadVersion, setReloadVersion] = useState(0);
+  const [selfCheck, setSelfCheck] = useState<SelfCheck>({ imageId: null, active: false, guess: null, revealed: false });
 
-  const reload = useCallback(() => {
-    setFailed(false);
-    getImage(imageId)
-      .then(setImage)
-      .catch(() => {
-        setImage(null);
-        setFailed(true);
-      });
+  useEffect(() => {
+    setSelfCheck({ imageId, active: false, guess: null, revealed: false });
   }, [imageId]);
 
   useEffect(() => {
-    reload();
-  }, [reload]);
+    let current = true;
+    setImage((loaded) => loaded?.image_id === imageId ? loaded : null);
+    setFailed(false);
+    getImage(imageId)
+      .then((next) => { if (current) setImage(next); })
+      .catch(() => { if (current) { setImage(null); setFailed(true); } });
+    return () => { current = false; };
+  }, [imageId, reloadVersion]);
+
+  const reload = useCallback(() => setReloadVersion((version) => version + 1), []);
 
   useEffect(() => {
+    let current = true;
     listImages({ sort: "priority", filter: "all", page: 1, page_size: 60 })
-      .then((d) => setQueue(d.items))
-      .catch(() => setQueue([]));
+      .then((d) => { if (current) setQueue(d.items); })
+      .catch(() => { if (current) setQueue([]); });
+    return () => { current = false; };
   }, []);
 
   if (failed) {
@@ -52,8 +62,10 @@ export function PatchReview({
     );
   }
 
-  if (!image) return <div className="page-loading">Loading patch…</div>;
+  if (!image || image.image_id !== imageId) return <div className="page-loading" role="status">Loading patch…</div>;
   const pred = image.prediction;
+  const activeCheck = selfCheck.imageId === imageId && selfCheck.active;
+  const revealedCheck = activeCheck && selfCheck.revealed;
 
   const idx = queue.findIndex((q) => q.image_id === imageId);
   const prev = idx > 0 ? queue[idx - 1] : null;
@@ -104,15 +116,15 @@ export function PatchReview({
             <span className="eyebrow">{t("patch.viewerEyebrow")}</span>
             <div className="pr-image-id">{image.image_id}</div>
           </div>
-          {pred && (
-            <div className="patch-toolbar-class">
+          {pred && (!activeCheck || revealedCheck) && (
+            <div className="patch-toolbar-class" data-testid="patch-toolbar-class">
               <span>{t("patch.suggested")}</span>
               <ClassChip cls={pred.predicted_class} />
             </div>
           )}
         </div>
         <ImageViewer imageId={image.image_id} />
-        <AttributionPanel imageId={image.image_id} />
+        {!activeCheck || revealedCheck ? <AttributionPanel imageId={image.image_id} /> : null}
       </section>
 
       <aside className="pr-right">
@@ -123,12 +135,46 @@ export function PatchReview({
         <Disclaimer />
         {pred ? (
           <>
-            <div className="pr-suggested" data-testid="suggested-class">
-              <span className="pr-suggested-label">{t("patch.suggested")}</span>
-              <ClassChip cls={pred.predicted_class} />
-            </div>
-            <ScoreBars pred={pred} />
-            <div className="pr-priority" data-testid="priority-values">
+            <section className="self-check" data-testid="self-check">
+              <div className="self-check-heading">
+                <div><h3>Self-check</h3><p className="muted small">Choose before revealing the model suggestion. Your practice choice is not saved.</p></div>
+                <button type="button" className="btn-link" aria-pressed={activeCheck}
+                  onClick={() => setSelfCheck({ imageId, active: !activeCheck, guess: null, revealed: false })}>
+                  {activeCheck ? "Exit self-check" : "Try a self-check"}
+                </button>
+              </div>
+              {activeCheck && (
+                <>
+                  <div className="self-check-choices" role="group" aria-label="Choose a tissue class">
+                    {meta.canonical_classes.map((cls) => (
+                <button key={cls} type="button" data-testid={`self-check-choice-${cls}`} className={`self-check-choice${selfCheck.guess === cls ? " active" : ""}`}
+                        aria-pressed={selfCheck.guess === cls}
+                        onClick={() => setSelfCheck({ imageId, active: true, guess: cls, revealed: false })}>
+                        <ClassChip cls={cls} />
+                      </button>
+                    ))}
+                  </div>
+                  {selfCheck.guess && !revealedCheck && (
+                    <button type="button" className="btn-primary" onClick={() => setSelfCheck({ ...selfCheck, revealed: true })}>
+                      Reveal comparison
+                    </button>
+                  )}
+                  {revealedCheck && (
+                    <div className="self-check-result" role="status">
+                      <p>Your selection: <ClassChip cls={selfCheck.guess!} /></p>
+                      <p>Model suggestion: <ClassChip cls={pred.predicted_class} /></p>
+                      <ScoreBars pred={pred} />
+                      <p className="muted small">Agreement is a comparison with this model output, not a measure of correctness.</p>
+                    </div>
+                  )}
+                </>
+              )}
+            </section>
+            {!activeCheck && <div className="pr-suggested" data-testid="suggested-class">
+              <span className="pr-suggested-label">{t("patch.suggested")}</span><ClassChip cls={pred.predicted_class} />
+            </div>}
+            {!activeCheck && <ScoreBars pred={pred} />}
+            {(!activeCheck || revealedCheck) && <div className="pr-priority" data-testid="priority-values">
               <div className="metric-row">
                 <span>{t("patch.margin")}</span>
                 <strong>{pred.top_two_margin.toFixed(4)}</strong>
@@ -139,18 +185,18 @@ export function PatchReview({
                 <UncalibratedBadge />
               </div>
               <p className="muted small">{t("patch.priorityNote")}</p>
-            </div>
+            </div>}
             <div className="pr-meta">
               <h4>{t("patch.metadata")}</h4>
               <dl>
                 <div><dt>{t("patch.group")}</dt><dd>{image.source_group}</dd></div>
                 <div><dt>{t("patch.qcStatus")}</dt><dd>{image.qc.primary_qc_status}</dd></div>
-                <div><dt>{t("patch.originalLabel")}</dt><dd>{image.qc.original_label ?? "—"}</dd></div>
+                {(!activeCheck || revealedCheck) && <div><dt>{t("patch.originalLabel")}</dt><dd>{image.qc.original_label ?? "—"}</dd></div>}
               </dl>
               <QcBadges qc={image.qc} />
             </div>
-            <ReviewPanel image={image} meta={meta} onReviewed={reload} />
-            <ReviewHistory image={image} />
+            {(!activeCheck || revealedCheck) && (canReview ? <ReviewPanel image={image} meta={meta} onReviewed={reload} /> : <p role="status" className="muted">Your role can inspect review history but cannot save reviews.</p>)}
+            {(!activeCheck || revealedCheck) && <ReviewHistory image={image} />}
           </>
         ) : (
           <div className="empty-state">

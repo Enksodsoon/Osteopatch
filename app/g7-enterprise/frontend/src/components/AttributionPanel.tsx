@@ -1,7 +1,8 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { attributionUrl, getAttributionMeta, fullUrl } from "../api";
 import type { AttributionMeta, AttributionPair, CanonicalClass } from "../types";
 import { t } from "../strings";
+import { AuthenticatedImage } from "./AuthenticatedImage";
 
 type LoadState = "idle" | "loading" | "ready" | "error";
 
@@ -12,19 +13,26 @@ export function AttributionPanel({ imageId }: { imageId: string }) {
   const [showOverlay, setShowOverlay] = useState(true);
   const [opacity, setOpacity] = useState(0.55);
   const [imgState, setImgState] = useState<LoadState>("idle");
+  const [retry, setRetry] = useState(0);
+  const markReady = useCallback(() => setImgState("ready"), []);
+  const markError = useCallback(() => setImgState("error"), []);
 
   useEffect(() => {
+    let current = true;
     setMeta(null);
     setMetaErr(false);
     setPair(null);
     setImgState("idle");
     getAttributionMeta(imageId)
       .then((m) => {
-        setMeta(m);
-        setPair(m.default_pair);
+        if (current) {
+          setMeta(m);
+          setPair(m.default_pair);
+        }
       })
-      .catch(() => setMetaErr(true));
-  }, [imageId]);
+      .catch(() => { if (current) setMetaErr(true); });
+    return () => { current = false; };
+  }, [imageId, retry]);
 
   const overlaySrc = useMemo(
     () => (pair ? attributionUrl(imageId, pair.a, pair.b) : ""),
@@ -42,9 +50,23 @@ export function AttributionPanel({ imageId }: { imageId: string }) {
         <p className="attrib-error" role="alert" data-testid="attribution-error">
           {t("attribution.error")}
         </p>
+        <button type="button" className="btn" onClick={() => setRetry(n => n + 1)}>Retry attribution</button>
         <p className="muted small" data-testid="attribution-recovery-disclosure">
           {t("attribution.recoveryDisclosure")}
         </p>
+      </div>
+    );
+  }
+
+  if (meta?.attribution_runtime_available === false) {
+    return (
+      <div className="attrib-panel" data-testid="attribution-panel">
+        <h4>{t("attribution.heading")}</h4>
+        <p className="muted" role="status" data-testid="attribution-unavailable">
+          Contrastive attribution is unavailable in this runtime. {meta.attribution_unavailable_reason ?? "The required verified model stack is unavailable."}
+        </p>
+        <p className="muted small" data-testid="attribution-not-segmentation">{t("attribution.notSegmentation")}</p>
+        <p className="attrib-disclosure small" data-testid="attribution-recovery-disclosure">{t("attribution.recoveryDisclosure")}</p>
       </div>
     );
   }
@@ -118,22 +140,20 @@ export function AttributionPanel({ imageId }: { imageId: string }) {
       </p>
 
       <div className="attrib-stage" data-testid="attribution-stage">
-        <img
+        <AuthenticatedImage
           className="attrib-base"
-          src={fullUrl(imageId)}
+          path={fullUrl(imageId)}
           alt={`${t("attribution.originalView")} ${imageId}`}
-          draggable={false}
         />
         {showOverlay && imgState !== "error" && (
-          <img
+          <AuthenticatedImage
             className="attrib-overlay"
-            src={overlaySrc}
+            path={overlaySrc}
             alt={`attribution ${pair.a} vs ${pair.b}`}
-            draggable={false}
             style={{ opacity, display: imgState === "ready" ? "block" : "none" }}
-            data-testid="attribution-overlay-img"
-            onLoad={() => setImgState("ready")}
-            onError={() => setImgState("error")}
+            testId="attribution-overlay-img"
+            onLoad={markReady}
+            onUnavailable={markError}
           />
         )}
         {showOverlay && imgState === "loading" && (
@@ -144,6 +164,7 @@ export function AttributionPanel({ imageId }: { imageId: string }) {
         {showOverlay && imgState === "error" && (
           <div className="attrib-error" role="alert" data-testid="attribution-error">
             {t("attribution.error")}
+            <button type="button" className="btn" onClick={() => setRetry(n => n + 1)}>Retry attribution</button>
           </div>
         )}
       </div>

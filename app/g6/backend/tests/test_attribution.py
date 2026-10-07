@@ -19,7 +19,6 @@ import os
 from pathlib import Path
 
 import pytest
-
 from osteopatch import config, repo
 
 HASH = "01727fb832f9d5518bbe2e33b901e7041020929c94b89cdb7a5e5195b544df63"
@@ -88,6 +87,7 @@ def test_attribution_meta_endpoint_default_pair(client):
     assert r.status_code == 200
     j = r.json()
     assert j["attribution_enabled"] is True
+    assert isinstance(j["attribution_runtime_available"], bool)
     assert j["predicted_class"] == "NECROSIS"
     assert j["default_pair"] == {"a": "NECROSIS", "b": "VIABLE_TUMOR"}
     assert j["source_prediction_model"] == "baseline-frozen-g4"

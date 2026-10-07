@@ -25,16 +25,20 @@ export function AttributionPanel({ imageId }: { imageId: string }) {
 
   // reset when the patch changes
   useEffect(() => {
+    let current = true;
     setMeta(null);
     setMetaErr(false);
     setPair(null);
     setImgState("idle");
     getAttributionMeta(imageId)
       .then((m) => {
-        setMeta(m);
-        setPair(m.default_pair);
+        if (current) {
+          setMeta(m);
+          setPair(m.default_pair);
+        }
       })
-      .catch(() => setMetaErr(true));
+      .catch(() => { if (current) setMetaErr(true); });
+    return () => { current = false; };
   }, [imageId]);
 
   const overlaySrc = useMemo(
@@ -57,6 +61,19 @@ export function AttributionPanel({ imageId }: { imageId: string }) {
         <p className="muted small" data-testid="attribution-recovery-disclosure">
           {t("attribution.recoveryDisclosure")}
         </p>
+      </div>
+    );
+  }
+
+  if (meta?.attribution_runtime_available === false) {
+    return (
+      <div className="attrib-panel" data-testid="attribution-panel">
+        <h4>{t("attribution.heading")}</h4>
+        <p className="muted" role="status" data-testid="attribution-unavailable">
+          Contrastive attribution is unavailable in this runtime. {meta.attribution_unavailable_reason ?? "The required verified model stack is unavailable."}
+        </p>
+        <p className="muted small" data-testid="attribution-not-segmentation">{t("attribution.notSegmentation")}</p>
+        <p className="attrib-disclosure small" data-testid="attribution-recovery-disclosure">{t("attribution.recoveryDisclosure")}</p>
       </div>
     );
   }

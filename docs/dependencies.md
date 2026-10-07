@@ -212,7 +212,7 @@ wrong; this register is the correction.
 | `react` / `react-dom` | ^18.3.1 | github.com/facebook/react | MIT | UI runtime | ~140 kB gz bundle | none | standard XSS hygiene; no `dangerouslySetInnerHTML` used |
 | `typescript` | ^5.7.2 | github.com/microsoft/TypeScript | Apache-2.0 | type safety + `tsc -b` build gate | dev | none | n/a |
 | `vite` | ^6.0.7 | github.com/vitejs/vite | MIT | dev server / bundler | dev | none | dev only |
-| `vitest` | ^2.1.9 | github.com/vitest-dev/vitest | MIT | test runner | dev | none | n/a |
+| `vitest` | 4.1.11 | github.com/vitest-dev/vitest | MIT | test runner | dev | none | n/a |
 | `@testing-library/react` | ^16.1.0 | github.com/testing-library | MIT | UI tests | dev | none | n/a |
 | `@testing-library/jest-dom` | ^6.6.3 | github.com/testing-library | MIT | DOM matchers | dev | none | n/a |
 | `@testing-library/user-event` | ^14.5.2 | github.com/testing-library | MIT | realistic input simulation | dev | none | n/a |

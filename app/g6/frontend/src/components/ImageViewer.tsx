@@ -1,4 +1,4 @@
-import { useRef, useState, useCallback } from "react";
+import { useRef, useState, useCallback, useEffect } from "react";
 import { fullUrl } from "../api";
 import { t } from "../strings";
 
@@ -8,7 +8,20 @@ export function ImageViewer({ imageId }: { imageId: string }) {
   const [scale, setScale] = useState(1);
   const [tx, setTx] = useState(0);
   const [ty, setTy] = useState(0);
+  const [loaded, setLoaded] = useState(false);
+  const [failed, setFailed] = useState(false);
   const dragging = useRef<{ x: number; y: number } | null>(null);
+  const stage = useRef<HTMLDivElement>(null);
+  const [retry, setRetry] = useState(0);
+
+  useEffect(() => {
+    setScale(1);
+    setTx(0);
+    setTy(0);
+    setLoaded(false);
+    setFailed(false);
+    dragging.current = null;
+  }, [imageId, retry]);
 
   const reset = useCallback(() => {
     setScale(1);
@@ -20,13 +33,19 @@ export function ImageViewer({ imageId }: { imageId: string }) {
     setScale((s) => Math.min(8, Math.max(0.5, +(s * factor).toFixed(3))));
   }, []);
 
-  const onWheel = (e: React.WheelEvent) => {
-    e.preventDefault();
-    zoom(e.deltaY < 0 ? 1.15 : 1 / 1.15);
-  };
+  useEffect(() => {
+    const element = stage.current;
+    const wheel = (e: WheelEvent) => {
+      e.preventDefault();
+      zoom(e.deltaY < 0 ? 1.15 : 1 / 1.15);
+    };
+    element?.addEventListener("wheel", wheel, { passive: false });
+    return () => element?.removeEventListener("wheel", wheel);
+  }, [zoom]);
 
   const onPointerDown = (e: React.PointerEvent) => {
-    (e.target as HTMLElement).setPointerCapture(e.pointerId);
+    if ((e.target as HTMLElement).closest("button")) return;
+    e.currentTarget.setPointerCapture(e.pointerId);
     dragging.current = { x: e.clientX - tx, y: e.clientY - ty };
   };
   const onPointerMove = (e: React.PointerEvent) => {
@@ -48,17 +67,23 @@ export function ImageViewer({ imageId }: { imageId: string }) {
       </div>
       <div
         className="viewer-stage"
-        onWheel={onWheel}
+        ref={stage}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
+        onPointerCancel={onPointerUp}
+        onLostPointerCapture={onPointerUp}
       >
-        <img
+        {!loaded && !failed && <div className="img-loading" role="status">Loading image…</div>}
+        {failed ? <div className="img-missing" role="alert"><span className="img-missing-tag">no pixels</span>{t("patch.loadError")}<button type="button" onClick={() => setRetry(n => n + 1)}>Retry image</button></div> : <img
+          key={`${imageId}-${retry}`}
           src={fullUrl(imageId)}
           alt={imageId}
           draggable={false}
-          style={{ transform: `translate(${tx}px, ${ty}px) scale(${scale})` }}
-        />
+          style={{ transform: `translate(${tx}px, ${ty}px) scale(${scale})`, visibility: loaded ? "visible" : "hidden" }}
+          onLoad={() => setLoaded(true)}
+          onError={() => setFailed(true)}
+        />}
       </div>
     </div>
   );

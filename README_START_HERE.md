@@ -1,6 +1,6 @@
 # OsteoPatch Review — original Kiro handoff
 
-> **Historical planning entrypoint.** This document records the pre-implementation handoff from 3 October 2026 and is retained for provenance. The project has since been implemented, tested, and deployed. For the current product, architecture, verification status, and run instructions, start with [README.md](README.md).
+> **Historical planning entrypoint.** This document records the pre-implementation handoff from 3 October 2026 and is retained for provenance. The project has since been implemented and tested locally. A historical workshop deployment may run a different revision and is not evidence that the current source is deployed or production-ready. For the current product, agent handoff, data inventory, verification and run instructions, start with [README.md](README.md), [docs/agent-handoff.md](docs/agent-handoff.md) and [docs/data-inventory.md](docs/data-inventory.md).
 
 **Prepared:** 3 October 2026 · **Historical status:** pre-implementation proposal (superseded by the current repository state).
 **Execution environment:** Kiro and the user's limited AWS hackathon account.

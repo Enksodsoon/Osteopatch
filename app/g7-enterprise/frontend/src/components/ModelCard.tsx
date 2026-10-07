@@ -46,12 +46,16 @@ function LimitationItem({ item }: { item: Limitation }) {
 export function ModelCard() {
   const [card, setCard] = useState<ModelCardPayload | null>(null);
   const [failed, setFailed] = useState(false);
+  const [retry, setRetry] = useState(0);
 
   useEffect(() => {
+    let current = true;
+    setFailed(false); setCard(null);
     getModelCard()
-      .then(setCard)
-      .catch(() => setFailed(true));
-  }, []);
+      .then(next => { if (current) setCard(next); })
+      .catch(() => { if (current) setFailed(true); });
+    return () => { current = false; };
+  }, [retry]);
 
   if (failed) {
     return (
@@ -61,10 +65,11 @@ export function ModelCard() {
           The model card could not be loaded. Its limitations are part of the
           evidence for this system, so nothing is shown in their place.
         </p>
+        <button type="button" className="btn" onClick={() => setRetry(n => n + 1)}>Retry</button>
       </div>
     );
   }
-  if (!card) return <div className="muted">…</div>;
+  if (!card) return <div className="muted" role="status">Loading model evidence…</div>;
 
   const oof = (card.headline_oof ?? {}) as Record<string, unknown>;
   const summary = card.limitations_summary;
@@ -161,4 +166,72 @@ export function Attribution() {
       </p>
     </div>
   );
+}
+
+export function ModelEvidenceSummary({ runModelId }: { runModelId: string }) {
+  const [card, setCard] = useState<ModelCardPayload | null>(null);
+  const [failed, setFailed] = useState(false);
+  const [retry, setRetry] = useState(0);
+
+  useEffect(() => {
+    let current = true;
+    setFailed(false); setCard(null);
+    getModelCard().then(next => { if (current) setCard(next); })
+      .catch(() => { if (current) setFailed(true); });
+    return () => { current = false; };
+  }, [retry]);
+
+  const oof = (card?.headline_oof ?? {}) as Record<string, unknown>;
+  const accuracy = percent(oof.accuracy_secondary);
+  const summary = !card ? "Loading evaluation…"
+    : card.evaluation_evidence_available && accuracy !== "Not available"
+      ? `Frozen baseline accuracy ${accuracy}` : "Frozen evaluation unavailable";
+  const perClass = (oof.per_class && typeof oof.per_class === "object" ? oof.per_class : {}) as
+    Record<string, { precision?: unknown; recall?: unknown; f1?: unknown; support?: unknown }>;
+
+  return <details className="slide-model-evidence" data-testid="slide-model-evidence">
+    <summary>Model & data <span>{summary}</span></summary>
+    {failed ? <div role="alert" className="inline-error">
+      Evaluation evidence could not be loaded. <button type="button" onClick={() => setRetry(n => n + 1)}>Retry</button>
+    </div> : !card ? <p className="muted small" role="status">Loading model evidence…</p> : <>
+      <p className="model-run-note">This run uses <code>{runModelId}</code>; independent accuracy for this recovered model has not been measured.</p>
+      {card.evaluation_evidence_available ? <>
+        <h4>Frozen G4 baseline · separate model</h4>
+        <div className="model-metric-row">
+          <span><b>{accuracy}</b><small>Accuracy · secondary</small></span>
+          <span><b>{percent(oof.balanced_accuracy)}</b><small>Balanced accuracy</small></span>
+          <span><b>{percent(oof.macro_f1)}</b><small>Macro F1</small></span>
+        </div>
+        <p className="muted small">{String(oof.n_rows ?? "—")} eligible patches · pooled out-of-fold over four case/slide groups. The app’s 50-patch teaching set is a separate subset.</p>
+        <div className="model-class-table" role="table" aria-label="Frozen baseline class metrics">
+          <div className="model-class-row model-class-head" role="row"><span role="columnheader">Class</span><span role="columnheader">Support</span><span role="columnheader">Recall</span><span role="columnheader">F1</span></div>
+          {card.canonical_classes.map(cls => {
+            const values = perClass[cls] ?? {};
+            return <div className="model-class-row" role="row" key={cls}>
+              <span role="cell"><i className={`class-swatch cl-${cls}`} aria-hidden="true" />{cls}</span>
+              <span role="cell">{String(values.support ?? "—")}</span>
+              <span role="cell">{percent(values.recall)}</span>
+              <span role="cell">{percent(values.f1)}</span>
+            </div>;
+          })}
+        </div>
+        {perClass.VIABLE_TUMOR?.recall != null && <p className="model-weakness">Viable-tumor recall: {percent(perClass.VIABLE_TUMOR.recall)} in that baseline evaluation.</p>}
+      </> : <p className="muted small">Frozen evaluation metrics are not present in this runtime, so no accuracy estimate is shown.</p>}
+      <details className="model-setup-details">
+        <summary>Model setup</summary>
+        <dl>
+          <dt>Evaluated artifact</dt><dd>{card.model_version}</dd>
+          <dt>Architecture</dt><dd>{card.architecture ?? "Not recorded"}</dd>
+          <dt>Calibration</dt><dd>{card.calibration_status}</dd>
+          <dt>Classes</dt><dd>{card.canonical_classes.join(" · ")}</dd>
+          <dt>Bundle SHA-256</dt><dd className="mono">{card.model_bundle_sha256}</dd>
+        </dl>
+        {card.preprocessing != null && <pre>{JSON.stringify(card.preprocessing, null, 2)}</pre>}
+      </details>
+    </>}
+  </details>;
+}
+
+function percent(value: unknown): string {
+  return typeof value === "number" && Number.isFinite(value) ? `${(value * 100).toFixed(1)}%` : "Not available";
 }

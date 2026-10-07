@@ -7,6 +7,8 @@ on denial of a mutation.
 """
 from __future__ import annotations
 
+import sqlite3
+from contextlib import closing
 from dataclasses import dataclass
 
 from fastapi import Header, HTTPException
@@ -31,7 +33,7 @@ def principal_from_header(authorization: str | None) -> Principal:
     try:
         claims = auth.verify_token(token)
     except auth.AuthError as exc:
-        raise HTTPException(status_code=exc.http_status, detail=exc.message)
+        raise HTTPException(status_code=exc.http_status, detail=exc.message) from exc
     return Principal(
         user_id=claims["sub"],
         email=claims.get("email", ""),
@@ -57,14 +59,12 @@ def require(capability: str, *, project_scoped: bool = True):
         if project_scoped:
             if not x_project_id:
                 raise HTTPException(status_code=400, detail="missing X-Project-Id header")
-            # Token claim first (fast path), then fall back to LIVE DB membership
-            # so a membership granted AFTER this token was minted works without a
-            # re-login (the token proves identity; the store proves current role).
-            role = p.role_in(x_project_id)
-            if role is None:
-                role = _live_role(p.user_id, x_project_id)
-                if role is not None:
-                    p.roles[x_project_id] = role  # reconcile for the rest of this request
+            # The token proves identity; the store proves current membership and role.
+            role = _live_role(p.user_id, x_project_id)
+            if role is not None:
+                p.roles[x_project_id] = role
+            else:
+                p.roles.pop(x_project_id, None)
             if role is None:
                 # not a member -> do not reveal the project exists
                 raise HTTPException(status_code=404, detail="project not found")
@@ -74,10 +74,7 @@ def require(capability: str, *, project_scoped: bool = True):
                     detail=f"role '{role}' lacks capability '{capability}'",
                 )
         else:
-            roles = set(p.roles.values())
-            if not (roles & allowed):
-                # fall back to live DB roles across the user's memberships
-                roles |= _live_roles(p.user_id)
+            roles = _live_roles(p.user_id)
             if not (roles & allowed):
                 raise HTTPException(
                     status_code=403,
@@ -89,10 +86,22 @@ def require(capability: str, *, project_scoped: bool = True):
 
 
 def _live_role(user_id: str, project_id: str) -> str | None:
-    from . import app as _app, store
-    return store.role_in_project(_app.get_conn(), user_id, project_id)
+    from . import store
+    with closing(_membership_connection()) as conn:
+        return store.role_in_project(conn, user_id, project_id)
 
 
 def _live_roles(user_id: str) -> set[str]:
-    from . import app as _app, store
-    return {m["role"] for m in store.memberships_for_user(_app.get_conn(), user_id)}
+    from . import store
+    with closing(_membership_connection()) as conn:
+        return {m["role"] for m in store.memberships_for_user(conn, user_id)}
+
+
+def _membership_connection() -> sqlite3.Connection:
+    # Request dependencies run in FastAPI's thread pool. Keep each authorization
+    # read on its own SQLite connection so parallel gallery media calls cannot
+    # race through the app's shared connection.
+    uri = f"{config.ENT_DB_PATH.resolve().as_uri()}?mode=ro"
+    conn = sqlite3.connect(uri, uri=True, timeout=5)
+    conn.row_factory = sqlite3.Row
+    return conn

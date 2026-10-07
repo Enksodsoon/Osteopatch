@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-import { listImages, thumbnailUrl } from "../api";
+import { listImages, thumbnailPath } from "../api";
 import type { ImageList, ImageSummary } from "../types";
 import { t } from "../strings";
 import { ClassChip, QcBadges } from "./Shared";
+import { AuthenticatedImage } from "./AuthenticatedImage";
 
 const FILTERS = [
   "all",
@@ -16,7 +17,7 @@ const FILTERS = [
 
 const SORTS = ["priority", "predicted_class", "image_id"] as const;
 
-export function Workbench({ onOpen }: { onOpen: (imageId: string) => void }) {
+export function Workbench({ onOpen, active = true }: { onOpen: (imageId: string) => void; active?: boolean }) {
   const [sort, setSort] = useState<string>("priority");
   const [filter, setFilter] = useState<string>("all");
   const [q, setQ] = useState("");
@@ -27,27 +28,29 @@ export function Workbench({ onOpen }: { onOpen: (imageId: string) => void }) {
   const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
-    let active = true;
+    if (!active) return;
+    let current = true;
     setLoading(true);
     setFailed(false);
-    listImages({ sort, filter, q, page, page_size: 60 })
+    setData(null);
+    listImages({ sort, filter, q, page, page_size: 24 })
       .then((d) => {
-        if (active) {
+        if (current) {
           setData(d);
           setLoading(false);
         }
       })
       .catch(() => {
-        if (active) {
+        if (current) {
           setData(null);
           setFailed(true);
           setLoading(false);
         }
       });
     return () => {
-      active = false;
+      current = false;
     };
-  }, [sort, filter, q, page, reloadKey]);
+  }, [sort, filter, q, page, reloadKey, active]);
 
   return (
     <div className="workbench" data-testid="workbench">
@@ -153,7 +156,7 @@ function GalleryCard({ im, onOpen }: { im: ImageSummary; onOpen: (id: string) =>
       data-predicted-class={pred?.predicted_class ?? ""}
     >
       <div className="card-thumb">
-        <img src={thumbnailUrl(im.image_id)} alt={`Histology patch ${im.image_id}`} loading="lazy" />
+          <AuthenticatedImage path={thumbnailPath(im.image_id)} alt={`Histology patch ${im.image_id}`} />
         {im.review_priority_rank != null && (
           <span className="card-rank" title={t("workbench.rank")}>
             <span>PRIORITY</span> #{im.review_priority_rank}

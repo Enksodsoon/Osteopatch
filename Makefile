@@ -84,17 +84,10 @@ e2e:
 serve:
 	$(UV) run --locked uvicorn osteopatch.app:app --app-dir app/g6/backend --host 127.0.0.1 --port 8137
 
-# The app to demo. Builds the unified frontend, seeds the six personas, then
-# serves API + UI from ONE origin on 8140, so no CORS allowlist is involved.
-#
-# NOTE: enterprise.seed's demo path deliberately RE-SCOPES 50 real corpus rows
-# in the G6 read model (project_id is reassigned). That is what populates the
-# gallery, and it is idempotent — but it is a write, so do not run it against a
-# store you need to keep at its original scope.
-unified-app:
-	npm --prefix app/g7-enterprise/frontend run build
-	cd app/g7-enterprise/backend && PYTHONPATH=../../g6/backend:. $(PY) -m enterprise.seed
-	$(UV) run --locked uvicorn enterprise.app:app --app-dir app/g7-enterprise/backend --host 127.0.0.1 --port 8140
+# The demo snapshots runtime evidence into a disposable workspace. Ctrl+C stops
+# it; rerunning creates a clean reset without changing canonical data.
+unified-app demo:
+	$(UV) run --locked --extra dev --extra model --extra wsi python scripts/demo.py
 
 docs:
 	$(PY) scripts/build_site.py

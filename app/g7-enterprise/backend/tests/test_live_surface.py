@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import importlib
 import io
+import math
 import sys
 from pathlib import Path
 
@@ -39,16 +40,17 @@ SEED_IMAGES = [
 ]
 
 
-def _have_torch() -> bool:
+def _have_model_runtime() -> bool:
     try:
         import torch  # noqa: F401
     except Exception:
         return False
-    return True
+    from osteopatch import live_inference
+    return live_inference.runtime_available()["available"]
 
 
-torch_only = pytest.mark.skipif(
-    not _have_torch(), reason="torch absent; the plumbing tests cover this route"
+model_runtime = pytest.mark.skipif(
+    not _have_model_runtime(), reason="pinned recovered model or encoder artifact unavailable; plumbing tests cover this route"
 )
 
 
@@ -66,7 +68,8 @@ def stack(tmp_path, monkeypatch):
     from enterprise import config as cfg
 
     importlib.reload(cfg)
-    from enterprise import audit, app as app_module, seed, store
+    from enterprise import app as app_module
+    from enterprise import audit, seed, store
 
     for module in (audit, store, seed, app_module):
         importlib.reload(module)
@@ -75,7 +78,9 @@ def stack(tmp_path, monkeypatch):
 
     importlib.reload(g6_config)
 
-    from osteopatch import app as g6_app, db as g6_db, repo
+    from osteopatch import app as g6_app
+    from osteopatch import db as g6_db
+    from osteopatch import repo
 
     tiffs = tmp_path / "tiffs"
     tiffs.mkdir(parents=True, exist_ok=True)
@@ -315,6 +320,8 @@ def test_upload_predict_read_back_delete_round_trip(stack, stub_forward):
     assert got.json()["run"]["run_id"] == run_id
     assert got.json()["n_tiles"] == 1
     assert got.json()["tiles"][0]["scores"]["NON_TUMOR"] == 0.80
+    thumb = c.get(f"/v1/live/runs/{run_id}/thumbnail.png", headers=_h(stack, "student@demo", pid))
+    assert thumb.status_code == 200 and thumb.content.startswith(b"\x89PNG")
 
     # listed
     listing = c.get("/v1/live/runs", headers=_h(stack, "reviewer@demo", pid)).json()
@@ -332,9 +339,23 @@ def test_upload_predict_read_back_delete_round_trip(stack, stub_forward):
                  headers=_h(stack, "reviewer@demo", pid)).status_code == 404
 
 
+def test_recorded_tiles_can_be_included_in_an_unsigned_report(stack, stub_forward):
+    created = _post(stack, "reviewer@demo", "/v1/live/patches", _png())
+    assert created.status_code == 200, created.text
+    run_id = created.json()["run"]["run_id"]
+    response = stack["client"].post("/v1/reports", headers=_h(stack, "reviewer@demo", _pid(stack)), json={
+        "case_id": "education", "title": "Recorded evidence", "findings_text": "Practice notes",
+        "image_ids": [], "run_ids": [run_id],
+    })
+    assert response.status_code == 200, response.text
+    doc = response.json()
+    assert doc["is_signed"] is False
+    assert doc["images"][0]["scores"] == created.json()["prediction"]["scores"]
+    assert doc["images"][0]["run_id"] == run_id
+
+
 def test_a_live_run_is_invisible_to_another_project(stack, stub_forward):
     c = stack["client"]
-    pid = _pid(stack)
     run_id = _post(stack, "reviewer@demo", "/v1/live/patches", _png()).json()["run"]["run_id"]
 
     admin = _login(stack, "admin@demo")
@@ -345,6 +366,7 @@ def test_a_live_run_is_invisible_to_another_project(stack, stub_forward):
 
     assert c.get(f"/v1/live/runs/{run_id}", headers=oh).status_code == 404
     assert c.get(f"/v1/live/runs/{run_id}/mosaic.png", headers=oh).status_code == 404
+    assert c.get(f"/v1/live/runs/{run_id}/thumbnail.png", headers=oh).status_code == 404
     assert c.get("/v1/live/runs", headers=oh).json()["runs"] == []
     # and it cannot be deleted from outside either
     assert c.delete(f"/v1/live/runs/{run_id}", headers=oh).status_code == 404
@@ -354,6 +376,31 @@ def test_unknown_run_is_404(stack):
     r = stack["client"].get("/v1/live/runs/live-doesnotexist",
                             headers=_h(stack, "reviewer@demo", _pid(stack)))
     assert r.status_code == 404
+
+
+def test_recorded_run_refuses_missing_tile_artifacts(stack, stub_forward):
+    from osteopatch import live_inference
+
+    run_id = _post(stack, "reviewer@demo", "/v1/live/patches", _png()).json()["run"]["run_id"]
+    tile = live_inference.run_dir(run_id) / "tile-0000.png"
+    tile.unlink()
+    response = stack["client"].get(
+        f"/v1/live/runs/{run_id}", headers=_h(stack, "reviewer@demo", _pid(stack)),
+    )
+    assert response.status_code == 503
+    assert "stored tile image is missing" in response.text
+
+
+def test_recorded_run_refuses_source_hash_mismatch(stack, stub_forward):
+    from osteopatch import live_inference
+
+    run_id = _post(stack, "reviewer@demo", "/v1/live/patches", _png()).json()["run"]["run_id"]
+    (live_inference.run_dir(run_id) / "source.bin").write_bytes(b"changed source")
+    response = stack["client"].get(
+        f"/v1/live/runs/{run_id}", headers=_h(stack, "reviewer@demo", _pid(stack)),
+    )
+    assert response.status_code == 503
+    assert "recorded SHA-256" in response.text
 
 
 def test_a_patch_run_has_no_mosaic_and_says_so(stack, stub_forward):
@@ -403,7 +450,7 @@ def test_no_live_row_ever_appears_in_the_corpus_gallery(stack, stub_forward):
 # ---------------------------------------------------------------------------
 # torch-GATED: the same round trip with the REAL recovered head
 # ---------------------------------------------------------------------------
-@torch_only
+@model_runtime
 def test_real_forward_pass_over_http(stack):
     created = _post(stack, "reviewer@demo", "/v1/live/patches", _png())
     assert created.status_code == 200, created.text
@@ -417,7 +464,7 @@ def test_real_forward_pass_over_http(stack):
     assert created.json()["run"]["model_id"] == "g4-behavioral-recovery-r1"
 
 
-@torch_only
+@model_runtime
 def test_real_slide_analysis_over_http(stack):
     wide = Image.new("RGB", (1100, 700), (150, 80, 160))
     buf = io.BytesIO()
@@ -438,7 +485,7 @@ def test_real_slide_analysis_over_http(stack):
     Image.open(io.BytesIO(png.content)).load()
 
 
-@torch_only
+@model_runtime
 def test_a_real_slide_run_leaves_the_corpus_byte_identical(stack):
     from osteopatch import integrity
 
@@ -450,3 +497,59 @@ def test_a_real_slide_run_leaves_the_corpus_byte_identical(stack):
     integrity.assert_corpus_unchanged(
         before, integrity.corpus_row_digest(stack["g6_conn"])
     )
+
+@pytest.mark.parametrize("prefix", ["/v1", "/api/v1"])
+def test_review_conflict_returns_current_revision_without_appending(stack, prefix):
+    headers = _h(stack, "reviewer@demo", _pid(stack))
+    client = stack["client"]
+    detail = client.get(f"{prefix}/images/l-clear-nt", headers=headers).json()
+    body = {"prediction_id": detail["prediction"]["prediction_id"], "action": "ACCEPT",
+            "expected_revision": detail["review_state"]["revision"], "idempotency_key": "first"}
+    assert client.post(f"{prefix}/images/l-clear-nt/reviews", headers=headers, json=body).status_code == 200
+    body["idempotency_key"] = "second"
+    conflict = client.post(f"{prefix}/images/l-clear-nt/reviews", headers=headers, json=body)
+    assert conflict.status_code == 409
+    assert conflict.json()["detail"]["current_revision"] == body["expected_revision"] + 1
+    after = client.get(f"{prefix}/images/l-clear-nt", headers=headers).json()
+    assert len(after["history"]) == len(detail["history"]) + 1
+
+
+def test_slide_upload_view_download_is_scoped_and_torch_free(stack):
+    headers = _h(stack, "reviewer@demo", _pid(stack))
+    data = _png()
+    uploaded = stack["client"].post("/v1/slides", headers={**headers, "X-File-Name": "demo.png"}, content=data)
+    assert uploaded.status_code == 200, uploaded.text
+    meta = uploaded.json()
+    path = f"/v1/slides/{meta['slide_id']}"
+    assert meta["width"] > 0 and meta["engine"] in {"pillow", "openslide"}
+    assert meta["tile_size"] == 256
+    max_level = math.ceil(math.log2(max(meta["width"], meta["height"])))
+    tile = stack["client"].get(f"{path}/tiles/{max_level}/0/0.png", headers=headers)
+    assert tile.status_code == 200 and tile.content.startswith(b"\x89PNG")
+    assert Image.open(io.BytesIO(tile.content)).size == (128, 128)
+    assert stack["client"].get(f"{path}/tiles/{max_level}/0/0.png", headers={**headers, "X-Project-Id": "other-project"}).status_code == 404
+    assert stack["client"].get(f"{path}/tiles/{max_level}/1/0.png", headers=headers).status_code == 404
+    region = {"x": 0, "y": 0, "width": meta["width"], "height": meta["height"]}
+    image = stack["client"].get(path + "/region.png", params=region, headers=headers)
+    assert image.status_code == 200 and image.content.startswith(b"\x89PNG")
+    thumb = stack["client"].get(path + "/thumbnail.png", headers=headers)
+    assert thumb.status_code == 200 and thumb.content.startswith(b"\x89PNG")
+    assert stack["client"].get(path + "/source", headers=headers).content == data
+    assert stack["client"].get(path + "/source", headers={**headers, "X-Project-Id": "other-project"}).status_code == 404
+    region["x"] = meta["width"]
+    assert stack["client"].get(path + "/region.png", params=region, headers=headers).status_code == 422
+    assert stack["client"].post("/v1/slides", headers={**headers, "X-File-Name": "bad.png"}, content=b"not pixels").status_code == 422
+    assert stack["client"].post("/v1/slides", headers={**_h(stack, "student@demo", _pid(stack)), "X-File-Name": "demo.png"}, content=data).status_code == 403
+
+
+def test_slide_region_analysis_preserves_parent_identity(stack, stub_forward):
+    headers = _h(stack, "reviewer@demo", _pid(stack))
+    meta = stack["client"].post("/v1/slides", headers={**headers, "X-File-Name": "demo.png"}, content=_png()).json()
+    path = f"/v1/slides/{meta['slide_id']}/analyze"
+    region = {"x": 0, "y": 0, "width": 32, "height": 32}
+    result = stack["client"].post(path, headers=headers, json=region)
+    assert result.status_code == 200, result.text
+    assert result.json()["source_region"]["source_sha256"] == meta["source_sha256"]
+    run = stack["client"].get(f"/v1/live/runs/{result.json()['run']['run_id']}", headers=headers)
+    assert meta["source_sha256"] in run.json()["run"]["notes"]
+    assert stack["client"].post(path, headers=headers, json={**region, "width": 999999}).status_code == 422

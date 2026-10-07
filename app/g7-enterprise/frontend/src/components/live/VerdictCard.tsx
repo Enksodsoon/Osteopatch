@@ -1,5 +1,5 @@
 import type { LivePrediction, LiveRun } from "../../types";
-import { CLASS_LABELS, SUPPORT_FLAG_LABELS } from "../../types";
+import { CLASS_LABELS, CLASS_NAMES, SUPPORT_FLAG_LABELS } from "../../types";
 import { ScoreReadout } from "./ScoreReadout";
 
 /**
@@ -14,9 +14,11 @@ import { ScoreReadout } from "./ScoreReadout";
 export function VerdictCard({
   run,
   prediction,
+  sourceLabel,
 }: {
   run: LiveRun;
   prediction: LivePrediction;
+  sourceLabel?: string;
 }) {
   const { confidence, caveat } = prediction;
   const decided = confidence !== "indeterminate";
@@ -25,8 +27,8 @@ export function VerdictCard({
     <article className={`verdict v-${confidence}`} aria-live="polite">
       <header className="verdict-head">
         <div className="verdict-file">
-          <span className="verdict-name">{run.source_name}</span>
-          <span className="mono subtle">{run.source_sha256.slice(0, 16)}…</span>
+          <span className="verdict-name">{sourceLabel ?? run.source_name}</span>
+          {!sourceLabel && <span className="mono subtle">{run.source_sha256.slice(0, 16)}…</span>}
         </div>
         <span className="live-tag">live inference · not a corpus prediction</span>
       </header>
@@ -37,7 +39,7 @@ export function VerdictCard({
             <>
               <span className="hero-label">Predicted class</span>
               <h3 className={`hero-class cl-${prediction.predicted_class}`}>
-                {prediction.predicted_class}
+                {CLASS_NAMES[prediction.predicted_class]}
               </h3>
               <p className="hero-sub">{CLASS_LABELS[prediction.predicted_class]}</p>
             </>

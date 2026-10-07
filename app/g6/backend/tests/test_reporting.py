@@ -23,9 +23,8 @@ import re
 import sqlite3
 
 import pytest
-
 from osteopatch import db, integrity, reporting
-from osteopatch.reporting import ReportError, draft_document, store_document
+from osteopatch.reporting import ReportError, draft_document
 
 
 @pytest.fixture()
@@ -83,6 +82,53 @@ def test_an_indeterminate_patch_is_never_a_finding():
     doc = a_doc()
     assert [i.image_id for i in doc.supported] == [CLEAR["image_id"]]
     assert [i.image_id for i in doc.unresolved] == [TIED["image_id"]]
+
+
+def test_rich_findings_are_sanitized_and_bound_to_the_report_hash(rep_db):
+    doc = a_doc(findings_html='<p><strong>Observed</strong> matrix.</p><script>alert(1)</script><img src=x onerror=alert(2)>')
+    assert doc.findings_text == "Observed matrix."
+    assert doc.findings_html == "<p><strong>Observed</strong> matrix.</p>"
+    assert "<script" not in doc.to_html() and "onerror" not in doc.to_html()
+    stored = reporting.store_document(rep_db, doc)
+    assert stored["findings_html"] == doc.findings_html
+    assert reporting.verify_hash(rep_db, doc.report_id)["matches"] is True
+
+
+def test_exported_image_preview_is_offline_and_bound_to_the_report_hash(rep_db):
+    preview = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+tOQ8AAAAASUVORK5CYII="
+    doc = a_doc(images=[dict(CLEAR, preview_png_base64=preview)])
+    public = reporting.store_document(rep_db, doc)
+
+    assert public["images"][0]["preview_attached"] is True
+    assert "preview_png_base64" not in public["images"][0]
+    assert f"data:image/png;base64,{preview}" in doc.to_html()
+    assert f"data:image/png;base64,{preview}" in doc.to_markdown()
+    assert doc.content_sha256 in doc.to_html() and doc.content_sha256 in doc.to_markdown()
+    assert reporting.verify_hash(rep_db, doc.report_id)["matches"] is True
+
+
+def test_unanalyzed_slide_is_not_a_no_call_and_survives_without_schema_changes(rep_db):
+    slide = {"image_id": "slide:" + "a" * 32, "source_kind": "slide",
+             "analysis_status": "not_analyzed", "caveat": "No model run is attached."}
+    doc = a_doc(images=[slide])
+    assert doc.supported == [] and doc.unresolved == []
+    assert [image.image_id for image in doc.not_analyzed] == [slide["image_id"]]
+    public = reporting.store_document(rep_db, doc)
+    assert public["n_not_analyzed"] == 1 and public["n_unresolved"] == 0
+    assert "Uploaded images without an AI run" in doc.to_markdown()
+    assert "not analyzed" in doc.to_html()
+    assert reporting.list_reports(rep_db, "prj_1")[0]["n_images"] == 1
+    assert rep_db.execute("SELECT COUNT(*) FROM case_report_image WHERE report_id=?", (doc.report_id,)).fetchone()[0] == 0
+
+
+def test_report_revision_is_linked_in_the_existing_append_only_column(rep_db):
+    original = a_doc()
+    reporting.store_document(rep_db, original)
+    revision = a_doc(report_id="rep-test-0002", revision_of=original.report_id,
+                     findings_text="Updated observation.")
+    reporting.store_document(rep_db, revision)
+    assert reporting.list_reports(rep_db, "prj_1")[0]["revision_of"] == original.report_id
+    assert reporting.load_document(rep_db, original.report_id).findings_text != revision.findings_text
 
 
 def test_a_tied_score_with_no_confidence_field_is_still_refused():
@@ -283,7 +329,6 @@ def test_a_revision_is_a_new_row_not_an_edit(rep_db):
 
 
 def test_a_signed_report_without_a_signer_is_rejected(rep_db):
-    doc = a_doc()
     with pytest.raises(sqlite3.IntegrityError, match="CHECK"):
         rep_db.execute(
             """INSERT INTO case_report
@@ -295,7 +340,6 @@ def test_a_signed_report_without_a_signer_is_rejected(rep_db):
 
 
 def test_a_report_cannot_supersede_itself(rep_db):
-    doc = a_doc()
     with pytest.raises(sqlite3.IntegrityError, match="CHECK"):
         rep_db.execute(
             """INSERT INTO case_report
