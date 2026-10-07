@@ -12,7 +12,7 @@
 
 
 # --- Enterprise (E1): runtime ---
-PyJWT==2.10.1
+PyJWT==2.15.0
 fastapi==0.115.6
 numpy>=2.0.0,<2.4.4
 pillow==11.0.0
