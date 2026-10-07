@@ -2,8 +2,9 @@
 
 ## Read first
 1. `README.md` and `docs/README.md` describe the current product and repository.
-2. `docs/project-status.md` separates implemented features from operational gaps.
-3. `PROJECT_BRIEF.md` defines intended use; `aidlc-docs/` preserves historical evidence.
+2. [`docs/agent-handoff.md`](docs/agent-handoff.md) is the current detailed setup, workflow, test and safety guide for a new coding agent.
+3. [`docs/data-inventory.md`](docs/data-inventory.md) records the source cohort, model identities, evaluation, tracked evidence and host-local artifacts. [`docs/evidence/demo-readiness.md`](docs/evidence/demo-readiness.md) records the latest end-to-end demo verification.
+4. `docs/project-status.md` is an earlier maintained scope statement; `PROJECT_BRIEF.md` defines intended use; `aidlc-docs/` preserves stage-specific historical evidence.
 
 This is an implemented educational/research prototype, not an Inception-only scaffold and not a clinical device. Do not restart the original workshop plan or treat historical approval questions as current instructions.
 
@@ -38,5 +39,7 @@ Run `npm ci`, `npm test`, `npm run build` in each changed frontend. `make lint` 
 
 ## Publication and handoff
 Pages contains only the allowlisted static website, never the app backend, credentials, databases or full image collection. AWS deploys are manual, protected and disabled until the required configuration is available. MCP profiles are opt-in with no blanket auto-approval.
+
+The current unified local demo is launched by `scripts/demo.py` (`make unified-app` when GNU Make is available). It is the supported full-demo path: it snapshots the review database into a disposable workspace, verifies the demo pixels and recorded-run artifacts, starts the authenticated API and built G7 UI on one localhost origin, and removes the workspace on exit. Do not run demo seeding against the source database; it changes project scope. A fresh Git clone does not include `runtime-artifacts/`; restore an authorized bundle locally and follow `docs/agent-handoff.md`.
 
 Report exact changed paths, commands/results, skipped tests, commit/PR and remaining operational gaps. Keep durable run evidence in `docs/evidence/`. Never describe this project as production-ready or clinically validated on the strength of software tests.

@@ -9,7 +9,7 @@
 ![FastAPI](https://img.shields.io/badge/API-FastAPI-009688)
 ![Research prototype](https://img.shields.io/badge/use-educational%20research-B4532A)
 
-**[Project website](https://enksodsoon.github.io/Osteopatch/)** · **[Developer documentation](docs/README.md)** · **[Model evidence](docs/model-evidence.md)** · **[Contributing](CONTRIBUTING.md)**
+**[Project website](https://enksodsoon.github.io/Osteopatch/)** · **[Developer documentation](docs/README.md)** · **[AI agent handoff](docs/agent-handoff.md)** · **[Data inventory](docs/data-inventory.md)** · **[Model evidence](docs/model-evidence.md)** · **[Contributing](CONTRIBUTING.md)**
 
 **Repository:** <https://github.com/Enksodsoon/Osteopatch> — renamed from `osteopatch-review`. Existing old URLs redirect, but update stale clones with:<br/>
 `git remote set-url origin https://github.com/Enksodsoon/Osteopatch.git`<br/>
@@ -125,6 +125,8 @@ The review surface is deliberately narrow.
 See [PROJECT_BRIEF.md](PROJECT_BRIEF.md) and the in-app model card for the governing claims and non-goals.
 
 ## Quick start
+
+For a complete agent handoff, populated-demo setup, dataset/model inventory and tested workflow, start with [the AI agent guide](docs/agent-handoff.md), [the data inventory](docs/data-inventory.md) and the [latest local demo verification](docs/evidence/demo-readiness.md). The repository snapshot below is dated 6 October 2026; the newer verification record is dated 7 October 2026.
 
 ### 1. Install the locked Python environment
 
