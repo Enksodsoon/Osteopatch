@@ -72,6 +72,7 @@ export interface LiveCapability {
   reason?: string;
   hint?: string;
   model_id?: string;
+  models?: { model_id: string; label: string }[];
   bundle_path_relative?: string;
   note?: string;
   tile_px?: number;

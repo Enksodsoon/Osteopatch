@@ -365,7 +365,8 @@ def live_capability() -> dict:
     }
 
 
-def live_predict_patch(project_id: str | None, filename: str, data: bytes, *, reviewer: str) -> dict:
+def live_predict_patch(project_id: str | None, filename: str, data: bytes, *, reviewer: str,
+                      model_id: str = "g4-behavioral-recovery-r1") -> dict:
     from osteopatch import live_inference  # type: ignore
 
     pid = _require_project(project_id)
@@ -374,6 +375,7 @@ def live_predict_patch(project_id: str | None, filename: str, data: bytes, *, re
         return live_inference.predict_patch_bytes(
             g6_conn(), project_id=pid, filename=filename, data=payload,
             requested_by=reviewer,
+            model_id=model_id,
         )
     except Exception as exc:
         raise _live_error(exc) from exc
@@ -382,6 +384,7 @@ def live_predict_patch(project_id: str | None, filename: str, data: bytes, *, re
 def live_analyze_slide(
     project_id: str | None, filename: str, data: bytes, *, reviewer: str,
     tile_px: int | None = None, stride: int | None = None, max_tiles: int | None = None,
+    model_id: str = "g4-behavioral-recovery-r1",
 ) -> dict:
     from osteopatch import live_inference  # type: ignore
 
@@ -391,6 +394,7 @@ def live_analyze_slide(
         return live_inference.analyze_slide_bytes(
             g6_conn(), project_id=pid, filename=filename, data=payload,
             requested_by=reviewer, tile_px=tile_px, stride=stride, max_tiles=max_tiles,
+            model_id=model_id,
         )
     except Exception as exc:
         raise _live_error(exc) from exc
@@ -401,7 +405,7 @@ def live_run(project_id: str | None, run_id: str) -> dict:
     from osteopatch import live_inference  # type: ignore
 
     pid = _require_project(project_id)
-    run = _require_live_owner(run_id, pid)
+    _require_live_owner(run_id, pid)
     public = live_inference.public_run(g6_conn(), run_id)
     tiles = live_inference.get_tiles(g6_conn(), run_id)
     return {"run": public, "tiles": tiles, "n_tiles": len(tiles)}
@@ -438,7 +442,7 @@ def live_tile_attribution(
     from osteopatch import live_inference  # type: ignore
 
     pid = _require_project(project_id)
-    _require_live_owner(run_id, pid)
+    run = _require_live_owner(run_id, pid)
     tile_path = live_inference.run_dir(run_id) / f"tile-{int(tile_index):04d}.png"
     if not tile_path.exists():
         raise HTTPException(status_code=404, detail="unknown tile index for this run")
@@ -448,11 +452,12 @@ def live_tile_attribution(
         result = attribution.compute_attribution(
             tile_path, f"{run_id}:tile-{int(tile_index):04d}",
             target_a or "NON_TUMOR", target_b or "VIABLE_TUMOR",
+            model_id=run["model_id"],
         )
     except Exception as exc:
         raise _live_error(exc) from exc
     return result.overlay_png, {
-        "X-Attrib-Recovered-Model": attribution.RECOVERED_MODEL_ID,
+        "X-Attrib-Recovered-Model": run["model_id"],
         "X-Attrib-Run-Id": run_id,
         "X-Attrib-Tile-Index": str(tile_index),
         "X-Attrib-Target-A": result.target_a,

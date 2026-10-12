@@ -121,6 +121,27 @@ describe("LiveScreen — assembled wiring", () => {
     expect(screen.getByText(/not a corpus prediction/i)).toBeInTheDocument();
   });
 
+  it("sends the selected locally qualified model with a live patch request", async () => {
+    enterProject();
+    const calls = mockApi({
+      "/v1/live/capability": {
+        ...CAPABILITY,
+        models: [
+          { model_id: "g4-behavioral-recovery-r1", label: "Recovered research head" },
+          { model_id: "candidate-v1", label: "candidate-v1" },
+        ],
+      },
+      "/v1/live/runs": { runs: [] },
+      "/v1/live/patches": patchResult(),
+    });
+    render(<LiveScreen role="reviewer" projectId="prj_1" />);
+    fireEvent.change(await screen.findByLabelText(/model for this run/i), { target: { value: "candidate-v1" } });
+    const file = new File([new Uint8Array([1, 2, 3])], "field.png", { type: "image/png" });
+    fireEvent.change(screen.getByLabelText(/choose a patch or slide/i), { target: { files: [file] } });
+    fireEvent.click(screen.getByRole("button", { name: /import and score$/i }));
+    await waitFor(() => expect(calls.some((call) => call.url === "/v1/live/patches?model_id=candidate-v1")).toBe(true));
+  });
+
   it("shows the server's honest split rather than computing its own", async () => {
     enterProject();
     mockApi({

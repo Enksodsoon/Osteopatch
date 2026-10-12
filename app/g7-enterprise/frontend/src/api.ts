@@ -226,18 +226,20 @@ async function upload(path: string, file: File): Promise<Response> {
   return fetch(path, { method: "POST", headers: h, body: file });
 }
 
-export async function importPatch(file: File): Promise<LivePatchResult> {
-  return j<LivePatchResult>(await upload("/v1/live/patches", file));
+export async function importPatch(file: File, modelId?: string): Promise<LivePatchResult> {
+  const qs = modelId ? `?model_id=${encodeURIComponent(modelId)}` : "";
+  return j<LivePatchResult>(await upload(`/v1/live/patches${qs}`, file));
 }
 
 export async function importSlide(
   file: File,
-  opts: { tile_px?: number; stride?: number; max_tiles?: number } = {},
+  opts: { tile_px?: number; stride?: number; max_tiles?: number; model_id?: string } = {},
 ): Promise<LiveSlideResult> {
   const q = new URLSearchParams();
   if (opts.tile_px != null) q.set("tile_px", String(opts.tile_px));
   if (opts.stride != null) q.set("stride", String(opts.stride));
   if (opts.max_tiles != null) q.set("max_tiles", String(opts.max_tiles));
+  if (opts.model_id) q.set("model_id", opts.model_id);
   const qs = q.toString();
   return j<LiveSlideResult>(await upload(`/v1/live/slides${qs ? `?${qs}` : ""}`, file));
 }

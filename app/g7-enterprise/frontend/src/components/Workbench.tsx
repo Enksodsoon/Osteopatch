@@ -3,6 +3,7 @@ import { listImages, thumbnailUrl } from "../api";
 import type { ImageList, ImageSummary } from "../types";
 import { t } from "../strings";
 import { ClassChip, QcBadges } from "./Shared";
+import { AuthenticatedImage } from "./AuthenticatedImage";
 
 const FILTERS = [
   "all",
@@ -153,7 +154,7 @@ function GalleryCard({ im, onOpen }: { im: ImageSummary; onOpen: (id: string) =>
       data-predicted-class={pred?.predicted_class ?? ""}
     >
       <div className="card-thumb">
-        <img src={thumbnailUrl(im.image_id)} alt={`Histology patch ${im.image_id}`} loading="lazy" />
+        <AuthenticatedImage path={thumbnailUrl(im.image_id)} alt={`Histology patch ${im.image_id}`} />
         {im.review_priority_rank != null && (
           <span className="card-rank" title={t("workbench.rank")}>
             <span>PRIORITY</span> #{im.review_priority_rank}

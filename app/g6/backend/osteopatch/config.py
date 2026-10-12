@@ -142,6 +142,10 @@ RECOVERED_MODEL_ID = "g4-behavioral-recovery-r1"
 # pins it. Attribution refuses to run on mismatch.
 RECOVERED_MODEL_SHA256 = "ffff1282f533758d7d7c8370ee6092f97f553da69918c5ee7e83632428176a73"
 
+# A candidate becomes selectable only after its dated evaluation record adds
+# an entry here and its local bundle still matches the recorded SHA-256.
+QUALIFIED_MODELS_REGISTRY = PROJECT_ROOT / "docs" / "evidence" / "model-tuning" / "qualified-models.json"
+
 # Attribution image source: the durable verified TIFFs (R1-A/R1-B).
 ATTRIB_IMAGES_DIR = _env_path(
     "OSTEOPATCH_ATTRIB_IMAGES", str(RUNTIME_ARTIFACTS_ROOT / "images")

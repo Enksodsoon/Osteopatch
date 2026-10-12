@@ -25,6 +25,7 @@ type Outcome =
  */
 export function LiveScreen({ role, projectId }: { role?: Role; projectId: string }) {
   const [capability, setCapability] = useState<LiveCapability | null>(null);
+  const [modelId, setModelId] = useState("g4-behavioral-recovery-r1");
   const [busy, setBusy] = useState(false);
   const [outcome, setOutcome] = useState<Outcome | null>(null);
   const [runs, setRuns] = useState<LiveRunSummary[]>([]);
@@ -42,7 +43,13 @@ export function LiveScreen({ role, projectId }: { role?: Role; projectId: string
     let live = true;
     // `live:read` — every role may ask. It is torch-free, so it is cheap on load.
     api.liveCapability()
-      .then((c) => { if (live) setCapability(c); })
+      .then((c) => {
+        if (live) {
+          setCapability(c);
+          setModelId((current) => c.models?.some((model) => model.model_id === current)
+            ? current : c.model_id ?? c.models?.[0]?.model_id ?? current);
+        }
+      })
       .catch((e: unknown) => {
         if (live) setError(`Capability probe failed: ${String(e instanceof Error ? e.message : e)}`);
       });
@@ -55,9 +62,9 @@ export function LiveScreen({ role, projectId }: { role?: Role; projectId: string
     setError(null); setOutcome(null); setTile(null); setDetail(null);
     try {
       if (kind === "patch") {
-        setOutcome({ kind, data: await api.importPatch(file) });
+        setOutcome({ kind, data: await api.importPatch(file, modelId) });
       } else {
-        setOutcome({ kind, data: await api.importSlide(file) });
+        setOutcome({ kind, data: await api.importSlide(file, { model_id: modelId }) });
       }
       await loadRuns();
     } catch (e) {
@@ -85,16 +92,18 @@ export function LiveScreen({ role, projectId }: { role?: Role; projectId: string
         <div className="live-intro">
           <h2>Live inference</h2>
           <p className="muted">
-            Import your own patch or slide and run it through the recovered research head
+            Import your own patch or slide and run it through the selected local research model
             <b> right now</b>. Nothing here touches the frozen 1,144-image corpus.
           </p>
-          {capability?.model_id && (
-            <p className="mono subtle">{capability.model_id}</p>
+          {modelId && (
+            <p className="mono subtle">{modelId}</p>
           )}
         </div>
         <ImportPanel
           role={role}
           capability={capability}
+          modelId={modelId}
+          onModelChange={setModelId}
           busy={busy}
           onImport={onImport}
         />

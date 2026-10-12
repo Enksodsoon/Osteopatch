@@ -97,6 +97,8 @@ body {
 }
 
 button, input, select, textarea { font: inherit; }
+.model-choice { display: grid; gap: 0.4rem; max-width: 28rem; margin-block: 1rem; font-weight: 600; }
+.model-choice select { min-height: 2.5rem; padding: 0.45rem 0.65rem; border: 1px solid var(--line, #cfd7d3); border-radius: 0.5rem; background: var(--surface, #fff); color: inherit; }
 button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
   outline: 3px solid rgba(138, 63, 42, .35);
   outline-offset: 2px;
@@ -751,7 +753,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .viewer-toolbar button { background: #282522; color: #f3ece2; border: 1px solid #3b3734; border-radius: 6px; padding: 4px 10px; cursor: pointer; font-size: 16px; }
 .viewer-toolbar button:hover { background: #2c2722; }
 .viewer-scale { color: #a39587; font-size: 12px; margin-left: auto; }
-.viewer-stage { flex: 1; display: flex; align-items: center; justify-content: center; overflow: hidden
+.viewer-stage { flex: 1; display: flex; align-items: center; justify-content: center; overflow: hidden; }
 .viewer-stage:active { cursor: grabbing; }
 .viewer-stage img { max-width: 100%; max-height: 100%; transform-origin: center; user-select: none; image-rendering: auto; }
 

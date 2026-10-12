@@ -404,11 +404,12 @@ def live_capability(p: Principal = Depends(require("live:read")),
 
 @app.post("/v1/live/patches")
 async def live_predict_patch(request: Request,
+                             model_id: str = "g4-behavioral-recovery-r1",
                              p: Principal = Depends(require("live:analyze")),
                              x_project_id: str | None = Header(default=None, alias="X-Project-Id")):
     """Import a single patch and score it. One forward pass, one stored run."""
     name, data = await _read_upload_bytes(request)
-    result = review_proxy.live_predict_patch(x_project_id, name, data, reviewer=p.email)
+    result = review_proxy.live_predict_patch(x_project_id, name, data, reviewer=p.email, model_id=model_id)
     audit.record(p.email, "live.predict_patch", result["run"]["run_id"],
                  project_id=x_project_id,
                  detail={"filename": name, "bytes": len(data),
@@ -423,6 +424,7 @@ async def live_analyze_slide(request: Request,
                              tile_px: int | None = None,
                              stride: int | None = None,
                              max_tiles: int | None = None,
+                             model_id: str = "g4-behavioral-recovery-r1",
                              p: Principal = Depends(require("live:analyze")),
                              x_project_id: str | None = Header(default=None, alias="X-Project-Id")):
     """Import a whole-slide image, tile it deterministically, score every tile.
@@ -434,7 +436,7 @@ async def live_analyze_slide(request: Request,
     name, data = await _read_upload_bytes(request)
     result = review_proxy.live_analyze_slide(
         x_project_id, name, data, reviewer=p.email,
-        tile_px=tile_px, stride=stride, max_tiles=max_tiles,
+        tile_px=tile_px, stride=stride, max_tiles=max_tiles, model_id=model_id,
     )
     audit.record(p.email, "live.analyze_slide", result["run"]["run_id"],
                  project_id=x_project_id,

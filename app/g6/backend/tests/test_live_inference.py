@@ -309,13 +309,113 @@ def test_mosaic_colours_only_cover_the_three_canonical_classes():
 
 def test_runtime_available_is_torch_free_and_explains_itself():
     """The capability probe must not import torch, or a page load costs ~1 GB."""
+    import sys
+
+    torch_loaded_before = "torch" in sys.modules
     cap = li.runtime_available()
     assert isinstance(cap["available"], bool)
-    assert "torch" not in __import__("sys").modules or cap["available"] is True
+    assert ("torch" in sys.modules) == torch_loaded_before
     if cap["available"]:
         assert cap["model_id"] == "g4-behavioral-recovery-r1"
     else:
         assert cap["reason"]  # says WHY, never a silent false
+
+
+def test_qualified_model_registry_fails_closed_on_hash_mismatch(tmp_path, monkeypatch):
+    import hashlib
+    import json
+
+    from osteopatch import attribution
+
+    runtime = tmp_path / "runtime"
+    models = runtime / "models"
+    models.mkdir(parents=True)
+    bundle = models / "candidate.pt"
+    bundle.write_bytes(b"changed bundle")
+    registry = tmp_path / "qualified-models.json"
+    registry.write_text(json.dumps({"models": [{
+        "model_id": "candidate-v1", "bundle_path_relative": "models/candidate.pt",
+        "bundle_sha256": hashlib.sha256(b"original bundle").hexdigest(),
+        "qualification_status": "QUALIFIED",
+    }]}), encoding="utf-8")
+    monkeypatch.setattr(config, "RUNTIME_ARTIFACTS_ROOT", runtime)
+    monkeypatch.setattr(config, "QUALIFIED_MODELS_REGISTRY", registry)
+    assert all(item["model_id"] != "candidate-v1" for item in attribution.available_models())
+
+
+def test_qualified_candidate_reload_attribution_identity_and_tamper_rejection(tmp_path, monkeypatch):
+    import hashlib
+    import json
+    import torch
+    import torch.nn as nn
+    import torchvision
+    from PIL import Image
+
+    from osteopatch import attribution
+
+    model_id = "candidate-bundle-test"
+    runtime = tmp_path / "runtime"
+    models = runtime / "models"
+    models.mkdir(parents=True)
+    bundle_path = models / f"{model_id}.pt"
+    registry_path = tmp_path / "qualified-models.json"
+    monkeypatch.setattr(config, "RUNTIME_ARTIFACTS_ROOT", runtime)
+    monkeypatch.setattr(config, "QUALIFIED_MODELS_REGISTRY", registry_path)
+    monkeypatch.setattr(config, "ATTRIB_CACHE_DIR", tmp_path / "attribution-cache")
+    monkeypatch.setattr(attribution, "_CANDIDATE_STATES", {})
+
+    reference = torchvision.models.mobilenet_v3_small(weights=None)
+    reference.classifier[-1] = nn.Linear(1024, len(config.CANONICAL_CLASSES))
+    reference.eval()
+    bundle = {
+        "model_id": model_id, "classes": list(config.CANONICAL_CLASSES),
+        "state_dict": reference.state_dict(), "encoder_sha256": "e" * 64,
+        "preprocessing": {"resize": [384, 384], "interpolation": "bilinear", "antialias": True,
+                          "normalize_mean": [0.485, 0.456, 0.406], "normalize_std": [0.229, 0.224, 0.225]},
+    }
+    torch.save(bundle, bundle_path)
+    digest = hashlib.sha256(bundle_path.read_bytes()).hexdigest()
+    registry_path.write_text(json.dumps({"models": [{
+        "model_id": model_id, "bundle_path_relative": f"models/{bundle_path.name}",
+        "bundle_sha256": digest, "qualification_status": "QUALIFIED",
+    }]}), encoding="utf-8")
+    assert li.runtime_available()["model_id"] == config.RECOVERED_MODEL_ID
+
+    state = attribution.get_state(model_id)
+    sample = torch.rand(1, 3, 384, 384)
+    with torch.inference_mode():
+        expected = reference(sample)
+        actual = state["model"](sample)
+    assert torch.allclose(expected, actual)
+    image_path = tmp_path / "patch.png"
+    Image.new("RGB", (384, 384), (120, 70, 130)).save(image_path)
+    result = attribution.compute_attribution(image_path, "candidate-test-image", "VIABLE_TUMOR", "NECROSIS", model_id=model_id)
+    assert result.meta["model_id"] == model_id
+    assert result.meta["model_bundle_sha256"] == digest
+    assert result.cache_key != attribution._cache_key("candidate-test-image", "VIABLE_TUMOR", "NECROSIS", digest)
+
+    bundle_path.write_bytes(b"altered after initial load")
+    with pytest.raises(attribution.AttributionError, match="unknown, unavailable, or unqualified"):
+        attribution.get_state(model_id)
+    assert all(item["model_id"] != model_id for item in attribution.available_models())
+
+
+def test_live_run_records_the_selected_bundle_identity(live_db, tmp_path, monkeypatch):
+    from osteopatch import attribution
+
+    monkeypatch.setattr(config, "LIVE_RUNS_DIR", tmp_path / "runs")
+    monkeypatch.setattr(attribution, "get_state", lambda model_id: {
+        "model_id": model_id, "bundle_sha256": "candidate-hash", "encoder_sha256": "encoder-hash",
+    })
+    run_id = li.create_run(
+        live_db, project_id="prj_test", source_kind="patch", source_name="a.png",
+        source_bytes=b"image", engine="pillow", props={"width": 1, "height": 1},
+        requested_by="tester", latency_ms=0, model_id="candidate-v1",
+    )
+    row = li.get_run(live_db, run_id)
+    assert (row["model_id"], row["model_bundle_sha256"], row["encoder_sha256"]) == (
+        "candidate-v1", "candidate-hash", "encoder-hash",
+    )
 
 
 # ---------------------------------------------------------------------------

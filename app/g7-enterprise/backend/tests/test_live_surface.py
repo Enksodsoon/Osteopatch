@@ -138,7 +138,9 @@ def stub_forward(monkeypatch):
     # torch-free path does not need the recovered weights on disk.
     monkeypatch.setattr(
         "osteopatch.attribution.get_state",
-        lambda: {"bundle_sha256": "stub-bundle-sha"},
+        lambda model_id="g4-behavioral-recovery-r1": {
+            "model_id": model_id, "bundle_sha256": "stub-bundle-sha", "encoder_sha256": "stub-encoder-sha",
+        },
     )
     monkeypatch.setattr(
         "osteopatch.attribution.RECOVERED_BUNDLE", Path("does-not-exist.pt")
@@ -330,6 +332,33 @@ def test_upload_predict_read_back_delete_round_trip(stack, stub_forward):
     assert deleted.json()["deleted"] is True
     assert c.get(f"/v1/live/runs/{run_id}",
                  headers=_h(stack, "reviewer@demo", pid)).status_code == 404
+
+
+def test_selected_model_identity_survives_live_run_and_attribution(stack, stub_forward, monkeypatch):
+    from types import SimpleNamespace
+
+    from osteopatch import attribution
+
+    response = _post(stack, "reviewer@demo", "/v1/live/patches?model_id=candidate-v1", _png())
+    assert response.status_code == 200, response.text
+    run = response.json()["run"]
+    assert (run["model_id"], run["model_bundle_sha256"], run["encoder_sha256"]) == (
+        "candidate-v1", "stub-bundle-sha", "stub-encoder-sha",
+    )
+    observed = {}
+
+    def fake_attribution(path, image_id, target_a, target_b, model_id):
+        observed["model_id"] = model_id
+        return SimpleNamespace(overlay_png=b"png", target_a=target_a, target_b=target_b)
+
+    monkeypatch.setattr(attribution, "compute_attribution", fake_attribution)
+    attributed = stack["client"].get(
+        f"/v1/live/runs/{run['run_id']}/tiles/0/attribution",
+        headers=_h(stack, "reviewer@demo", _pid(stack)),
+    )
+    assert attributed.status_code == 200
+    assert observed["model_id"] == "candidate-v1"
+    assert attributed.headers["X-Attrib-Recovered-Model"] == "candidate-v1"
 
 
 def test_a_live_run_is_invisible_to_another_project(stack, stub_forward):

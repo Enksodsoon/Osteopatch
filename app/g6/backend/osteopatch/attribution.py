@@ -42,6 +42,7 @@ RECOVERY_RECORD_ID = "R1-C2"
 
 _LOCK = threading.Lock()
 _STATE: dict | None = None  # lazily-loaded torch state (model, cam target layer, meta)
+_CANDIDATE_STATES: dict[str, dict] = {}
 
 
 class AttributionError(RuntimeError):
@@ -151,11 +152,96 @@ def _gradcam_version() -> str:
         return "unknown"
 
 
-def get_state() -> dict:
+def qualified_model_entries() -> list[dict]:
+    """Return locally present, hash-verified research bundles only."""
+    registry_path = config.QUALIFIED_MODELS_REGISTRY
+    if not registry_path.exists():
+        return []
+    try:
+        entries = json.loads(registry_path.read_text(encoding="utf-8")).get("models", [])
+    except (OSError, ValueError, AttributeError):
+        return []
+    verified = []
+    runtime_root = config.RUNTIME_ARTIFACTS_ROOT.resolve()
+    for item in entries:
+        if item.get("qualification_status") != "QUALIFIED" or not isinstance(item.get("model_id"), str):
+            continue
+        relative = Path(str(item.get("bundle_path_relative", "")))
+        if relative.is_absolute() or ".." in relative.parts or not relative.parts or relative.parts[0] != "models":
+            continue
+        path = (runtime_root / relative).resolve()
+        if runtime_root not in path.parents or not path.is_file():
+            continue
+        try:
+            if _sha256_file(path) != item.get("bundle_sha256"):
+                continue
+        except OSError:
+            continue
+        verified.append({**item, "path": path})
+    return verified
+
+
+def available_models() -> list[dict]:
+    models = []
+    if RECOVERED_BUNDLE.is_file():
+        models.append({"model_id": RECOVERED_MODEL_ID, "label": "Recovered research head"})
+    models.extend({"model_id": item["model_id"], "label": item["model_id"]} for item in qualified_model_entries())
+    return models
+
+
+def _build_candidate_state(model_id: str, entry: dict) -> dict:
+    os.environ.setdefault("TORCH_HOME", str(config.TORCH_HUB_DIR))
+    import torch
+    import torch.nn as nn
+    import torchvision
+    from torchvision.models import mobilenet_v3_small
+    from torchvision.transforms import v2
+
+    bundle_path = entry["path"]
+    if _sha256_file(bundle_path) != entry["bundle_sha256"]:
+        raise AttributionError(f"qualified bundle hash mismatch: {model_id}")
+    bundle = torch.load(str(bundle_path), map_location="cpu", weights_only=True)
+    if bundle.get("model_id") != model_id or tuple(bundle.get("classes", ())) != config.CANONICAL_CLASSES:
+        raise AttributionError(f"qualified bundle identity or class order mismatch: {model_id}")
+    model = mobilenet_v3_small(weights=None)
+    model.classifier[-1] = nn.Linear(1024, len(config.CANONICAL_CLASSES))
+    model.load_state_dict(bundle["state_dict"], strict=True)
+    model.eval()
+    for parameter in model.parameters():
+        parameter.requires_grad_(True)
+    preproc = bundle["preprocessing"]
+    interp = getattr(torchvision.transforms.InterpolationMode, str(preproc["interpolation"]).upper())
+    transform = v2.Compose([
+        v2.ToImage(),
+        v2.Resize(tuple(preproc["resize"]), interpolation=interp, antialias=bool(preproc["antialias"])),
+        v2.ToDtype(torch.float32, scale=True),
+        v2.Normalize(mean=list(preproc["normalize_mean"]), std=list(preproc["normalize_std"])),
+    ])
+    return {
+        "torch": torch, "model": model, "transform": transform,
+        "target_layer": model.features[-1], "target_layer_name": "model.features[-1]",
+        "bundle_sha256": entry["bundle_sha256"], "model_id": model_id,
+        "encoder_sha256": bundle["encoder_sha256"], "preprocessing": preproc,
+        "preprocessing_version": model_id, "gradcam_lib": "pytorch-grad-cam",
+        "gradcam_version": _gradcam_version(),
+    }
+
+
+def get_state(model_id: str = RECOVERED_MODEL_ID) -> dict:
     global _STATE
     with _LOCK:
+        if model_id != RECOVERED_MODEL_ID:
+            entry = next((item for item in qualified_model_entries() if item["model_id"] == model_id), None)
+            if entry is None:
+                _CANDIDATE_STATES.pop(model_id, None)
+                raise AttributionError(f"unknown, unavailable, or unqualified model_id: {model_id}")
+            if (_CANDIDATE_STATES.get(model_id) or {}).get("bundle_sha256") != entry["bundle_sha256"]:
+                _CANDIDATE_STATES[model_id] = _build_candidate_state(model_id, entry)
+            return _CANDIDATE_STATES[model_id]
         if _STATE is None:
             _STATE = _build_state()
+            _STATE["model_id"] = RECOVERED_MODEL_ID
+            _STATE["encoder_sha256"] = config.ENCODER_CHECKPOINT_SHA256
         return _STATE
 
 
@@ -198,6 +284,7 @@ def compute_attribution(
     image_id: str,
     target_a: str,
     target_b: str,
+    model_id: str = RECOVERED_MODEL_ID,
 ) -> AttributionResult:
     if target_a not in config.CLASS_TO_IDX or target_b not in config.CLASS_TO_IDX:
         raise AttributionError(f"invalid class(es): {target_a}, {target_b}")
@@ -206,8 +293,8 @@ def compute_attribution(
     if not Path(image_path).exists():
         raise AttributionError(f"image not found: {image_path}")
 
-    st = get_state()
-    cache_key = _cache_key(image_id, target_a, target_b, st["bundle_sha256"])
+    st = get_state(model_id)
+    cache_key = _cache_key(image_id, target_a, target_b, st["bundle_sha256"], st["model_id"])
     cache_png = config.ATTRIB_CACHE_DIR / f"{cache_key}.png"
     cache_meta = config.ATTRIB_CACHE_DIR / f"{cache_key}.json"
     cache_npy = config.ATTRIB_CACHE_DIR / f"{cache_key}.npy"
@@ -248,10 +335,12 @@ def compute_attribution(
 
     meta = {
         "image_id": image_id,
-        "recovered_model_id": RECOVERED_MODEL_ID,
+        "recovered_model_id": st["model_id"],
         "recovered_model_sha256": st["bundle_sha256"],
-        "source_prediction_model": "baseline-frozen-g4",
-        "source_prediction_bundle_sha256": config.EXPECTED_BUNDLE_SHA256,
+        "model_id": st["model_id"],
+        "model_bundle_sha256": st["bundle_sha256"],
+        "source_prediction_model": ("baseline-frozen-g4" if st["model_id"] == RECOVERED_MODEL_ID else st["model_id"]),
+        "source_prediction_bundle_sha256": (config.EXPECTED_BUNDLE_SHA256 if st["model_id"] == RECOVERED_MODEL_ID else st["bundle_sha256"]),
         "recovery_record_id": RECOVERY_RECORD_ID,
         "target_class_a": target_a,
         "comparator_b": target_b,
@@ -268,7 +357,9 @@ def compute_attribution(
         "model_scores_for_reference": {config.IDX_TO_CLASS[i]: float(probs[i]) for i in range(3)},
         "cache_key": cache_key,
         "created_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-        "note": "Attribution over a behaviorally-reconstructed classifier; prediction behavior verified against the original stored model outputs. Not tissue segmentation or diagnostic annotation.",
+        "note": ("Attribution over a behaviorally-reconstructed classifier; prediction behavior verified against the original stored model outputs. Not tissue segmentation or diagnostic annotation."
+                 if st["model_id"] == RECOVERED_MODEL_ID else
+                 "Attribution over a group-held-out evaluated, locally qualified research candidate. Not tissue segmentation or diagnostic annotation."),
     }
 
     # deterministic cache write
@@ -290,8 +381,8 @@ class _ClosureTarget:
         return self._fn(model_output)
 
 
-def _cache_key(image_id: str, a: str, b: str, bundle_sha: str) -> str:
-    raw = f"{image_id}|{a}|{b}|{RECOVERED_MODEL_ID}|{bundle_sha}|r1c2-v1"
+def _cache_key(image_id: str, a: str, b: str, bundle_sha: str, model_id: str = RECOVERED_MODEL_ID) -> str:
+    raw = f"{image_id}|{a}|{b}|{model_id}|{bundle_sha}|r1c2-v1"
     return hashlib.sha256(raw.encode()).hexdigest()[:24]
 
 

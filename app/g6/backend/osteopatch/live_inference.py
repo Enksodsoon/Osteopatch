@@ -62,7 +62,7 @@ from . import config
 from .db import utc_now
 from .pathology import reader
 
-SCORE_LABEL = "Model score — uncalibrated (recovered research head)"
+SCORE_LABEL = "Model score — uncalibrated research output"
 
 #: Tile colours for the class mosaic. Chosen to match the reviewer's existing
 #: class accents; a tile that failed to decode is grey, never tinted.
@@ -209,6 +209,9 @@ def _predict_array(state: dict, pil_image) -> LivePrediction:
         confidence=confidence,
         caveat=caveat,
         support_flags=flags,
+        score_label=("Model score — uncalibrated (recovered research head)"
+                     if state["model_id"] == "g4-behavioral-recovery-r1"
+                     else "Model score — uncalibrated (qualified research candidate)"),
     )
 
 
@@ -234,15 +237,17 @@ def runtime_available() -> dict:
         }
     from . import attribution
 
-    if not attribution.RECOVERED_BUNDLE.exists():
+    models = attribution.available_models()
+    if not models:
         return {
             "available": False,
-            "reason": f"recovered head bundle missing: {attribution.RECOVERED_BUNDLE}",
-            "hint": "run scripts/prepare_runtime.py",
+            "reason": "No local qualified model bundle is available.",
+            "hint": "run scripts/prepare_runtime.py or install a qualified research bundle",
         }
     return {
         "available": True,
-        "model_id": attribution.RECOVERED_MODEL_ID,
+        "model_id": "g4-behavioral-recovery-r1" if any(m["model_id"] == "g4-behavioral-recovery-r1" for m in models) else models[0]["model_id"],
+        "models": models,
         "bundle_path_relative": "runtime-artifacts/models/g4-behavioral-recovery-r1.pt",
         "note": (
             "Live runs use the RECOVERED head, which is a different model from "
@@ -276,11 +281,12 @@ def create_run(
     props: dict | None,
     requested_by: str,
     latency_ms: float,
+    model_id: str = "g4-behavioral-recovery-r1",
 ) -> str:
     """Insert the run row and return its id. Scores are written separately."""
     from . import attribution
 
-    state = attribution.get_state()
+    state = attribution.get_state(model_id)
     run_id = f"live-{uuid.uuid4().hex[:16]}"
     run_dir(run_id)
     (run_dir(run_id) / "source.bin").write_bytes(source_bytes)
@@ -299,8 +305,8 @@ def create_run(
             (props or {}).get("level_count"), (props or {}).get("mpp_x"),
             (props or {}).get("mpp_y"), (props or {}).get("objective_power"),
             (props or {}).get("vendor"),
-            attribution.RECOVERED_MODEL_ID, state["bundle_sha256"],
-            config.ENCODER_CHECKPOINT_SHA256, requested_by, utc_now(),
+            state["model_id"], state["bundle_sha256"],
+            state["encoder_sha256"], requested_by, utc_now(),
             latency_ms, 0, 0, 0, "[]", None,
         ),
     )
@@ -458,6 +464,7 @@ def predict_patch_bytes(
     filename: str,
     data: bytes,
     requested_by: str,
+    model_id: str = "g4-behavioral-recovery-r1",
 ) -> dict:
     """Single-patch import: one forward pass, one row."""
     from PIL import Image
@@ -472,7 +479,7 @@ def predict_patch_bytes(
         raise UnsupportedInput(f"could not decode {filename!r} as an image: {exc}") from exc
 
     t0 = time.time()
-    state = attribution.get_state()
+    state = attribution.get_state(model_id)
     prediction = _predict_array(state, pil)
 
     run_id = create_run(
@@ -486,6 +493,7 @@ def predict_patch_bytes(
                "mpp_x": None, "mpp_y": None, "objective_power": None, "vendor": None},
         requested_by=requested_by,
         latency_ms=0.0,
+        model_id=model_id,
     )
     run_dir(run_id).joinpath("tile-0000.png").write_bytes(_png(pil))
     save_tiles(conn, run_id, [{
@@ -523,6 +531,7 @@ def analyze_slide_bytes(
     tile_px: int | None = None,
     stride: int | None = None,
     max_tiles: int | None = None,
+    model_id: str = "g4-behavioral-recovery-r1",
 ) -> dict:
     """Import a slide, tile it deterministically, score every tile.
 
@@ -542,7 +551,7 @@ def analyze_slide_bytes(
     from . import attribution
 
     t0 = time.time()
-    state = attribution.get_state()
+    state = attribution.get_state(model_id)
     scratch = Path(tempfile.mkdtemp(prefix="osteopatch-import-"))
     stored = scratch / f"import{suffix}"
     stored.write_bytes(data)
@@ -563,6 +572,7 @@ def analyze_slide_bytes(
             conn, project_id=project_id, source_kind="slide", source_name=filename,
             source_bytes=data, engine=slide.engine, props=props,
             requested_by=requested_by, latency_ms=0.0,
+            model_id=model_id,
         )
         out_dir = run_dir(run_id)
 
@@ -667,7 +677,11 @@ def public_run(conn: sqlite3.Connection, run_id: str) -> dict:
     row["truncated"] = bool(row["truncated"])
     row["is_live_inference"] = True
     row["is_corpus_prediction"] = False
-    row["score_label"] = SCORE_LABEL
+    row["score_label"] = (
+        "Model score — uncalibrated (recovered research head)"
+        if row["model_id"] == "g4-behavioral-recovery-r1"
+        else "Model score — uncalibrated (qualified research candidate)"
+    )
     return row
 
 

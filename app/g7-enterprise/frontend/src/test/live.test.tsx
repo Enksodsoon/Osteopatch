@@ -69,6 +69,19 @@ function tile(over: Partial<LiveTile> = {}): LiveTile {
 }
 
 describe("ImportPanel — capability honesty", () => {
+  it("lets an authorized user select a locally qualified model", () => {
+    const onModelChange = vi.fn();
+    render(<ImportPanel role="reviewer" capability={{
+      ...CAPABILITY,
+      models: [
+        { model_id: "g4-behavioral-recovery-r1", label: "Recovered research head" },
+        { model_id: "osteopatch-tuned-run1", label: "osteopatch-tuned-run1" },
+      ],
+    }} modelId="g4-behavioral-recovery-r1" onModelChange={onModelChange} busy={false} onImport={() => {}} />);
+    fireEvent.change(screen.getByLabelText(/model for this run/i), { target: { value: "osteopatch-tuned-run1" } });
+    expect(onModelChange).toHaveBeenCalledWith("osteopatch-tuned-run1");
+  });
+
   it("offers the import control to a writer role", () => {
     render(<ImportPanel role="reviewer" capability={CAPABILITY} busy={false} onImport={() => {}} />);
     expect(screen.getByRole("button", { name: /import and score$/i })).toBeInTheDocument();

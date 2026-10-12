@@ -19,11 +19,15 @@ import {
 export function ImportPanel({
   role,
   capability,
+  modelId,
+  onModelChange,
   busy,
   onImport,
 }: {
   role?: Role;
   capability: LiveCapability | null;
+  modelId?: string;
+  onModelChange?: (modelId: string) => void;
   busy: boolean;
   onImport: (file: File, kind: "patch" | "slide") => void;
 }) {
@@ -78,6 +82,16 @@ export function ImportPanel({
 
   return (
     <div className="import">
+      {(capability?.models?.length ?? 0) > 1 && (
+        <label className="model-choice">
+          Model for this run
+          <select value={modelId ?? capability?.model_id ?? ""} disabled={busy} onChange={(event) => onModelChange?.(event.target.value)}>
+            {capability?.models?.map((model) => (
+              <option key={model.model_id} value={model.model_id}>{model.label}</option>
+            ))}
+          </select>
+        </label>
+      )}
       <div className="kind-toggle" role="group" aria-label="What are you importing?">
         <button
           type="button"
