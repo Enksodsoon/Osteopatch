@@ -1,0 +1,38 @@
+<svg width="1200" height="600" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" baseProfile="full" viewBox="0 0 1200 600">
+<rect width="1200" height="600" x="0" y="0" fill="none"></rect>
+<path d="M180 520.5L1080 520.5" fill="none" pointer-events="visible" stroke="#dbdee4" class="zr1-cls-5"></path>
+<path d="M180 429.5L1080 429.5" fill="none" pointer-events="visible" stroke="#dbdee4" class="zr1-cls-5"></path>
+<path d="M180 338.5L1080 338.5" fill="none" pointer-events="visible" stroke="#dbdee4" class="zr1-cls-5"></path>
+<path d="M180 247.5L1080 247.5" fill="none" pointer-events="visible" stroke="#dbdee4" class="zr1-cls-5"></path>
+<path d="M180 156.5L1080 156.5" fill="none" pointer-events="visible" stroke="#dbdee4" class="zr1-cls-5"></path>
+<path d="M180 65.5L1080 65.5" fill="none" pointer-events="visible" stroke="#dbdee4" class="zr1-cls-5"></path>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:12px;font-family:Microsoft YaHei;" xml:space="preserve" y="-6" transform="translate(180 50)" fill="#54555a">Recall (0–1)</text>
+<text dominant-baseline="central" text-anchor="start" style="font-size:12px;font-family:Microsoft YaHei;" transform="translate(1095 520)" fill="#54555a">Class</text>
+<path d="M180 520.5L1080 520.5" fill="none" pointer-events="visible" stroke="#54555a" stroke-linecap="round" class="zr1-cls-5"></path>
+<text dominant-baseline="central" text-anchor="end" style="font-size:12px;font-family:Microsoft YaHei;" transform="translate(172 520)" fill="#54555a">0</text>
+<text dominant-baseline="central" text-anchor="end" style="font-size:12px;font-family:Microsoft YaHei;" transform="translate(172 429)" fill="#54555a">0.2</text>
+<text dominant-baseline="central" text-anchor="end" style="font-size:12px;font-family:Microsoft YaHei;" transform="translate(172 338)" fill="#54555a">0.4</text>
+<text dominant-baseline="central" text-anchor="end" style="font-size:12px;font-family:Microsoft YaHei;" transform="translate(172 247)" fill="#54555a">0.6</text>
+<text dominant-baseline="central" text-anchor="end" style="font-size:12px;font-family:Microsoft YaHei;" transform="translate(172 156)" fill="#54555a">0.8</text>
+<text dominant-baseline="central" text-anchor="end" style="font-size:12px;font-family:Microsoft YaHei;" transform="translate(172 65)" fill="#54555a">1</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:12px;font-family:Microsoft YaHei;" y="6" transform="translate(330 528)" fill="#54555a">NON_TUMOR</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:12px;font-family:Microsoft YaHei;" y="6" transform="translate(630 528)" fill="#54555a">VIABLE_TUMOR</text>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:12px;font-family:Microsoft YaHei;" y="6" transform="translate(930 528)" fill="#54555a">NECROSIS</text>
+<path d="M226.5 520l207 0l0 -410.8l-207 0Z" fill="#5070dd" ecmeta_series_index="0" ecmeta_data_index="0" ecmeta_ssr_type="chart" class="zr1-cls-6"></path>
+<path d="M526.5 520l207 0l0 -50.2l-207 0Z" fill="#5070dd" ecmeta_series_index="0" ecmeta_data_index="1" ecmeta_ssr_type="chart" class="zr1-cls-6"></path>
+<path d="M826.5 520l207 0l0 -394.1l-207 0Z" fill="#5070dd" ecmeta_series_index="0" ecmeta_data_index="2" ecmeta_ssr_type="chart" class="zr1-cls-6"></path>
+<path d="M-179.7 -5l359.4 0l0 28l-359.4 0Z" transform="translate(600 20)" fill="rgb(0,0,0)" fill-opacity="0" stroke="#3c3c41" stroke-width="0" class="zr1-cls-5"></path>
+<text dominant-baseline="central" text-anchor="middle" style="font-size:18px;font-family:Microsoft YaHei;font-weight:bold;" xml:space="preserve" y="9" transform="translate(600 20)" fill="#3c3c41">Frozen G4 pooled out-of-fold recall by class</text>
+<style ><![CDATA[
+.zr1-cls-5:hover {
+pointer-events:none;
+}
+.zr1-cls-6:hover {
+cursor:pointer;
+fill:rgba(88,123,243,1);
+}
+
+]]>
+
+</style>
+</svg>

@@ -1,0 +1,13 @@
+---
+title: "OsteoPatch local runtime connections · source-grounded · 2026-10-11"
+---
+%%{init: {'theme':'base','themeVariables': {'background':'#f7f5ef','primaryColor':'#e8eee9','primaryTextColor':'#34362f','primaryBorderColor':'#9ebbb0','lineColor':'#89877e','secondaryColor':'#eeeae0','tertiaryColor':'#f7e8dc','fontFamily':'Segoe UI'}}}%%
+flowchart LR
+  ui["Browser review interface<br/>local machine"] -->|local request + sign-in proof + selected project| app["Review API<br/>runs locally"]
+  app --> auth["Check sign-in, action permission, and membership"]
+  app --> proxy["Project access check<br/>local function call"]
+  proxy --> backend["Image review backend<br/>same running program"]
+  backend --> sql[("Image review database<br/>saved results + review history")]
+  app --> meta[("Account and project database<br/>sign-in / projects / audit")]
+  live["Optional patch or slide import"] -. "local files" .-> recovered["Separate imported-image results"]
+  src["Sources: sign-in, project access, image review, and database implementation"] -.-> proxy

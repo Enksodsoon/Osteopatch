@@ -1,0 +1,18 @@
+---
+title: "Dataset, model and reviewer provenance · 2026-10-11"
+---
+%%{init: {'theme':'base','themeVariables': {'background':'#f7f5ef','primaryColor':'#e8eee9','primaryTextColor':'#34362f','primaryBorderColor':'#9ebbb0','lineColor':'#89877e','secondaryColor':'#eeeae0','tertiaryColor':'#f7e8dc','fontFamily':'Segoe UI'}}}%%
+flowchart LR
+  rows["Evaluation images<br/>1,028 image patches<br/>3 categories · 4 groups"] --> split["Keep one group out of training at a time<br/>score only its images"]
+  split --> train["Reference model design<br/>original model file unavailable"]
+  split --> candidate["Tuning candidate<br/>NO BENEFIT · no final model file"]
+  train --> metrics["Stored evaluation records<br/>metrics + confusion matrix"]
+  candidate --> metrics
+  metrics --> corpus["Saved image results<br/>evaluated with reference model"]
+  corpus --> ui["Image review interface"]
+  ui --> review["Reviewer decision recorded<br/>as a separate event with its author and time"]
+  review --> export["Export retains model and reviewer fields separately"]
+  note["Scores are not chance estimates. Patches from one biological sample may be related. It is unverified whether patients are kept in one group. One group contains only one category."] -.-> metrics
+  src["Sources: stored evaluation and model configuration records; review event implementation"] -.-> metrics
+  classDef warning fill:#f7e8dc,stroke:#d9a887,color:#543b2e
+  class note,candidate warning

@@ -1,0 +1,13 @@
+[
+  {"type":"cameraUpdate","x":0,"y":0,"width":1200,"height":900},
+  {"type":"rectangle","id":"ui","x":80,"y":180,"width":230,"height":100,"roundness":{"type":3},"backgroundColor":"#dbe4ff","fillStyle":"solid","label":{"text":"React reviewer UI\nVite / local dev","fontSize":20}},
+  {"type":"rectangle","id":"api","x":440,"y":180,"width":250,"height":100,"roundness":{"type":3},"backgroundColor":"#ffd8a8","fillStyle":"solid","label":{"text":"FastAPI\n/v1 review API","fontSize":20}},
+  {"type":"rectangle","id":"store","x":840,"y":80,"width":250,"height":100,"roundness":{"type":3},"backgroundColor":"#c3fae8","fillStyle":"solid","label":{"text":"SQLite\nreview events","fontSize":20}},
+  {"type":"rectangle","id":"pred","x":840,"y":220,"width":250,"height":100,"roundness":{"type":3},"backgroundColor":"#c3fae8","fillStyle":"solid","label":{"text":"Stored predictions\nimmutable","fontSize":20}},
+  {"type":"rectangle","id":"meta","x":840,"y":360,"width":250,"height":100,"roundness":{"type":3},"backgroundColor":"#c3fae8","fillStyle":"solid","label":{"text":"Allowlisted source\nand QC metadata","fontSize":20}},
+  {"type":"arrow","id":"ui-api","x":310,"y":230,"width":130,"height":0,"points":[[0,0],[130,0]],"endArrowhead":"arrow","label":{"text":"local /v1 calls"}},
+  {"type":"arrow","id":"api-store","x":690,"y":195,"width":150,"height":-65,"points":[[0,0],[150,-65]],"endArrowhead":"arrow"},
+  {"type":"arrow","id":"api-pred","x":690,"y":230,"width":150,"height":40,"points":[[0,0],[150,40]],"endArrowhead":"arrow"},
+  {"type":"arrow","id":"api-meta","x":690,"y":260,"width":150,"height":150,"points":[[0,0],[150,150]],"endArrowhead":"arrow"},
+  {"type":"text","id":"caveat","x":80,"y":520,"text":"Review events are separate from predictions; human correction does not retrain the model.","fontSize":22}
+]

@@ -1,0 +1,16 @@
+---
+title: "Saved predictions and reviewer decisions · 2026-10-11"
+---
+%%{init: {'theme':'base','themeVariables': {'background':'#f7f5ef','primaryColor':'#e8eee9','primaryTextColor':'#34362f','primaryBorderColor':'#9ebbb0','lineColor':'#89877e','secondaryColor':'#eeeae0','tertiaryColor':'#f7e8dc','fontFamily':'Segoe UI'}}}%%
+flowchart LR
+  source["Image and source quality record"] --> pred["Saved prediction<br/>model identity and scores retained"]
+  pred -->|linked by saved-result ID| event["New reviewer decision<br/>author and time recorded"]
+  event --> revision["Ordered decision history<br/>retries do not duplicate actions"]
+  pred --> export["Review export"]
+  revision --> export
+  export --> paired["Preserves model result and human action separately"]
+  live["Optional imported-image score"] --> liveTables[("Separate imported-image results")]
+  liveTables -. "does not alter saved results" .-> pred
+  src["Sources: prediction storage, review history, and project access implementation"] -.-> event
+  classDef optional fill:#f7e8dc,stroke:#d9a887,color:#543b2e
+  class live,liveTables optional

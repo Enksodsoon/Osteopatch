@@ -1,0 +1,78 @@
+@startuml
+title OsteoPatch deployment view — current, static, and historical boundaries
+left to right direction
+skinparam shadowing false
+skinparam componentStyle rectangle
+skinparam defaultTextAlignment center
+skinparam packageStyle rectangle
+skinparam node {
+  BackgroundColor #F8F2E8
+  BorderColor #33434A
+}
+skinparam artifact {
+  BackgroundColor #E7F0F7
+  BorderColor #426479
+}
+skinparam database {
+  BackgroundColor #E8F2E9
+  BorderColor #477552
+}
+
+actor "Reviewer / research team" as Reviewer
+
+node "Developer workstation · local only" as Workstation {
+  node "G6 review application" as G6 {
+    artifact "React + TypeScript\nbrowser UI" as UI6
+    node "Vite dev server\n127.0.0.1:5173" as Vite6
+    node "FastAPI /v1\n127.0.0.1:8137" as API6
+    artifact "Core Python review package" as Core
+    database "G6 SQLite\nsource/QC · predictions · reviews" as DB6
+    artifact "Allowlisted images and local artifacts" as Files
+    UI6 --> Vite6 : serves UI
+    Vite6 --> API6 : proxies /v1
+    API6 --> Core : calls in-process
+    Core --> DB6 : reads / writes
+    Core --> Files : reads verified paths
+  }
+  node "G7 enterprise prototype" as G7 {
+    artifact "React + TypeScript\nbrowser UI" as UI7
+    node "Vite dev server\n127.0.0.1:5174" as Vite7
+    node "FastAPI\n127.0.0.1:8140" as API7
+    database "Enterprise SQLite\nusers · projects · memberships" as DB7
+    artifact "Separate JSONL audit chain" as Audit
+    UI7 --> Vite7 : serves UI
+    Vite7 --> API7 : proxies /v1 · /api · /auth
+    API7 --> DB7 : identity and project scope
+    API7 --> Audit : successful review actions
+    API7 --> Core : in-process G6 package import
+  }
+}
+
+node "Static documentation deployment" as Docs {
+  artifact "Allowlisted site source" as Site
+  cloud "GitHub Pages" as Pages
+  Site --> Pages : static publication
+}
+
+node "Historical AWS workshop deployment\nseparate from current local runtime" as AWS {
+  cloud "CloudFront" as CF
+  database "Private S3 web origin" as S3
+  node "API Gateway" as APIG
+  node "Lambda container" as Lambda
+  database "DynamoDB" as DDB
+  CF --> S3
+  APIG --> Lambda
+  Lambda --> DDB
+}
+
+Reviewer --> UI6 : reviews patches
+Reviewer --> UI7 : enterprise prototype
+note bottom of Docs
+  The static site serves documents only.
+  It does not run FastAPI or read review data.
+end note
+note bottom of AWS
+  This is historical deployment context.
+  It is not the local app deployment.
+end note
+@enduml

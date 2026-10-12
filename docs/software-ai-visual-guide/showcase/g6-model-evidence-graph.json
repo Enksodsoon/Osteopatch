@@ -1,0 +1,17 @@
+{
+  "nodes": [
+    { "id": "source", "style": { "labelText": "1,144 source patches" } },
+    { "id": "eligible", "style": { "labelText": "1,028 eligible G4 OOF patches" } },
+    { "id": "folds", "style": { "labelText": "4 case/slide groups" } },
+    { "id": "metrics", "style": { "labelText": "Frozen pooled metrics" } },
+    { "id": "limitation", "style": { "labelText": "Patient independence unverified" } },
+    { "id": "use", "style": { "labelText": "Research/education only" } }
+  ],
+  "edges": [
+    { "source": "source", "target": "eligible", "style": { "labelText": "eligible subset" } },
+    { "source": "eligible", "target": "folds", "style": { "labelText": "grouped evaluation" } },
+    { "source": "folds", "target": "metrics", "style": { "labelText": "one held-out score per patch" } },
+    { "source": "metrics", "target": "limitation", "style": { "labelText": "read with" } },
+    { "source": "limitation", "target": "use", "style": { "labelText": "bounds claims" } }
+  ]
+}

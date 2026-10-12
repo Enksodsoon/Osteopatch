@@ -1,0 +1,28 @@
+@startuml
+title OsteoPatch local patch review flow
+actor Reviewer
+participant "React / TypeScript UI" as UI
+participant "FastAPI /v1" as API
+database "Local records" as Store
+collections "Verified images" as Images
+
+Reviewer -> UI: Select an image
+UI -> API: GET /v1/images/{image_id}
+API -> Store: Check image allowlist and source/QC metadata
+Store --> API: Image identity and quality fields
+API --> UI: Image detail response
+UI -> API: GET /v1/predictions/{prediction_id}
+API -> Store: Read immutable prediction and model identity
+Store --> API: Stored class scores and provenance
+API --> UI: Prediction response
+UI -> API: POST /v1/images/{image_id}/reviews
+API -> Store: Append revision-aware review event
+Store --> API: New review revision
+API --> UI: Updated review state
+UI -> Images: Request verified thumbnail or full image
+Images --> UI: Allowlisted image bytes
+note over UI,Store
+Review changes are recorded separately from predictions.
+They do not retrain the model.
+end note
+@enduml

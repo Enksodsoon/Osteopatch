@@ -1,0 +1,19 @@
+---
+title: "Review API access checks · implemented · 2026-10-11"
+---
+%%{init: {'theme':'base','themeVariables': {'background':'#f7f5ef','primaryColor':'#e8eee9','primaryTextColor':'#34362f','primaryBorderColor':'#9ebbb0','lineColor':'#89877e','secondaryColor':'#eeeae0','tertiaryColor':'#f7e8dc','fontFamily':'Segoe UI'}}}%%
+flowchart TD
+  req["Browser request<br/>signed sign-in credential + selected project"] --> access["Verify identity and credential expiry"]
+  access --> permission["Check permission for requested action"]
+  permission --> role{"Current role available?"}
+  role -->|yes| scoped{"Does this role allow the requested action?"}
+  role -->|missing| dbrole["Read current role from account database"]
+  dbrole --> scoped
+  scoped -->|no membership| hidden["Project not found"]
+  scoped -->|wrong role| denied["Action not allowed"]
+  scoped -->|allowed| proxy["Confirm image belongs to selected project"]
+  proxy -->|absent or outside scope| notfound["Image not found or not in this project"]
+  proxy -->|in project| backend["Call image review backend in this process"]
+  title["Implemented local access checks for sign-in and project review"] -.-> access
+  classDef warn fill:#f7e8dc,stroke:#d9a887,color:#543b2e
+  class hidden,denied,notfound warn

@@ -1,0 +1,7 @@
+flowchart LR
+  UI["React reviewer"] --> API["FastAPI /v1"]
+  API --> STORE["SQLite review events"]
+  API --> PRED["Stored predictions"]
+  API --> MEDIA["Allowlisted image service"]
+  REVIEW["Human review"] -. "append-only" .-> STORE
+  STORE -. "separate from" .- PRED

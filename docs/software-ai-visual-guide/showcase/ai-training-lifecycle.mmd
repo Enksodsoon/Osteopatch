@@ -1,0 +1,30 @@
+flowchart TB
+  subgraph DATA["Data and split"]
+    direction LR
+    SOURCE["Curated data<br/>provenance and version"] --> QC["Label and quality<br/>checks"]
+    QC --> SPLIT["Group-aware split<br/>patient / case / slide"]
+  end
+
+  subgraph EVALUATION["Model development and evidence"]
+    direction LR
+    TRAIN["Train within each<br/>training fold"] --> HELD["Score held-out<br/>group"]
+    HELD --> FREEZE["Freeze out-of-fold<br/>predictions"]
+    FREEZE --> METRICS["Metrics, errors, calibration,<br/>and limitations"]
+  end
+
+  SPLIT --> TRAIN
+  METRICS --> GATE{"Pre-set evidence gates met?"}
+  GATE -->|"No"| HOLD["Hold candidate<br/>document limits"]
+  GATE -->|"Yes"| REVIEW["Independent review<br/>and governed release"]
+  REVIEW --> MONITOR["Monitor in intended setting"]
+  HOLD -. "new approved experiment" .-> SOURCE
+  MONITOR -. "new approved experiment" .-> SOURCE
+
+  classDef data fill:#e7f0f7,stroke:#426479,color:#1d2b30
+  classDef eval fill:#f6e9dd,stroke:#9c5c46,color:#2f2521
+  classDef gate fill:#f3edf7,stroke:#66517a,color:#2d2633
+  classDef hold fill:#f9e8e7,stroke:#a94c45,color:#2f2521
+  class SOURCE,QC,SPLIT data
+  class TRAIN,HELD,FREEZE,METRICS eval
+  class GATE,REVIEW,MONITOR gate
+  class HOLD hold

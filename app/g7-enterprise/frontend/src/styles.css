@@ -751,7 +751,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .viewer-toolbar button { background: #282522; color: #f3ece2; border: 1px solid #3b3734; border-radius: 6px; padding: 4px 10px; cursor: pointer; font-size: 16px; }
 .viewer-toolbar button:hover { background: #2c2722; }
 .viewer-scale { color: #a39587; font-size: 12px; margin-left: auto; }
-.viewer-stage { flex: 1; display: flex; align-items: center; justify-content: center; overflow: hidden
+.viewer-stage { flex: 1; display: flex; align-items: center; justify-content: center; overflow: hidden; cursor: grab; background: #171514; }
 .viewer-stage:active { cursor: grabbing; }
 .viewer-stage img { max-width: 100%; max-height: 100%; transform-origin: center; user-select: none; image-rendering: auto; }
 
@@ -800,6 +800,48 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .class-picker { display: flex; gap: 6px; flex-wrap: wrap; }
 .class-opt { background: none; border: 1px solid var(--line); border-radius: 20px; padding: 2px; cursor: pointer; }
 .class-opt.active { outline: 2px solid var(--accent); }
+
+/* ---- Analysis workspace (ported from G6) ------------------------------ */
+.analysis-workspace {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: calc(100vh - 180px);
+  height: auto;
+}
+.analysis-toolbar {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 48px;
+  padding: 0 2px;
+}
+.analysis-toolbar .eyebrow {
+  margin-bottom: 6px;
+}
+.analysis-main {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 420px;
+  gap: 16px;
+  align-items: start;
+}
+.analysis-image-col {
+  min-width: 0;
+}
+.analysis-image-col > .viewer {
+  min-height: min(64vh, 720px);
+}
+.analysis-side-col {
+  min-width: 0;
+  overflow: auto;
+}
+.analysis-note-hint {
+  margin-top: 10px;
+  padding: 8px 12px;
+  border-top: 1px solid var(--line);
+}
+
 .btn-primary {
   background: var(--accent); color: #fff; border: none; border-radius: 6px; padding: 8px 16px;
   cursor: pointer; font-size: 13px; font-weight: 650;
@@ -924,6 +966,9 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .pr-left { order: 3; }
   .pr-queue { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .viewer { min-height: 58vh; }
+  .analysis-main { grid-template-columns: 1fr; }
+  .analysis-image-col { order: 2; }
+  .analysis-side-col { order: 1; }
 }
 @media (max-width: 720px) {
   .app-header { position: static; padding: 10px 12px; }
@@ -950,6 +995,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .patch-toolbar-class { align-self: stretch; justify-content: space-between; }
   .pr-queue { grid-template-columns: 1fr; }
   .viewer { min-height: 52vh; }
+  .analysis-toolbar { flex-direction: column; align-items: flex-start; }
+  .analysis-note-hint { display: none; }
 }
 @media (max-width: 440px) {
   .gallery { grid-template-columns: 1fr; }

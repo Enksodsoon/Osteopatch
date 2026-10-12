@@ -1,0 +1,15 @@
+{
+  "type": "bar",
+  "title": "Frozen G4 pooled out-of-fold recall by class",
+  "data": [
+    { "category": "NON_TUMOR", "value": 0.902893 },
+    { "category": "VIABLE_TUMOR", "value": 0.110345 },
+    { "category": "NECROSIS", "value": 0.866142 }
+  ],
+  "xField": "value",
+  "yField": "category",
+  "axisYTitle": "Recall (0–1)",
+  "width": 900,
+  "height": 440,
+  "theme": "light"
+}

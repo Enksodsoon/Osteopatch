@@ -1,0 +1,15 @@
+---
+title: "Local image import and optional scoring · 2026-10-11"
+---
+%%{init: {'theme':'base','themeVariables': {'background':'#f7f5ef','primaryColor':'#e8eee9','primaryTextColor':'#34362f','primaryBorderColor':'#9ebbb0','lineColor':'#89877e','secondaryColor':'#eeeae0','tertiaryColor':'#f7e8dc','fontFamily':'Segoe UI'}}}%%
+flowchart LR
+  upload["User-selected image or slide"] --> limit["Check file type and size<br/>local import"]
+  limit --> reader["Image reader<br/>384-pixel image tiles"]
+  reader --> verified["Check the model file fingerprint<br/>before loading weights"]
+  verified --> net["MobileNetV3-Small +<br/>separate recovered scoring component"]
+  net --> output["Raw category scores<br/>and image-input checks"]
+  output --> tables[("Separate imported-image results")]
+  old["Existing 1,144 saved image results"] --> readonly[("Saved prediction records")]
+  tables -. "kept separate" .-> readonly
+  title["Optional local path; this recovered component is not the model used for saved image results"] -.-> verified
+  src["Sources: local import, image review, and recovered-model inference implementation"] -.-> verified

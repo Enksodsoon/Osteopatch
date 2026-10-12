@@ -1,0 +1,48 @@
+{
+  "title": "Reference model and tuning candidate recall",
+  "date": "2026-10-11",
+  "classOrder": [
+    "NON_TUMOR",
+    "VIABLE_TUMOR",
+    "NECROSIS"
+  ],
+  "models": {
+    "baseline": {
+      "recall": [
+        0.902893,
+        0.110345,
+        0.866142
+      ],
+      "support": [
+        484,
+        290,
+        254
+      ],
+      "macroF1": 0.562311,
+      "balancedAccuracy": 0.62646,
+      "status": "Exploratory reference model; original model file unavailable"
+    },
+    "candidate": {
+      "recall": [
+        0.876033,
+        0.044828,
+        0.88189
+      ],
+      "support": [
+        484,
+        290,
+        254
+      ],
+      "macroF1": 0.522917,
+      "balancedAccuracy": 0.600917,
+      "status": "NO BENEFIT"
+    }
+  },
+  "aggregation": "Each image was evaluated by a model that did not train on its group; results combined across four groups",
+  "calibration": "Scores are not calibrated chance estimates and should not be interpreted as disease probabilities",
+  "limitations": "It is unverified whether training and evaluation images came from separate patients; patches from one biological sample may be related. One evaluation group contains only one class.",
+  "sources": [
+    "stored baseline evaluation and configuration records",
+    "stored tuning-candidate evaluation and configuration records"
+  ]
+}

@@ -1,0 +1,17 @@
+---
+title: "OsteoPatch software components · implemented and optional paths · 2026-10-11"
+---
+%%{init: {'theme':'base','themeVariables': {'background':'#f7f5ef','primaryColor':'#e8eee9','primaryTextColor':'#34362f','primaryBorderColor':'#9ebbb0','lineColor':'#89877e','secondaryColor':'#eeeae0','tertiaryColor':'#f7e8dc','fontFamily':'Segoe UI'}}}%%
+flowchart LR
+  browser["Browser review interface<br/>implemented"] -->|local request + sign-in proof + selected project| api["Review API process<br/>implemented · local"]
+  api --> auth["Check sign-in, permission, and project membership<br/>implemented"]
+  api --> proxy["Project access check<br/>implemented · local call"]
+  proxy -->|request limited to selected project| backend["Image review backend<br/>same running program"]
+  api --> accountdb[("Sign-in and project database<br/>users · projects · activity history")]
+  backend --> imagedb[("Image review database<br/>source records · saved predictions<br/>separate reviewer decisions")]
+  api -. "optional · user selects image" .-> live["Scoring for imported images<br/>local use · separate results"]
+  live -. "optional · when requested" .-> model["Recovered model scoring part<br/>distinct from saved-result model"]
+  backend -. "optional · when requested" .-> cam["Image overlay showing class-score difference<br/>not tissue outlines"]
+  src["Sources: review API and image review backend implementation"] -.-> api
+  classDef note fill:#f7e8dc,stroke:#d9a887,color:#543b2e
+  class src note

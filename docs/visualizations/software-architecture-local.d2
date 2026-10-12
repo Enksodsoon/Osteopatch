@@ -1,0 +1,39 @@
+direction: down
+classes: {
+  component: {style.fill: "#e8eee9"; style.stroke: "#9ebbb0"; style.border-radius: 8}
+  store: {style.fill: "#eeeae0"; style.stroke: "#c9c1ae"; style.border-radius: 8}
+  optional: {style.fill: "#f7e8dc"; style.stroke: "#d9a887"; style.border-radius: 8; style.stroke-dash: 4}
+}
+
+title: "OsteoPatch local review runtime | 2026-10-11" {
+  shape: text
+  style.font-size: 24
+  style.font-color: "#34362f"
+}
+
+review-ui: "Browser review interface\nimplemented" {class: component}
+review-api: "Review API\nlocal process" {class: component}
+review: "Project access check\nlocal calls" {class: component}
+image-backend: "Image review backend\nsame running program" {class: component}
+account-db: "Account and project database\nsign-in · projects · activity history" {class: store}
+image-db: "Image review database\nsaved predictions\nseparate reviewer decisions" {class: store}
+uploads: "Configured local runtime files\npatches / slides" {class: store}
+live: "Optional image scoring\nrecovered scoring component" {class: optional}
+live_rows: "Separate imported-image\nresults" {class: store}
+attrib: "Optional class-comparison heat map\ncreated when requested" {class: optional}
+
+review-ui -> review-api
+review-api -> account-db
+review-api -> review
+review -> image-backend
+image-backend -> image-db
+review-api -> live
+uploads -> live
+live -> live_rows
+image-backend -> attrib
+
+legend: "Solid lines show current paths · Dashed lines show optional paths\nCloud design is in a separate diagram and was not checked live\nSources: sign-in, project access, image review, and local scoring implementation" {
+  shape: text
+  style.font-size: 12
+  style.font-color: "#706f66"
+}

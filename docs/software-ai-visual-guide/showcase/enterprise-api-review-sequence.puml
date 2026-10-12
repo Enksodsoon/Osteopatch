@@ -1,0 +1,41 @@
+@startuml
+title G7 enterprise patch review — dynamic sequence
+autonumber
+actor Reviewer
+participant "React / TypeScript UI" as UI
+participant "Vite dev proxy" as Vite
+participant "Enterprise FastAPI" as API
+database "Enterprise SQLite" as EntDB
+participant "Review proxy + G6 core package" as Core
+database "G6 SQLite review store" as G6DB
+collections "JSONL audit chain" as Audit
+
+Reviewer -> UI: Select a project and patch
+UI -> Vite: GET /v1/images/{image_id}
+Vite -> API: Forward request to 127.0.0.1:8140
+API -> EntDB: Verify bearer identity and project capability
+EntDB --> API: Membership and allowed role
+API -> Core: Delegate project-scoped image read (in-process)
+Core -> G6DB: Read allowlisted source/QC fields
+G6DB --> Core: Image detail and QC fields
+Core --> API: Project-scoped result
+API --> Vite: Image detail response
+Vite --> UI: Image detail response
+
+UI -> Vite: POST /v1/images/{image_id}/reviews
+Vite -> API: Forward review body and project header
+API -> EntDB: Check review:write capability and project membership
+EntDB --> API: Authorized reviewer
+API -> Core: Submit review with expected revision and idempotency key
+Core -> G6DB: Append revision-aware review event
+G6DB --> Core: New review revision
+Core --> API: Updated review state
+API -> Audit: Append successful review action
+API --> Vite: Updated review response
+Vite --> UI: Updated review response
+
+note over UI,G6DB
+  Review state is stored separately from the immutable prediction.
+  A review event does not launch training.
+end note
+@enduml

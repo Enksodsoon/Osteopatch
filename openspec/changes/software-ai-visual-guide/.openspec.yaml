@@ -1,0 +1,5 @@
+schema: spec-driven
+created: 2026-10-11
+goal: Explain OsteoPatch architecture, API, development concepts, AI workflow,
+  model evidence, and available visualization tools with source-backed diagrams.
+skip_specs: true

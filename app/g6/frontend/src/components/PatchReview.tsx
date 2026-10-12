@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { getImage, listImages } from "../api";
 import type { ImageDetail, ImageSummary, Meta } from "../types";
 import { t } from "../strings";

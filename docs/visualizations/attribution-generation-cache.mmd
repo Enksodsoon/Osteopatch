@@ -1,0 +1,15 @@
+---
+title: "Image overlay comparing two categories · implemented · 2026-10-11"
+---
+%%{init: {'theme':'base','themeVariables': {'background':'#f7f5ef','primaryColor':'#e8eee9','primaryTextColor':'#34362f','primaryBorderColor':'#9ebbb0','lineColor':'#89877e','secondaryColor':'#eeeae0','tertiaryColor':'#f7e8dc','fontFamily':'Segoe UI'}}}%%
+flowchart LR
+  pred["Existing saved image result"] --> route["Create class-comparison heat map<br/>when requested"]
+  image["Approved source image"] --> route
+  route --> recovered["Separate recovered scoring component"]
+  recovered --> target["Compare two class scores"]
+  target --> artifacts["Image overlay + heat map + details<br/>not a tissue outline or mask"]
+  artifacts --> cache[("Reuse by image, chosen category pair,<br/>model fingerprint, and software version")]
+  cache --> route
+  route -. "does not change" .-> pred
+  note["Keeps the saved result separate from the recovered model used to make the heat map"] -.-> artifacts
+  src["Implemented image review and attribution source"] -.-> route

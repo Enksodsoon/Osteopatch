@@ -1,0 +1,25 @@
+flowchart LR
+  REVIEWER["Reviewer / research team"]
+  subgraph G6["C4 container view · G6 local review application"]
+    UI["Browser UI<br/>React 18 + TypeScript"]
+    VITE["Vite development server<br/>127.0.0.1:5173 · proxy /v1"]
+    API["Core API<br/>FastAPI · 127.0.0.1:8137"]
+    CORE["Core review package<br/>Python domain logic"]
+    DB[("G6 SQLite store<br/>source/QC · predictions · reviews")]
+    FILES["Local allowlisted files<br/>images · thumbnails · optional artifacts"]
+    UI -->|"API calls in local development"| VITE
+    VITE -->|"HTTP /v1"| API
+    API -->|"invokes"| CORE
+    CORE -->|"reads and writes"| DB
+    CORE -->|"reads verified paths"| FILES
+  end
+  REVIEWER -->|"uses"| UI
+
+  classDef person fill:#f8f2e8,stroke:#33434a,color:#1d2b30,stroke-width:1.5px
+  classDef ui fill:#e7f0f7,stroke:#426479,color:#1d2b30
+  classDef service fill:#f6e9dd,stroke:#9c5c46,color:#2f2521
+  classDef store fill:#e8f2e9,stroke:#477552,color:#1f3021
+  class REVIEWER person
+  class UI,VITE ui
+  class API,CORE service
+  class DB,FILES store

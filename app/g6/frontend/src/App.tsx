@@ -5,7 +5,6 @@ import { t } from "./strings";
 import { Disclaimer } from "./components/Shared";
 import { Workbench } from "./components/Workbench";
 import { PatchReview } from "./components/PatchReview";
-import { AnalysisWithImage } from "./components/AnalysisWithImage";
 import { Library } from "./components/Library";
 import { Attribution, ModelCard } from "./components/ModelCard";
 type View =
@@ -103,6 +102,18 @@ export default function App() {
           >
             {t("nav.library")}
           </button>
+          <button
+            className={view.name === "analysis" ? "active" : ""}
+            onClick={() => {
+              if (view.name === "patch") {
+                setView({ name: "analysis", imageId: view.imageId });
+              }
+            }}
+            disabled={view.name !== "patch"}
+            title={t("analysis.title")}
+          >
+            {t("analysis.title")}
+          </button>
         </nav>
 
         <div className="app-header-actions">
@@ -166,13 +177,14 @@ export default function App() {
             meta={meta}
             onBack={() => setView({ name: "workbench" })}
             onNavigate={(imageId) => setView({ name: "patch", imageId })}
+            onOpenAnalysis={(imageId) => setView({ name: "analysis", imageId })}
           />
         )}
         {meta && view.name === "analysis" && (
           <AnalysisWithImage
             imageId={view.imageId}
             meta={meta}
-            onBack={() => setView({ name: "workbench" })}
+            onBack={() => setView({ name: "patch" })}
             onOpenAnalysis={() => setView({ name: "analysis", imageId: view.imageId })}
           />
         )}

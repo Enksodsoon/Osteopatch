@@ -1,0 +1,27 @@
+flowchart LR
+  REVIEWER["Reviewer / research team"]
+  subgraph G7["C4 container view · G7 enterprise prototype"]
+    UI["Browser UI<br/>React 18 + TypeScript"]
+    VITE["Vite development server<br/>127.0.0.1:5174 · proxy /v1, /api, /auth"]
+    API["Enterprise API<br/>FastAPI · 127.0.0.1:8140<br/>identity · project auth · review routes"]
+    IDDB[("Enterprise SQLite<br/>users · projects · memberships")]
+    AUDIT["Separate JSONL audit chain"]
+    UI -->|"API calls in local development"| VITE
+    VITE -->|"HTTP"| API
+    API -->|"checks identity and project membership"| IDDB
+    API -->|"appends successful review actions"| AUDIT
+  end
+  CORE["G6 core review package<br/>in-process Python module"]
+  REVIEWDB[("G6 SQLite review store")]
+  REVIEWER -->|"uses"| UI
+  API -->|"delegates in-process"| CORE
+  CORE -->|"reads and writes"| REVIEWDB
+
+  classDef person fill:#f8f2e8,stroke:#33434a,color:#1d2b30,stroke-width:1.5px
+  classDef ui fill:#e7f0f7,stroke:#426479,color:#1d2b30
+  classDef service fill:#f6e9dd,stroke:#9c5c46,color:#2f2521
+  classDef store fill:#e8f2e9,stroke:#477552,color:#1f3021
+  class REVIEWER person
+  class UI,VITE ui
+  class API,CORE service
+  class IDDB,AUDIT,REVIEWDB store

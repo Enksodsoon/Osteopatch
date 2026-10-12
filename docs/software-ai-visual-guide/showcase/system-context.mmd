@@ -1,0 +1,13 @@
+flowchart LR
+  REVIEWER["Reviewer / research team"]
+  APP["OsteoPatch local reviewer<br/>Education and research prototype<br/>G6 core and G7 enterprise prototype"]
+  DOCS["Static documentation site<br/>selected project and learning pages"]
+  REVIEWER -->|"uses through local browser"| APP
+  REVIEWER -->|"reads"| DOCS
+
+  classDef person fill:#f8f2e8,stroke:#33434a,color:#1d2b30,stroke-width:1.5px
+  classDef app fill:#e7f0f7,stroke:#426479,color:#1d2b30,stroke-width:2px
+  classDef docs fill:#f3edf7,stroke:#66517a,color:#2d2633
+  class REVIEWER person
+  class APP app
+  class DOCS docs

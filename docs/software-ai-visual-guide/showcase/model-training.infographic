@@ -1,0 +1,25 @@
+infographic sequence-steps-simple
+data
+  title Model training and evidence lifecycle
+  desc Teaching diagram. Project review events do not automatically train a model.
+  sequences
+    - label Curate data
+      desc Track source, labels, and quality controls
+      icon database
+    - label Split by group
+      desc Keep held-out groups outside training
+      icon split
+    - label Train model
+      desc Fit parameters on training groups
+      icon brain
+    - label Evaluate
+      desc Freeze predictions and inspect metrics
+      icon chart line
+    - label Govern decision
+      desc Record limits and require review before release
+      icon check shield
+theme
+  palette
+    - #225B63
+    - #D27A63
+    - #E7BD74

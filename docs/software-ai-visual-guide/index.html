@@ -1,0 +1,2502 @@
+<!doctype html>
+<html lang="en" data-theme="blueprint" data-mode="auto" data-style="80">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="generator" content="Answer me with HTML 0.5.0">
+<title>OsteoPatch software and AI field guide</title>
+<style>
+html[data-theme="blueprint"], html[data-theme="blueprint"][data-mode="light"] {
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "JetBrains Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  --radius: 0px;
+  --shadow: none;
+  --bw: 1.5px;
+  --head-font: var(--font-sans);
+  --bg: #f6f6f3;
+  --paper: #ffffff;
+  --ink: #16181d;
+  --ink-2: #4b5260;
+  --ink-3: #8b929e;
+  --line: #1d2026;
+  --line-2: #d6dae1;
+  --fill: #f3f5f8;
+  --accent: #1d5fbf;
+  --accent-bg: #e4ecf8;
+  --ok: #1d5fbf;
+  --ok-bg: #e4ecf8;
+  --err: #c62828;
+  --err-bg: #fbeaea;
+  --warn: #a8620a;
+  --warn-bg: #fdf3e2;
+  --head-bg: #16181d;
+  --head-fg: #ffffff;
+}
+html[data-theme="blueprint"][data-mode="dark"] {
+  --bg: #081322;
+  --paper: #0d1c31;
+  --ink: #e6edf7;
+  --ink-2: #a9b8cc;
+  --ink-3: #6b7f99;
+  --line: #c9d6e8;
+  --line-2: #23385a;
+  --fill: #12253f;
+  --accent: #6ea8ff;
+  --accent-bg: #16305a;
+  --ok: #6ea8ff;
+  --ok-bg: #16305a;
+  --err: #ff7070;
+  --err-bg: #3b1620;
+  --warn: #f0b14a;
+  --warn-bg: #3a2a10;
+  --head-bg: #e6edf7;
+  --head-fg: #081322;
+}
+@media (prefers-color-scheme: dark) {
+html[data-theme="blueprint"][data-mode="auto"] {
+  --bg: #081322;
+  --paper: #0d1c31;
+  --ink: #e6edf7;
+  --ink-2: #a9b8cc;
+  --ink-3: #6b7f99;
+  --line: #c9d6e8;
+  --line-2: #23385a;
+  --fill: #12253f;
+  --accent: #6ea8ff;
+  --accent-bg: #16305a;
+  --ok: #6ea8ff;
+  --ok-bg: #16305a;
+  --err: #ff7070;
+  --err-bg: #3b1620;
+  --warn: #f0b14a;
+  --warn-bg: #3a2a10;
+  --head-bg: #e6edf7;
+  --head-fg: #081322;
+}
+}
+
+html[data-theme="shadcn"], html[data-theme="shadcn"][data-mode="light"] {
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "JetBrains Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  --radius: 8px;
+  --shadow: 0 1px 2px 0 rgba(0,0,0,0.05);
+  --bw: 1px;
+  --head-font: var(--font-sans);
+  --bg: #fafafa;
+  --paper: #ffffff;
+  --ink: #09090b;
+  --ink-2: #71717a;
+  --ink-3: #a1a1aa;
+  --line: #e4e4e7;
+  --line-2: #f0f0f2;
+  --fill: #f4f4f5;
+  --accent: #2563eb;
+  --accent-bg: #eff6ff;
+  --ok: #16a34a;
+  --ok-bg: #f0fdf4;
+  --err: #dc2626;
+  --err-bg: #fef2f2;
+  --warn: #d97706;
+  --warn-bg: #fffbeb;
+  --head-bg: #18181b;
+  --head-fg: #fafafa;
+}
+html[data-theme="shadcn"][data-mode="dark"] {
+  --bg: #09090b;
+  --paper: #121215;
+  --ink: #fafafa;
+  --ink-2: #a1a1aa;
+  --ink-3: #71717a;
+  --line: #27272a;
+  --line-2: #1c1c1f;
+  --fill: #18181b;
+  --accent: #60a5fa;
+  --accent-bg: #172554;
+  --ok: #4ade80;
+  --ok-bg: #052e16;
+  --err: #f87171;
+  --err-bg: #450a0a;
+  --warn: #fbbf24;
+  --warn-bg: #451a03;
+  --head-bg: #fafafa;
+  --head-fg: #18181b;
+}
+@media (prefers-color-scheme: dark) {
+html[data-theme="shadcn"][data-mode="auto"] {
+  --bg: #09090b;
+  --paper: #121215;
+  --ink: #fafafa;
+  --ink-2: #a1a1aa;
+  --ink-3: #71717a;
+  --line: #27272a;
+  --line-2: #1c1c1f;
+  --fill: #18181b;
+  --accent: #60a5fa;
+  --accent-bg: #172554;
+  --ok: #4ade80;
+  --ok-bg: #052e16;
+  --err: #f87171;
+  --err-bg: #450a0a;
+  --warn: #fbbf24;
+  --warn-bg: #451a03;
+  --head-bg: #fafafa;
+  --head-fg: #18181b;
+}
+}
+
+html[data-theme="paper"], html[data-theme="paper"][data-mode="light"] {
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "JetBrains Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  --font-serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Songti SC", "STSong", "Noto Serif CJK SC", "Source Han Serif SC", serif;
+  --radius: 2px;
+  --shadow: none;
+  --bw: 1px;
+  --head-font: var(--font-serif);
+  --bg: #f5f2ea;
+  --paper: #fdfbf6;
+  --ink: #1f1c17;
+  --ink-2: #57514a;
+  --ink-3: #8c867b;
+  --line: #cbc3b4;
+  --line-2: #e5dfd3;
+  --fill: #f3eee4;
+  --accent: #8c2f1e;
+  --accent-bg: #f5e5df;
+  --ok: #2e6a3b;
+  --ok-bg: #e4efe5;
+  --err: #a3251b;
+  --err-bg: #f7e3e0;
+  --warn: #7f5300;
+  --warn-bg: #f6ecd6;
+  --head-bg: #1f1c17;
+  --head-fg: #fdfbf6;
+}
+html[data-theme="paper"][data-mode="dark"] {
+  --bg: #15130f;
+  --paper: #1c1a15;
+  --ink: #ebe5d8;
+  --ink-2: #b5ad9e;
+  --ink-3: #7b7467;
+  --line: #4a443a;
+  --line-2: #2d2a24;
+  --fill: #242119;
+  --accent: #e59a7d;
+  --accent-bg: #3a2219;
+  --ok: #8cc79a;
+  --ok-bg: #1c3122;
+  --err: #f0928a;
+  --err-bg: #3a1d1a;
+  --warn: #e3b866;
+  --warn-bg: #352a13;
+  --head-bg: #ebe5d8;
+  --head-fg: #15130f;
+}
+@media (prefers-color-scheme: dark) {
+html[data-theme="paper"][data-mode="auto"] {
+  --bg: #15130f;
+  --paper: #1c1a15;
+  --ink: #ebe5d8;
+  --ink-2: #b5ad9e;
+  --ink-3: #7b7467;
+  --line: #4a443a;
+  --line-2: #2d2a24;
+  --fill: #242119;
+  --accent: #e59a7d;
+  --accent-bg: #3a2219;
+  --ok: #8cc79a;
+  --ok-bg: #1c3122;
+  --err: #f0928a;
+  --err-bg: #3a1d1a;
+  --warn: #e3b866;
+  --warn-bg: #352a13;
+  --head-bg: #ebe5d8;
+  --head-fg: #15130f;
+}
+}
+
+html:lang(zh-Hant)[data-theme][data-mode], html:lang(zh-TW)[data-theme][data-mode], html:lang(zh-HK)[data-theme][data-mode], html:lang(zh-MO)[data-theme][data-mode] {
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang TC", "Heiti TC", "Microsoft JhengHei", "Noto Sans CJK TC", "Noto Sans TC", "PingFang SC", "Microsoft YaHei", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+html:lang(ja)[data-theme][data-mode] {
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic UI", "Yu Gothic", Meiryo, "Noto Sans CJK JP", "Noto Sans JP", "PingFang SC", "Microsoft YaHei", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+html:lang(he)[data-theme][data-mode] {
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans Hebrew", "Arial Hebrew", Arial, Roboto, "Helvetica Neue", sans-serif;
+}
+
+/* Answer me with HTML base — uses theme variables only, never hard-coded colors (theme tokens and decorations: themes/<name>.js). Exception: the var() fallbacks of diagrams (flow / sequence) equal the blueprint light tokens, guarded by a test. */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  background: var(--bg); color: var(--ink);
+  font-family: var(--font-sans); font-size: 14px; line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+code, pre, kbd { font-family: var(--font-mono); }
+
+/* ── Toolbar ─────────────────────────────── */
+.am-toolbar {
+  position: fixed; top: 12px; inset-inline-end: 12px; z-index: 10; display: flex; gap: 6px;
+}
+.am-btn {
+  font: 12px/1 var(--font-sans); color: var(--ink); background: var(--paper);
+  border: 1px solid var(--line-2); border-radius: var(--radius); padding: 7px 10px; cursor: pointer;
+}
+.am-btn:hover { border-color: var(--ink-3); }
+.am-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+/* Theme and mode lists: a label and a native select inside one button-like box */
+.am-pick {
+  display: flex; align-items: center; gap: 6px; font: 12px/1 var(--font-sans); color: var(--ink-2); background: var(--paper);
+  border: 1px solid var(--line-2); border-radius: var(--radius); padding-block: 0; padding-inline: 10px 4px;
+}
+.am-pick:hover { border-color: var(--ink-3); }
+.am-pick:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
+.am-pick select {
+  font: inherit; color: var(--ink); background: transparent; border: 0; padding: 6px 2px; cursor: pointer; outline: none;
+}
+.am-pick option { color: var(--ink); background: var(--paper); }
+
+/* ── Header ───────────────────────────────── */
+.am-head { margin: 0 0 20px; padding-inline-end: 300px; }
+.am-head h1 { margin: 0; font-size: 24px; line-height: 1.25; letter-spacing: -0.01em; }
+.am-sub { margin: 4px 0 0; color: var(--ink-2); }
+.am-head-meta { display: flex; flex-wrap: wrap; gap: 6px 18px; margin-top: 10px; font-size: 12px; color: var(--ink-2); }
+.am-head-meta b { font-family: var(--font-mono); font-weight: 400; color: var(--ink-3); margin-inline-end: 6px; }
+.am-intro { margin-top: 12px; max-width: 80ch; }
+
+/* ── sheet template ────────────────────────── */
+.am-sheet { max-width: 1680px; margin: 0 auto; padding: 32px 28px 40px; }
+.am-frame { position: relative; }
+.am-grid {
+  display: grid; grid-template-columns: repeat(var(--cols, 3), minmax(0, 1fr));
+  gap: 20px; align-items: start;
+}
+.am-ruler { display: none; }
+.am-ruler span { flex: 1; display: flex; align-items: center; justify-content: center; }
+.am-ruler--top, .am-ruler--bottom { left: 18px; right: 18px; height: 18px; }
+.am-ruler--top { top: 0; }
+.am-ruler--bottom { bottom: 0; }
+.am-ruler--left, .am-ruler--right { top: 18px; bottom: 18px; width: 18px; flex-direction: column; }
+.am-ruler--left { left: 0; }
+.am-ruler--right { right: 0; }
+.am-ruler--top span + span, .am-ruler--bottom span + span { border-inline-start: 1px solid var(--line); }
+.am-ruler--left span + span, .am-ruler--right span + span { border-top: 1px solid var(--line); }
+
+/* ── Panels ───────────────────────────────── */
+.am-panel {
+  background: var(--paper); border: var(--bw) solid var(--line); border-radius: var(--radius);
+  box-shadow: var(--shadow); min-width: 0; overflow: hidden;
+}
+.am-panel-head {
+  display: flex; align-items: stretch; gap: 0; border-bottom: var(--bw) solid var(--line); min-height: 34px;
+}
+.am-panel-id {
+  display: flex; align-items: center; justify-content: center; min-width: 34px; padding: 0 8px;
+  background: var(--head-bg); color: var(--head-fg); font-weight: 600; font-size: 14px;
+}
+.am-panel-head h2 { margin: 0; padding: 7px 12px; font-size: 15px; font-weight: 600; flex: 1; display: flex; align-items: center; }
+.am-panel-meta { align-self: center; padding: 0 12px; font: 11px/1.3 var(--font-mono); color: var(--ink-2); text-align: end; }
+.am-panel-body { padding: 14px 16px 16px; }
+.am-panel-body > * + * { margin-top: 12px; }
+
+/* ── Markdown body ───────────────────────── */
+.am-md > :first-child { margin-top: 0; }
+.am-md > :last-child { margin-bottom: 0; }
+.am-md p { margin: 0 0 8px; }
+.am-md ul, .am-md ol { margin: 0 0 8px; padding-inline-start: 20px; }
+.am-md li + li { margin-top: 3px; }
+.am-md h3, .am-md h4 { margin: 14px 0 6px; font-size: 13px; }
+.am-md a { color: var(--accent); }
+.am-md blockquote { margin: 0 0 8px; padding: 2px 12px; border-inline-start: 3px solid var(--line-2); color: var(--ink-2); }
+.am-md :not(pre) > code { font-size: 0.9em; background: var(--fill); padding: 1px 5px; border-radius: 4px; }
+.am-md hr { border: 0; border-top: 1px solid var(--line-2); margin: 12px 0; }
+.am-md table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.am-md th {
+  text-align: start; font: 11px/1.3 var(--font-mono); color: var(--ink-2); font-weight: 400;
+  padding: 6px 10px; border-bottom: 1px solid var(--line-2);
+}
+/* th { text-align: start } outranks the align attribute from Markdown alignment, so restore right and center columns explicitly. */
+.am-md th[align="right"] { text-align: right; }
+.am-md th[align="center"] { text-align: center; }
+.am-md td { padding: 7px 10px; border-bottom: 1px solid var(--line-2); vertical-align: top; }
+.am-md tbody tr:nth-child(even) td { background: var(--fill); }
+.am-table-wrap { overflow-x: auto; }
+/* Images scale down to the panel and never past 70% of the window height, keeping their shape. */
+.am-md img { max-width: 100%; max-height: 70vh; height: auto; }
+.am-figure { margin: 0; text-align: center; }
+.am-figure img { display: block; margin: 0 auto; border: 1px solid var(--line-2); border-radius: var(--radius); }
+.am-figure figcaption { margin-top: 6px; font-size: 12px; line-height: 1.4; color: var(--ink-2); }
+.am-code {
+  margin: 0; padding: 12px 14px; background: var(--fill); border: 1px solid var(--line-2);
+  border-radius: var(--radius); overflow-x: auto; font-size: 12.5px; line-height: 1.5;
+}
+/* Ask: a decision the reader makes; the suggested option starts selected */
+.am-ask { margin: 10px 0; padding: 10px 12px 8px; border: 1px solid var(--line-2); border-radius: var(--radius); background: var(--fill); min-width: 0; }
+/* The question floats inside the box, so a long question wraps like text instead of riding on the border */
+.am-ask-q { float: left; width: 100%; padding: 0; margin-bottom: 4px; font-weight: 600; }
+/* Two columns: the control, then the label, tag and note, which wrap under the label and never under the control */
+.am-ask-opt { clear: both; display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 8px; align-items: baseline; padding: 5px 2px; cursor: pointer; }
+.am-ask-opt input { margin: 0; accent-color: var(--accent); position: relative; top: 2px; }
+.am-ask-tag { display: inline-block; font-size: 11px; line-height: 1.5; color: var(--accent); border: 1px solid var(--accent); border-radius: 999px; padding: 0 6px; white-space: nowrap; }
+.am-ask-note { display: block; color: var(--ink-2); }
+/* Comment box under each panel, and the Reply sheet */
+.am-comment-btn {
+  display: flex; flex-shrink: 0; align-self: center; margin-block: 0; margin-inline: auto 6px; color: var(--ink-3); background: transparent;
+  border: 1px solid transparent; border-radius: var(--radius); padding: 3px; cursor: pointer;
+}
+.am-panel-meta + .am-comment-btn { margin-inline-start: 0; }
+.am-panel:hover .am-comment-btn, .am-comment-btn:focus-visible, .am-comment-btn[aria-expanded="true"] { border-color: var(--line-2); color: var(--ink-2); }
+.am-panel .am-comment-btn.am-comment-btn--on { color: var(--accent); border-color: var(--accent); }
+.am-panel--bare { position: relative; }
+.am-panel--bare > .am-comment-btn { position: absolute; top: 4px; inset-inline-end: 0; }
+.am-comment { padding: 0 14px 12px; }
+.am-comment textarea, .am-reply textarea {
+  width: 100%; font: 13px/1.5 var(--font-sans); color: var(--ink); background: var(--paper);
+  border: 1px solid var(--line-2); border-radius: var(--radius); padding: 8px 10px; resize: vertical;
+}
+.am-comment textarea:focus-visible, .am-reply textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.am-btn--reply { color: var(--paper); background: var(--ink); border-color: var(--ink); }
+.am-btn--reply:hover { opacity: .88; }
+.am-reply {
+  width: min(640px, calc(100vw - 32px)); padding: 16px; color: var(--ink); background: var(--paper);
+  border: 1px solid var(--line-2); border-radius: var(--radius); box-shadow: 0 12px 40px rgba(0,0,0,.25);
+}
+.am-reply::backdrop { background: rgba(0,0,0,.35); }
+.am-reply-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; margin-bottom: 10px; }
+.am-reply-head span { color: var(--ink-2); font-size: 13px; }
+.am-reply textarea { font-family: var(--font-mono); font-size: 12.5px; }
+.am-reply-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 10px; }
+.am-reply .am-btn:disabled { opacity: .5; cursor: default; }
+/* Code block: a header (title or path:lines, language, copy), then one span per line; numbered blocks show the line number in a gutter */
+.am-codeblock { margin: 10px 0; min-width: 0; }
+.am-codeblock .am-code { border-top-left-radius: 0; border-top-right-radius: 0; padding: 10px 0; }
+.am-code-head {
+  display: flex; align-items: center; gap: 8px; padding: 5px 6px 5px 12px; font: 12px/1.3 var(--font-sans); color: var(--ink-2);
+  background: var(--paper); border: 1px solid var(--line-2); border-bottom: 0; border-radius: var(--radius) var(--radius) 0 0;
+}
+.am-code-title { font-family: var(--font-mono); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.am-code-lang { margin-left: auto; color: var(--ink-3); text-transform: lowercase; }
+.am-code-copy { font: 12px/1 var(--font-sans); color: var(--ink-2); background: transparent; border: 1px solid var(--line-2); border-radius: var(--radius); padding: 4px 8px; cursor: pointer; margin-left: auto; }
+.am-code-lang + .am-code-copy { margin-left: 0; }
+.am-code-copy:hover { border-color: var(--ink-3); color: var(--ink); }
+.am-code-copy:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.am-code code { display: block; min-width: max-content; }
+.am-ln { display: block; padding: 0 14px; min-height: 1.5em; white-space: pre; }
+.am-ln--hl { background: var(--accent-bg); box-shadow: inset 3px 0 0 var(--accent); }
+.am-code--num .am-ln::before {
+  content: attr(data-n); display: inline-block; width: 3.5ch; margin-right: 12px; text-align: right; color: var(--ink-3);
+  user-select: none; -webkit-user-select: none;
+}
+
+/* ── Status badges ok / no / warn ──────────────── */
+.am-status { white-space: nowrap; font-weight: 500; }
+.am-status--ok { color: var(--ok); }
+.am-status--no { color: var(--err); }
+.am-status--warn { color: var(--warn); }
+.am-status-icon { display: inline-block; width: 1.1em; font-weight: 700; }
+
+/* ── callout ─────────────────────────────── */
+.am-callout {
+  border: 1px solid var(--line-2); border-inline-start: 3px solid var(--accent); background: var(--accent-bg);
+  padding: 10px 14px; border-radius: var(--radius);
+}
+.am-callout--ok { border-inline-start-color: var(--ok); background: var(--ok-bg); }
+.am-callout--warn { border-inline-start-color: var(--warn); background: var(--warn-bg); }
+.am-callout--err { border-inline-start-color: var(--err); background: var(--err-bg); }
+.am-callout-title { font-weight: 600; margin-bottom: 4px; }
+
+/* ── kv title block ─────────────────────────── */
+.am-kv {
+  display: grid; grid-template-columns: repeat(var(--kv-cols, 2), minmax(0, 1fr)); margin: 0;
+  border-top: var(--bw) solid var(--line); border-inline-start: var(--bw) solid var(--line);
+}
+.am-kv-cell { border-inline-end: var(--bw) solid var(--line); border-bottom: var(--bw) solid var(--line); padding: 6px 10px 8px; min-width: 0; }
+.am-kv-cell--wide { grid-column: 1 / -1; }
+.am-kv dt { font: 11px/1.4 var(--font-mono); color: var(--ink-2); }
+.am-kv dd { margin: 2px 0 0; font-size: 14px; font-weight: 500; overflow-wrap: anywhere; }
+.am-kv-cell--wide dd { font-size: 17px; font-weight: 600; }
+
+/* ── timeline ────────────────────────────── */
+.am-timeline { list-style: none; margin: 0; padding: 0; }
+.am-timeline--h { display: grid; grid-template-columns: repeat(var(--n, 1), minmax(0, 1fr)); padding-top: 4px; }
+.am-timeline--h li { position: relative; text-align: center; padding: 0 6px; }
+.am-timeline--h li::before {
+  content: ""; position: absolute; top: 31px; left: 0; right: 0; border-top: var(--bw) solid var(--line);
+}
+.am-timeline--h li:first-child::before { inset-inline-start: 50%; }
+.am-timeline--h li:last-child::before { inset-inline-end: 50%; }
+.am-tl-when { display: block; font-size: 15px; font-weight: 500; height: 24px; }
+.am-tl-dot {
+  position: relative; display: block; width: 11px; height: 11px; margin: 2px auto 8px;
+  border: var(--bw) solid var(--line); border-radius: 50%; background: var(--paper);
+}
+.am-tl-item--hi .am-tl-dot { background: var(--accent); border-color: var(--accent); }
+.am-tl-title { display: block; font-size: 12.5px; font-weight: 500; }
+.am-tl-text { display: block; font-size: 12px; color: var(--ink-2); line-height: 1.45; }
+.am-timeline--v li { position: relative; padding: 0 0 14px; padding-inline-start: 22px; }
+.am-timeline--v li::before { content: ""; position: absolute; inset-inline-start: 5px; top: 6px; bottom: -6px; border-inline-start: var(--bw) solid var(--line-2); }
+.am-timeline--v li:last-child::before { display: none; }
+.am-timeline--v .am-tl-dot { position: absolute; inset-inline-start: 0; top: 4px; margin: 0; }
+.am-timeline--v .am-tl-when { display: inline; height: auto; font: 12px var(--font-mono); color: var(--ink-2); margin-inline-end: 8px; }
+.am-timeline--v .am-tl-title { display: inline; font-size: 14px; }
+.am-timeline--v .am-tl-text { margin-top: 2px; }
+/* .am-tl-wrap is the container (src/components/timeline.js): a horizontal timeline answers to the width it has, not to the width of the window, since a
+   sheet puts panels two or three to a row. Below 560 px (about 90 px for each of the six items a timeline has by default) its dates
+   wrap and the dots cover them, so it lays out like timeline v: line and dots at the start, text beside them. */
+.am-tl-wrap { container-type: inline-size; }
+@container (max-width: 560px) {
+  .am-timeline--h { display: block; padding-top: 0; }
+  .am-timeline--h li { text-align: start; padding: 0 0 14px; padding-inline-start: 22px; }
+  .am-timeline--h li::before, .am-timeline--h li:first-child::before {
+    top: 6px; bottom: -6px; inset-inline-start: 5px; inset-inline-end: auto; border-top: 0; border-inline-start: var(--bw) solid var(--line-2);
+  }
+  .am-timeline--h li:last-child::before { display: none; }
+  .am-timeline--h .am-tl-dot { position: absolute; inset-inline-start: 0; top: 4px; margin: 0; }
+  .am-timeline--h .am-tl-when { display: inline; height: auto; font: 12px var(--font-mono); color: var(--ink-2); margin-inline-end: 8px; }
+  .am-timeline--h .am-tl-title { display: inline; font-size: 14px; }
+  .am-timeline--h .am-tl-text { margin-top: 2px; }
+}
+
+/* ── annot sentence notes ──────────────────────── */
+.am-annot + .am-annot { border-top: 1px solid var(--line-2); padding-top: 12px; }
+.am-annot-head { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; font-weight: 600; margin-bottom: 8px; }
+.am-annot-meta { font: 11px var(--font-mono); font-weight: 400; color: var(--ink-2); }
+.am-annot-scroll { overflow-x: auto; }
+.am-annot-line {
+  position: relative; display: inline-block; white-space: pre; font: 14px/1.6 var(--font-mono);
+  padding-bottom: calc(var(--rows, 0) * 17px + 14px);
+}
+.am-annot-line--wrap { display: block; white-space: normal; padding-bottom: 10px; }
+.am-annot-line--wrap .am-seg { white-space: nowrap; }
+.am-seg { position: relative; }
+.am-seg::after {
+  content: ""; position: absolute; left: 1px; right: 1px; top: calc(100% + 1px); height: 5px;
+  border: 1px solid var(--accent); border-top: 0;
+}
+.am-seg-n {
+  position: absolute; inset-inline-start: 0; top: calc(100% + 8px + var(--row, 0) * 17px);
+  font: 11px/16px var(--font-sans); color: var(--accent); white-space: nowrap;
+}
+.am-seg--err { color: var(--err); }
+.am-seg--err::after { border-color: var(--err); }
+.am-seg--err .am-seg-n { color: var(--err); }
+.am-annot-caption { font-size: 12px; color: var(--ink-2); }
+
+/* ── limits bars ───────────────────────── */
+.am-lim + .am-lim { margin-top: 14px; }
+.am-lim-head { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; margin-bottom: 4px; }
+.am-lim-val { font: 12px var(--font-mono); color: var(--accent); white-space: nowrap; }
+.am-lim-track { position: relative; height: 12px; border: 1px solid var(--line-2); background: var(--fill); border-radius: calc(var(--radius) / 2); }
+.am-lim-fill { position: absolute; inset-inline-start: 0; top: 0; bottom: 0; background: var(--accent-bg); border-inline-end: 1px solid var(--accent); }
+.am-lim-mark { position: absolute; top: -4px; bottom: -4px; border-left: 2px solid var(--accent); }
+.am-lim.is-over .am-lim-fill { background: var(--err-bg); border-inline-end-color: var(--err); }
+.am-lim.is-over .am-lim-val { color: var(--err); }
+.am-lim-ticks { position: relative; height: 16px; font: 10px/16px var(--font-mono); color: var(--ink-3); }
+.am-lim-ticks span { position: absolute; transform: translateX(-50%); }
+.am-lim-ticks span:first-child { transform: none; }
+.am-lim-note { font-size: 11px; color: var(--ink-2); margin-inline-start: 6px; }
+
+/* ── tree ─────────────────────────── */
+.am-tree { font-size: 13px; }
+.am-tree-root { display: flex; justify-content: center; position: relative; padding-bottom: 18px; }
+.am-tree-root::after { content: ""; position: absolute; bottom: 0; left: 50%; height: 18px; border-left: var(--bw) solid var(--line); }
+.am-tree-root--solo { padding-bottom: 12px; }
+.am-tree-root--solo::after { display: none; }
+.am-tree-box {
+  border: var(--bw) solid var(--line); background: var(--paper); padding: 6px 14px; text-align: center;
+  border-radius: var(--radius); font-weight: 600;
+}
+.am-tree-box small { display: block; font-weight: 400; color: var(--ink-2); font-size: 12px; }
+.am-tree-box--root { background: var(--accent-bg); font-size: 15px; padding: 8px 28px; }
+.am-tree-cols { display: grid; grid-template-columns: repeat(var(--n, 1), minmax(0, 1fr)); }
+.am-tree-col { position: relative; padding: 18px 8px 0; min-width: 0; }
+.am-tree-col::before { content: ""; position: absolute; top: 0; left: 0; right: 0; border-top: var(--bw) solid var(--line); }
+.am-tree-col:first-child::before { inset-inline-start: 50%; }
+.am-tree-col:last-child::before { inset-inline-end: 50%; }
+.am-tree-col::after { content: ""; position: absolute; top: 0; left: 50%; height: 18px; border-left: var(--bw) solid var(--line); }
+.am-tree-list, .am-tree-list ul { list-style: none; margin: 0; padding: 0; }
+.am-tree-col > .am-tree-list { margin: 8px 0 0; margin-inline-start: 14px; }
+.am-tree-list ul { margin-inline-start: 16px; }
+.am-tree-list li { position: relative; padding: 3px 0; padding-inline-start: 18px; }
+.am-tree-list li::before { content: ""; position: absolute; inset-inline-start: 0; top: 0.95em; width: 12px; border-top: 1px solid var(--ink-3); }
+.am-tree-list li::after { content: ""; position: absolute; inset-inline-start: 0; top: 0; bottom: 0; border-inline-start: 1px solid var(--ink-3); }
+.am-tree-list li:last-child::after { bottom: auto; height: 0.95em; }
+.am-tree-tag { font: 11px var(--font-mono); color: var(--ink-3); margin-inline-end: 4px; }
+.am-tree code { font: 12px var(--font-mono); }
+.am-tree-sub { display: block; font-size: 11.5px; color: var(--ink-2); }
+.am-tree-hi > .am-tree-label { color: var(--accent); font-weight: 600; }
+
+/* ── Diagrams (flow / sequence) ───────────────── */
+.am-diagram { margin: 0; overflow-x: auto; text-align: center; }
+/* Embedded previews can lose html[data-theme]; the fallbacks keep diagrams readable, and defined theme variables still win. */
+.am-diagram svg { max-width: 100%; height: auto; font-family: var(--font-sans, sans-serif); }
+.am-diagram text { fill: var(--ink, #16181d); font-size: 13px; }
+.am-node-shape { fill: var(--paper, #ffffff); stroke: var(--line, #1d2026); stroke-width: var(--bw, 1.5px); }
+.am-node--hi .am-node-shape { fill: var(--accent-bg, #e4ecf8); stroke: var(--accent, #1d5fbf); }
+.am-node--hi text { fill: var(--accent, #1d5fbf); font-weight: 600; }
+.am-edge { fill: none; stroke: var(--ink-2, #4b5260); stroke-width: 1.3; }
+.am-edge--dashed { stroke-dasharray: 5 4; }
+.am-arrow { fill: var(--ink-2, #4b5260); }
+.am-edge-label rect { fill: var(--paper, #ffffff); }
+.am-diagram .am-edge-label text { fill: var(--accent, #1d5fbf); font-size: 11.5px; }
+.am-cluster { fill: var(--fill, #f3f5f8); stroke: var(--line-2, #d6dae1); stroke-width: 1; stroke-dasharray: 4 3; }
+.am-diagram .am-cluster-label { fill: var(--ink-2, #4b5260); font: 11px var(--font-mono, monospace); }
+.am-lifeline { stroke: var(--ink-3, #8b929e); stroke-width: 1; stroke-dasharray: 4 4; }
+.am-actor { fill: var(--paper, #ffffff); stroke: var(--line, #1d2026); stroke-width: var(--bw, 1.5px); }
+.am-note { fill: var(--warn-bg, #fdf3e2); stroke: var(--warn, #a8620a); stroke-width: 1; }
+.am-diagram .am-step { fill: var(--ink-3, #8b929e); font: 10px var(--font-mono, monospace); }
+
+.am-diagram-expand {
+  /* In flow and sticky: it sits at the end edge (right on a left-to-right page) and stays in view when the diagram scrolls sideways.
+     It takes its own row above the drawing, so it never covers a node at the top-right corner of the drawing. */
+  position: sticky; inset-inline-start: calc(100% - 36px); z-index: 2;
+  display: flex; align-items: center; justify-content: center;
+  width: 28px; height: 28px; padding: 0; margin: 0 0 4px; margin-inline: auto 8px;
+  color: var(--ink-2); background: var(--paper);
+  border: var(--bw, 1px) solid var(--line-2); border-radius: var(--radius);
+  cursor: pointer; opacity: 0.72;
+  transition: opacity 0.15s, color 0.15s, border-color 0.15s, background 0.15s;
+}
+.am-diagram:hover .am-diagram-expand,
+.am-diagram-expand:focus-visible { opacity: 1; }
+.am-diagram-expand:hover {
+  opacity: 1; color: var(--ink); border-color: var(--accent); background: var(--fill);
+}
+.am-diagram-expand:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+/* ── Diagram Lightbox and Pan-Zoom Viewer ─────────── */
+.am-lightbox {
+  position: fixed; inset: 0; z-index: 1000;
+  display: flex; flex-direction: column;
+  touch-action: none;
+}
+.am-lightbox[hidden] { display: none !important; }
+
+.am-lightbox-backdrop {
+  position: absolute; inset: 0;
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.am-lightbox-header {
+  position: absolute; top: 12px; left: 24px; right: 24px; height: 36px;
+  display: flex; align-items: center; justify-content: space-between;
+  z-index: 10; pointer-events: none;
+}
+.am-lightbox-title {
+  display: inline-flex; align-items: center; gap: 8px;
+  color: rgba(255, 255, 255, 0.92);
+  font: 13px/1 var(--font-sans, sans-serif); font-weight: 500;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+  pointer-events: auto;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 60vw;
+}
+.am-lightbox-title svg { stroke: rgba(255, 255, 255, 0.85); flex-shrink: 0; }
+.am-lightbox-actions {
+  display: flex; align-items: center; gap: 8px; pointer-events: auto;
+}
+.am-lightbox-close {
+  width: 32px; height: 32px;
+  background: var(--paper);
+  border: var(--bw, 1px) solid var(--line-2);
+  border-radius: 50%;
+  color: var(--ink);
+  font-size: 15px; line-height: 1;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  transition: background 0.15s, color 0.15s, transform 0.15s, border-color 0.15s;
+}
+.am-lightbox-close:hover {
+  color: var(--accent); border-color: var(--accent); background: var(--fill); transform: scale(1.05);
+}
+.am-lightbox-close:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+.am-lightbox-stage {
+  position: absolute;
+  top: 54px; bottom: 20px; left: 24px; right: 24px;
+  background: var(--paper);
+  border: var(--bw, 1px) solid var(--line-2);
+  border-radius: max(var(--radius), 14px);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.45);
+  overflow: hidden;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.am-lightbox-stage.am-panning { cursor: grabbing; }
+
+.am-lightbox-canvas {
+  position: absolute; left: 0; top: 0;
+  transform-origin: 0 0;
+  will-change: transform;
+  pointer-events: none;
+}
+.am-lightbox-canvas svg {
+  max-width: none !important;
+  max-height: none !important;
+  display: block;
+  font-family: var(--font-sans, sans-serif);
+}
+
+/* ── doc template ────────────────────────── */
+.am-doc { max-width: 1120px; margin: 0 auto; padding: 40px 28px 64px; }
+.am-doc-layout { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 32px; align-items: start; }
+.am-doc-layout--notoc { grid-template-columns: minmax(0, 1fr); max-width: 860px; }
+.am-toc { position: sticky; top: 24px; font-size: 13px; }
+.am-toc a { display: block; color: var(--ink-2); text-decoration: none; padding: 4px 0; padding-inline-start: 10px; border-inline-start: 2px solid var(--line-2); }
+.am-toc a:hover { color: var(--ink); border-inline-start-color: var(--accent); }
+.am-doc-body > .am-panel + .am-panel { margin-top: 20px; }
+
+/* ── Responsive and print ─────────────────────────── */
+@media (max-width: 1100px) {
+  .am-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .am-grid > .am-panel { grid-column: auto !important; }
+  .am-grid > .am-panel.am-span-wide { grid-column: 1 / -1 !important; }
+}
+@media (max-width: 760px) {
+  .am-sheet, .am-doc { padding: 56px 12px 24px; }
+  .am-head { padding-inline-end: 0; }
+  .am-grid { grid-template-columns: minmax(0, 1fr); }
+  .am-grid > .am-panel.am-span-wide { grid-column: auto !important; }
+  .am-doc-layout { grid-template-columns: minmax(0, 1fr); }
+  .am-toc { position: static; }
+  .am-tree-cols { grid-template-columns: minmax(0, 1fr); }
+  /* Tables and diagrams keep their size: the wrapper scrolls horizontally when they overflow. A cell is never narrower than about
+     two short words, so a phone does not stack them one per line. On wider screens the sheet layout (src/runtime/layout-dom.js)
+     gives a table panel the width its columns read well at. */
+  .am-md th, .am-md td { min-width: 8em; }
+  .am-diagram svg { max-width: none; }
+  .am-lightbox-header { top: 8px; left: 12px; right: 12px; }
+  .am-lightbox-stage { top: 46px; bottom: 12px; left: 12px; right: 12px; border-radius: max(var(--radius), 10px); }
+}
+.am-colophon { text-align: center; padding: 0 0 28px; font: 11px var(--font-mono); color: var(--ink-3); }
+.am-colophon a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+
+@media print {
+  .am-toolbar, .am-diagram-expand, .am-lightbox, .am-code-copy, .am-comment-btn, .am-comment, .am-reply { display: none !important; }
+  body { background: var(--paper); }
+  .am-panel { break-inside: avoid; box-shadow: none; }
+}
+/* Printed on paper narrower than three columns, the two-column grid left a hole beside every panel next to a full-width one
+   (a wide table, a wide diagram): one panel per row instead. */
+@media print and (max-width: 1100px) {
+  .am-grid { grid-template-columns: minmax(0, 1fr); }
+  .am-grid > .am-panel { grid-column: auto !important; }
+}
+.am-panel--bare { border: 0; background: transparent; box-shadow: none; }
+.am-panel--bare > .am-panel-body { padding: 0; }
+.am-panel--bare .am-kv { background: var(--paper); }
+
+/* Remark mode: block marks with a note, collected into the Reply copy (src/runtime/remark.js). Each kind borrows a status colour of
+   the theme, so a mark reads in light and dark mode on every theme. */
+.am-btn--remark.is-on { background: var(--ink); border-color: var(--ink); color: var(--paper); }
+.am-remark-hover { outline: 1px dashed var(--ink-3); outline-offset: 2px; cursor: pointer; }
+:is(.am-mark, .am-remark-kind)[data-kind="suggestion"] { --mark: var(--warn); --mark-bg: var(--warn-bg); }
+:is(.am-mark, .am-remark-kind)[data-kind="keep"] { --mark: var(--ok); --mark-bg: var(--ok-bg); }
+:is(.am-mark, .am-remark-kind)[data-kind="question"] { --mark: var(--accent); --mark-bg: var(--accent-bg); }
+:is(.am-mark, .am-remark-kind)[data-kind="concern"] { --mark: var(--err); --mark-bg: var(--err-bg); }
+.am-mark { border-inline-start: 3px solid var(--mark); padding-inline-start: 10px; background: var(--mark-bg); border-radius: 1px; }
+/* The note chip sits inside the marked block (a table takes it as its caption, a list item puts it before its sub-list), so lists and
+   grids keep their children. */
+.am-mark-note {
+  display: block; margin-block-start: 4px; font: 12px/1.5 var(--font-sans); letter-spacing: normal; text-transform: none;
+  color: var(--ink-2); white-space: pre-wrap; caption-side: bottom; text-align: start;
+}
+.am-mark-note b { color: var(--ink); font-weight: 600; }
+caption.am-mark-note { display: table-caption; }
+/* Table rows have their own backgrounds, so a tint on the table would show on every other row only: the bar marks a table. */
+table.am-mark { background: none; }
+.am-remark-pop {
+  position: absolute; z-index: 40; width: min(264px, calc(100vw - 16px)); padding: 8px; display: grid; gap: 6px;
+  color: var(--ink); background: var(--paper); border: 1px solid var(--line-2); border-radius: var(--radius); box-shadow: 0 6px 24px rgba(0, 0, 0, .14);
+}
+.am-remark-pop[hidden] { display: none; }
+.am-remark-kinds { display: flex; gap: 6px; flex-wrap: wrap; }
+.am-remark-kind { font: 12px/1 var(--font-sans); color: var(--ink-2); background: var(--paper); border: 1px solid var(--line-2); border-radius: 999px; padding: 4px 10px; cursor: pointer; }
+.am-remark-kind:hover { border-color: var(--ink-3); }
+.am-remark-kind[aria-pressed="true"] { color: var(--ink); border-color: var(--mark); background: var(--mark-bg); }
+.am-remark-kind:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.am-remark-pop textarea { font: 13px/1.5 var(--font-sans); color: var(--ink); background: var(--paper); border: 1px solid var(--line-2); border-radius: var(--radius); padding: 6px 8px; resize: vertical; }
+.am-remark-actions { display: flex; gap: 6px; }
+.am-remark-actions .am-btn:disabled { opacity: .5; cursor: default; }
+@media print { .am-remark-pop { display: none !important; } }
+
+
+html[data-theme="blueprint"] .am-frame { border: 1px solid var(--line); padding: 30px; }
+html[data-theme="blueprint"] .am-frame::before {
+  content: ""; position: absolute; inset: 18px; border: 1px solid var(--line); pointer-events: none;
+}
+html[data-theme="blueprint"] .am-ruler {
+  display: flex; position: absolute; font: 10px/1 var(--font-mono); color: var(--ink-3);
+}
+@media (max-width: 760px) {
+  html[data-theme="blueprint"] .am-frame { padding: 0; border: 0; }
+  html[data-theme="blueprint"] .am-frame::before, html[data-theme="blueprint"] .am-ruler { display: none; }
+}
+
+html[data-theme="shadcn"] .am-panel-id { border-radius: 6px; min-width: 24px; height: 24px; margin: 9px 0 9px 14px; font-size: 12px; }
+html[data-theme="shadcn"] .am-panel-head { border-bottom-width: 1px; }
+html[data-theme="shadcn"] .am-kv { border-color: var(--line); border-radius: var(--radius); overflow: hidden; }
+
+html[data-theme="paper"]:lang(zh-Hant)[data-mode], html[data-theme="paper"]:lang(zh-TW)[data-mode], html[data-theme="paper"]:lang(zh-HK)[data-mode], html[data-theme="paper"]:lang(zh-MO)[data-mode] { --font-serif: "Iowan Old Style", Palatino, Georgia, "Songti TC", "PMingLiU", "MingLiU", "Noto Serif CJK TC", "Noto Serif TC", "Source Han Serif TC", "Songti SC", serif; }
+html[data-theme="paper"]:lang(ja)[data-mode] { --font-serif: "Iowan Old Style", Palatino, Georgia, "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif CJK JP", "Noto Serif JP", "Songti SC", serif; }
+html[data-theme="paper"]:lang(he)[data-mode] { --font-serif: "Iowan Old Style", Palatino, Georgia, "Noto Serif Hebrew", "Frank Ruehl CLM", David, "Times New Roman", serif; }
+html[data-theme="paper"] .am-head h1, html[data-theme="paper"] .am-panel-head h2, html[data-theme="paper"] .am-md, html[data-theme="paper"] .am-intro, html[data-theme="paper"] .am-callout { font-family: var(--font-serif); }
+html[data-theme="paper"] .am-head h1 { font-weight: 600; letter-spacing: 0; }
+html[data-theme="paper"] .am-md p, html[data-theme="paper"] .am-md li, html[data-theme="paper"] .am-md blockquote, html[data-theme="paper"] .am-intro { font-size: 15.5px; line-height: 1.75; }
+html[data-theme="paper"] .am-md p { margin-bottom: 12px; }
+html[data-theme="paper"] .am-md table { font-family: var(--font-sans); }
+</style>
+</head>
+<body>
+<div class="am-toolbar" data-am-root-lang="en" data-am-root-theme="blueprint" data-am-root-mode="auto" data-am-root-style="80">
+<label class="am-pick">Theme<select data-am="theme"><option value="blueprint" selected>Blueprint</option><option value="shadcn">Cards</option><option value="paper">Paper</option></select></label>
+<label class="am-pick">Mode<select data-am="mode"><option value="auto" selected>Auto</option><option value="light">Light</option><option value="dark">Dark</option></select></label>
+<button class="am-btn am-btn--reply" type="button" data-am="reply" data-ui="{&quot;button&quot;:&quot;Reply&quot;,&quot;comment&quot;:&quot;Comment&quot;,&quot;commentHint&quot;:&quot;Your comment on this panel&quot;,&quot;title&quot;:&quot;Your reply&quot;,&quot;hint&quot;:&quot;Copy it and paste it into the chat.&quot;,&quot;copy&quot;:&quot;Copy reply&quot;,&quot;close&quot;:&quot;Close&quot;,&quot;suggested&quot;:&quot;suggested&quot;,&quot;empty&quot;:&quot;Pick options, or comment on a panel first.&quot;,&quot;decisions&quot;:&quot;Decisions&quot;,&quot;comments&quot;:&quot;Comments&quot;,&quot;confirmed&quot;:&quot;suggestion confirmed&quot;,&quot;untouched&quot;:&quot;not answered; suggestion kept&quot;,&quot;was&quot;:&quot;was&quot;,&quot;typed&quot;:&quot;Lines that start with \&quot;&gt;\&quot; are text the reader typed.&quot;,&quot;done&quot;:&quot;Copied ✓&quot;,&quot;remarks&quot;:&quot;Remarks&quot;,&quot;kinds&quot;:{&quot;suggestion&quot;:&quot;suggestion&quot;,&quot;keep&quot;:&quot;keep&quot;,&quot;question&quot;:&quot;question&quot;,&quot;concern&quot;:&quot;concern&quot;}}">Reply</button>
+<button class="am-btn am-btn--remark" type="button" data-am="remark" data-ui="{&quot;button&quot;:&quot;Remark&quot;,&quot;hint&quot;:&quot;Optional note&quot;,&quot;save&quot;:&quot;Save&quot;,&quot;remove&quot;:&quot;Remove&quot;,&quot;section&quot;:&quot;Remarks&quot;,&quot;kinds&quot;:{&quot;suggestion&quot;:&quot;suggestion&quot;,&quot;keep&quot;:&quot;keep&quot;,&quot;question&quot;:&quot;question&quot;,&quot;concern&quot;:&quot;concern&quot;}}">Remark</button>
+<button class="am-btn" type="button" data-am="copy" data-done="Copied ✓">Copy source</button>
+</div>
+<main class="am-doc">
+<header class="am-head"><h1>OsteoPatch software and AI field guide</h1><p class="am-sub">Architecture, API, development terms, model evidence, and visualization tools</p><div class="am-head-meta"><span><b>source</b>Repository documentation and frozen records · 11 October 2026</span></div><div class="am-intro am-md"><div class="am-md"><p>Lead: OsteoPatch is an educational and research prototype for human review of osteosarcoma image patches. This guide maps its software, API, development workflow, and documented model evidence.</p>
+</div></div></header>
+<div class="am-doc-layout">
+<nav class="am-toc" aria-label="Contents"><a href="#panel-A">A · Start with the system</a><a href="#panel-B">B · Software architecture and deployment boundaries</a><a href="#panel-C">C · The API review path</a><a href="#panel-D">D · Development terms and change workflow</a><a href="#panel-E">E · AI and model training, from data to review</a><a href="#panel-F">F · Recorded G4 evidence and limits</a><a href="#panel-G">G · Local tools, skills, and MCP servers</a><a href="#panel-H">H · Available integrations and excluded alternatives</a></nav><div class="am-doc-body">
+<section class="am-panel" id="panel-A">
+<header class="am-panel-head"><span class="am-panel-id">A</span><h2>Start with the system</h2></header>
+<div class="am-panel-body"><div class="am-md"><p>The local reviewer uses a browser interface, a FastAPI service, and local records. The static website documents the project. It does not serve the review API.</p>
+</div>
+<dl class="am-kv" style="--kv-cols: 2"><div class="am-kv-cell"><dt>Intended use</dt><dd>Education and research only</dd></div><div class="am-kv-cell"><dt>Browser app</dt><dd>React 18 and TypeScript</dd></div><div class="am-kv-cell"><dt>Local web server</dt><dd>Vite on 127.0.0.1:5173</dd></div><div class="am-kv-cell"><dt>Core API</dt><dd>FastAPI on 127.0.0.1:8137 with /v1 routes</dd></div><div class="am-kv-cell"><dt>Review store</dt><dd>SQLite</dd></div><div class="am-kv-cell"><dt>Model output</dt><dd>Precomputed immutable predictions</dd></div><div class="am-kv-cell"><dt>Image records</dt><dd>Source and quality-control metadata</dd></div><div class="am-kv-cell"><dt>Enterprise extension</dt><dd>Roles, projects, audit, registry, and worker services</dd></div><div class="am-kv-cell"><dt>Training runtime</dt><dd>Optional PyTorch dependencies in an isolated environment</dd></div></dl>
+<div class="am-md"><p>An API is the agreed way that one program asks another program for data or an action. An endpoint is one address and method in that API.</p>
+</div></div>
+</section>
+<section class="am-panel" id="panel-B">
+<header class="am-panel-head"><span class="am-panel-id">B</span><h2>Software architecture and deployment boundaries</h2></header>
+<div class="am-panel-body"><figure class="am-diagram am-flow"><svg viewBox="0 0 1563 419" width="1563" height="419" role="img" aria-label="Flowchart: Reviewer, Browser, Vite, FastAPI, SQLite, Predictions, Source and QC, Verified images" xmlns="http://www.w3.org/2000/svg"><defs><marker id="am1-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="am-arrow" d="M0,0 L10,5 L0,10 z"/></marker></defs><g></g><g><g data-step="0"><path class="am-edge" d="M99.5,138 L150.8,138 Q202.1,138 260.5,138 L319,138" marker-end="url(#am1-arrow)"/><g class="am-edge-label"><rect x="123.5" y="129" width="157.2" height="18" rx="3"/><text x="202.1" y="138" text-anchor="middle" dominant-baseline="central">choose and inspect a patch</text></g></g><g data-step="1"><path class="am-edge" d="M397.1,138 L472.2,138 Q547.2,138 627.9,138 L708.7,138" marker-end="url(#am1-arrow)"/><g class="am-edge-label"><rect x="474.4" y="129" width="145.5" height="18" rx="3"/><text x="547.2" y="138" text-anchor="middle" dominant-baseline="central">local development server</text></g></g><g data-step="2"><path class="am-edge" d="M772.7,138 L846.1,138 Q919.5,138 995.2,138 L1070.9,138" marker-end="url(#am1-arrow)"/><g class="am-edge-label"><rect x="847.2" y="129" width="144.6" height="18" rx="3"/><text x="919.5" y="138" text-anchor="middle" dominant-baseline="central">proxy requests under /v1</text></g></g><g data-step="3"><path class="am-edge" d="M1145.6,155.5 L1223.8,193.5 Q1301.9,231.5 1376.3,252.4 L1450.7,273.3" marker-end="url(#am1-arrow)"/><g class="am-edge-label"><rect x="1217.9" y="222.5" width="168" height="18" rx="3"/><text x="1301.9" y="231.5" text-anchor="middle" dominant-baseline="central">read and append review state</text></g></g><g data-step="4"><path class="am-edge" d="M1148.3,145.1 L1225.1,159.3 Q1301.9,173.5 1370.1,173.5 L1438.4,173.5" marker-end="url(#am1-arrow)"/><g class="am-edge-label"><rect x="1220.2" y="164.5" width="163.4" height="18" rx="3"/><text x="1301.9" y="173.5" text-anchor="middle" dominant-baseline="central">read immutable stored result</text></g></g><g data-step="5"><path class="am-edge" d="M1148.3,130.9 L1225.1,116.7 Q1301.9,102.5 1364.5,102.5 L1427.1,102.5" marker-end="url(#am1-arrow)"/><g class="am-edge-label"><rect x="1227" y="93.5" width="149.8" height="18" rx="3"/><text x="1301.9" y="102.5" text-anchor="middle" dominant-baseline="central">read allowlisted metadata</text></g></g><g data-step="6"><path class="am-edge" d="M1141.2,120.5 L1221.6,76 Q1301.9,31.5 1363.5,31.5 L1425.1,31.5" marker-end="url(#am1-arrow)"/><g class="am-edge-label"><rect x="1221.7" y="22.5" width="160.4" height="18" rx="3"/><text x="1301.9" y="31.5" text-anchor="middle" dominant-baseline="central">read thumbnail or full image</text></g></g><g data-step="7"><path class="am-edge" d="M411.4,302.5 L479.3,302.5 Q547.2,302.5 615,302.5 L682.9,302.5" marker-end="url(#am1-arrow)"/><g class="am-edge-label"><rect x="435.4" y="293.5" width="223.4" height="18" rx="3"/><text x="547.2" y="302.5" text-anchor="middle" dominant-baseline="central">identity, capabilities, and project scope</text></g></g><g data-step="8"><path class="am-edge" d="M780.8,320 L850.2,350.3 Q919.5,380.5 980,380.5 L1040.5,380.5" marker-end="url(#am1-arrow)"/><g class="am-edge-label"><rect x="834.9" y="371.5" width="169.2" height="18" rx="3"/><text x="919.5" y="380.5" text-anchor="middle" dominant-baseline="central">users, projects, memberships</text></g></g><g data-step="9"><path class="am-edge" d="M798.5,302.5 L859,302.5 Q919.5,302.5 981.8,302.5 L1044,302.5" marker-end="url(#am1-arrow)"/><g class="am-edge-label"><rect x="834.9" y="293.5" width="169.2" height="18" rx="3"/><text x="919.5" y="302.5" text-anchor="middle" dominant-baseline="central">in-process Python delegation</text></g></g><g data-step="10"><path class="am-edge" d="M1175.2,302.5 L1238.6,302.5 Q1301.9,302.5 1376.3,294.9 L1450.7,287.2" marker-end="url(#am1-arrow)"/><g class="am-edge-label"><rect x="1202.7" y="293.5" width="198.4" height="18" rx="3"/><text x="1301.9" y="302.5" text-anchor="middle" dominant-baseline="central">shared review data and predictions</text></g></g><g data-step="11"><path class="am-edge" d="M784.8,285 L852.1,258.3 Q919.5,231.5 987,231.5 L1054.5,231.5" marker-end="url(#am1-arrow)"/><g class="am-edge-label"><rect x="822.5" y="222.5" width="194" height="18" rx="3"/><text x="919.5" y="231.5" text-anchor="middle" dominant-baseline="central">append successful review actions</text></g></g></g><g><g class="am-node am-node--rect" data-key="Reviewer" data-step="0"><rect class="am-node-shape" x="14" y="120.5" width="85.5" height="35" rx="3"/><text x="56.7" y="138" text-anchor="middle" dominant-baseline="central">Reviewer</text></g><g class="am-node am-node--rect" data-key="Browser" data-step="0"><rect class="am-node-shape" x="319" y="120.5" width="78.2" height="35" rx="3"/><text x="358" y="138" text-anchor="middle" dominant-baseline="central">Browser</text></g><g class="am-node am-node--rect" data-key="Vite" data-step="1"><rect class="am-node-shape" x="708.7" y="120.5" width="64" height="35" rx="3"/><text x="740.7" y="138" text-anchor="middle" dominant-baseline="central">Vite</text></g><g class="am-node am-node--rect" data-key="FastAPI" data-step="2"><rect class="am-node-shape" x="1070.9" y="120.5" width="77.4" height="35" rx="3"/><text x="1109.6" y="138" text-anchor="middle" dominant-baseline="central">FastAPI</text></g><g class="am-node am-node--db" data-key="SQLite" data-step="3"><path class="am-node-shape" d="M1450.7,266 A36.2,7 0 0 1 1523.2,266 V301 A36.2,7 0 0 1 1450.7,301 Z"/><path class="am-node-shape" d="M1450.7,266 A36.2,7 0 0 0 1523.2,266"/><text x="1487" y="287.5" text-anchor="middle" dominant-baseline="central">SQLite</text></g><g class="am-node am-node--rect" data-key="Predictions" data-step="4"><rect class="am-node-shape" x="1438.4" y="156" width="97.2" height="35" rx="3"/><text x="1487" y="173.5" text-anchor="middle" dominant-baseline="central">Predictions</text></g><g class="am-node am-node--rect" data-key="Source and QC" data-step="5"><rect class="am-node-shape" x="1427.1" y="85" width="119.8" height="35" rx="3"/><text x="1487" y="102.5" text-anchor="middle" dominant-baseline="central">Source and QC</text></g><g class="am-node am-node--rect" data-key="Verified images" data-step="6"><rect class="am-node-shape" x="1425.1" y="14" width="123.7" height="35" rx="3"/><text x="1487" y="31.5" text-anchor="middle" dominant-baseline="central">Verified images</text></g><g class="am-node am-node--rect" data-key="Enterprise UI" data-step="7"><rect class="am-node-shape" x="304.7" y="285" width="106.8" height="35" rx="3"/><text x="358" y="302.5" text-anchor="middle" dominant-baseline="central">Enterprise UI</text></g><g class="am-node am-node--rect" data-key="Enterprise API" data-step="7"><rect class="am-node-shape" x="682.9" y="285" width="115.6" height="35" rx="3"/><text x="740.7" y="302.5" text-anchor="middle" dominant-baseline="central">Enterprise API</text></g><g class="am-node am-node--db" data-key="Enterprise SQLite" data-step="8"><path class="am-node-shape" d="M1040.5,363 A69.1,7 0 0 1 1178.7,363 V398 A69.1,7 0 0 1 1040.5,398 Z"/><path class="am-node-shape" d="M1040.5,363 A69.1,7 0 0 0 1178.7,363"/><text x="1109.6" y="384.5" text-anchor="middle" dominant-baseline="central">Enterprise SQLite</text></g><g class="am-node am-node--rect" data-key="G6 core package" data-step="9"><rect class="am-node-shape" x="1044" y="285" width="131.2" height="35" rx="3"/><text x="1109.6" y="302.5" text-anchor="middle" dominant-baseline="central">G6 core package</text></g><g class="am-node am-node--rect" data-key="Audit JSONL" data-step="11"><rect class="am-node-shape" x="1054.5" y="214" width="110.2" height="35" rx="3"/><text x="1109.6" y="231.5" text-anchor="middle" dominant-baseline="central">Audit JSONL</text></g></g></svg></figure>
+<div class="am-md"><div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>Surface</th>
+<th>What it serves</th>
+<th>Boundary</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Local reviewer</td>
+<td>React app, API, review store, and local evidence</td>
+<td>Development runtime</td>
+</tr>
+<tr>
+<td><code>site/</code></td>
+<td>Static documentation and project pages</td>
+<td>No inference or reviewer data</td>
+</tr>
+<tr>
+<td>Historical AWS demo</td>
+<td>CloudFront, private S3, API Gateway, Lambda, and DynamoDB</td>
+<td>Separate workshop deployment; status may lag the repository</td>
+</tr>
+</tbody></table></div>
+<p>The Vite proxy is a development convenience. G6 listens on port 8137 and G7 on port 8140. G7 calls the G6 review package in-process, while keeping its own identity and project store. The <a href="showcase/index.html">visualization gallery</a> has separate context, container, and deployment views.</p>
+</div></div>
+</section>
+<section class="am-panel" id="panel-C">
+<header class="am-panel-head"><span class="am-panel-id">C</span><h2>The API review path</h2></header>
+<div class="am-panel-body"><figure class="am-diagram am-seq"><svg viewBox="0 0 816 566" width="816" height="566" role="img" aria-label="Sequence diagram: Reviewer, React app, FastAPI, Local records" xmlns="http://www.w3.org/2000/svg"><defs><marker id="am2-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="am-arrow" d="M0,0 L10,5 L0,10 z"/></marker></defs><line class="am-lifeline" x1="54.7" y1="42" x2="54.7" y2="562"/><g data-key="Reviewer"><rect class="am-actor" x="12" y="8" width="85.5" height="34" rx="2"/><text x="54.7" y="25" text-anchor="middle" dominant-baseline="central" font-weight="600">Reviewer</text></g><line class="am-lifeline" x1="232.5" y1="42" x2="232.5" y2="562"/><g data-key="React app"><rect class="am-actor" x="188.2" y="8" width="88.6" height="34" rx="2"/><text x="232.5" y="25" text-anchor="middle" dominant-baseline="central" font-weight="600">React app</text></g><line class="am-lifeline" x1="490.6" y1="42" x2="490.6" y2="562"/><g data-key="FastAPI"><rect class="am-actor" x="448.6" y="8" width="84" height="34" rx="2"/><text x="490.6" y="25" text-anchor="middle" dominant-baseline="central" font-weight="600">FastAPI</text></g><line class="am-lifeline" x1="748" y1="42" x2="748" y2="562"/><g data-key="Local records"><rect class="am-actor" x="692.2" y="8" width="111.5" height="34" rx="2"/><text x="748" y="25" text-anchor="middle" dominant-baseline="central" font-weight="600">Local records</text></g><g data-step="0"><text x="143.6" y="70" text-anchor="middle">select an image</text><path class="am-edge" d="M54.7,80 L230.5,80" marker-end="url(#am2-arrow)"/><text class="am-step" x="60.7" y="74" text-anchor="start">1</text></g><g data-step="1"><text x="361.6" y="110" text-anchor="middle">GET /v1/images/{image_id}</text><path class="am-edge" d="M232.5,120 L488.6,120" marker-end="url(#am2-arrow)"/><text class="am-step" x="238.5" y="114" text-anchor="start">2</text></g><g data-step="2"><text x="619.3" y="150" text-anchor="middle">check allowlist and read metadata</text><path class="am-edge" d="M490.6,160 L746,160" marker-end="url(#am2-arrow)"/><text class="am-step" x="496.6" y="154" text-anchor="start">3</text></g><g data-step="3"><text x="619.3" y="190" text-anchor="middle">image and QC fields</text><path class="am-edge am-edge--dashed" d="M748,200 L492.6,200" marker-end="url(#am2-arrow)"/><text class="am-step" x="742" y="194" text-anchor="end">4</text></g><g data-step="4"><text x="361.6" y="230" text-anchor="middle">selected image details</text><path class="am-edge am-edge--dashed" d="M490.6,240 L234.5,240" marker-end="url(#am2-arrow)"/><text class="am-step" x="484.6" y="234" text-anchor="end">5</text></g><g data-step="5"><text x="361.6" y="270" text-anchor="middle">GET /v1/predictions/{prediction_id}</text><path class="am-edge" d="M232.5,280 L488.6,280" marker-end="url(#am2-arrow)"/><text class="am-step" x="238.5" y="274" text-anchor="start">6</text></g><g data-step="6"><text x="619.3" y="310" text-anchor="middle">read immutable prediction</text><path class="am-edge" d="M490.6,320 L746,320" marker-end="url(#am2-arrow)"/><text class="am-step" x="496.6" y="314" text-anchor="start">7</text></g><g data-step="7"><text x="361.6" y="350" text-anchor="middle">class scores and model identity</text><path class="am-edge am-edge--dashed" d="M490.6,360 L234.5,360" marker-end="url(#am2-arrow)"/><text class="am-step" x="484.6" y="354" text-anchor="end">8</text></g><g data-step="8"><text x="143.6" y="390" text-anchor="middle">accept, correct, or defer</text><path class="am-edge" d="M54.7,400 L230.5,400" marker-end="url(#am2-arrow)"/><text class="am-step" x="60.7" y="394" text-anchor="start">9</text></g><g data-step="9"><text x="361.6" y="430" text-anchor="middle">POST</text><text x="361.6" y="446" text-anchor="middle">/v1/images/{image_id}/reviews</text><path class="am-edge" d="M232.5,456 L488.6,456" marker-end="url(#am2-arrow)"/><text class="am-step" x="238.5" y="450" text-anchor="start">10</text></g><g data-step="10"><text x="619.3" y="486" text-anchor="middle">append revision-aware review event</text><path class="am-edge" d="M490.6,496 L746,496" marker-end="url(#am2-arrow)"/><text class="am-step" x="496.6" y="490" text-anchor="start">11</text></g><g data-step="11"><text x="361.6" y="526" text-anchor="middle">updated review state</text><path class="am-edge am-edge--dashed" d="M490.6,536 L234.5,536" marker-end="url(#am2-arrow)"/><text class="am-step" x="484.6" y="530" text-anchor="end">12</text></g></svg></figure>
+<div class="am-md"><div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>Method and endpoint</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>GET /v1/health</code>, <code>/v1/meta</code></td>
+<td>Service health and runtime metadata</td>
+</tr>
+<tr>
+<td><code>GET /v1/model-card</code></td>
+<td>Model identity and evidence summary</td>
+</tr>
+<tr>
+<td><code>GET /v1/images</code>, <code>/v1/images/{image_id}</code></td>
+<td>Allowlisted image records</td>
+</tr>
+<tr>
+<td><code>GET /v1/predictions/{prediction_id}</code></td>
+<td>Stored prediction record</td>
+</tr>
+<tr>
+<td><code>GET /v1/images/{image_id}/thumbnail</code>, <code>/full</code></td>
+<td>Protected image derivatives</td>
+</tr>
+<tr>
+<td><code>GET /v1/images/{image_id}/review</code>, <code>POST .../reviews</code></td>
+<td>Read review state and append a review event</td>
+</tr>
+<tr>
+<td><code>GET /v1/images/{image_id}/attribution</code>, <code>/attribution/meta</code></td>
+<td>Qualified attribution and its metadata</td>
+</tr>
+<tr>
+<td><code>GET /v1/exports/reviews</code></td>
+<td>Export review records</td>
+</tr>
+</tbody></table></div>
+<p>When the local FastAPI app runs, its default API references are at <code>/docs</code>, <code>/redoc</code>, and <code>/openapi.json</code>. This guide documents routes; it adds no endpoint.</p>
+<p>An HTTP method describes the action: <code>GET</code> reads, and <code>POST</code> submits a new action or record. A proxy forwards a request to another service. SQLite is a local relational database.</p>
+</div></div>
+</section>
+<section class="am-panel" id="panel-D">
+<header class="am-panel-head"><span class="am-panel-id">D</span><h2>Development terms and change workflow</h2></header>
+<div class="am-panel-body"><div class="am-tl-wrap"><ol class="am-timeline am-timeline--h" style="--n: 6"><li class="am-tl-item"><span class="am-tl-when">Need</span><span class="am-tl-dot"></span><span class="am-tl-title">Describe</span><span class="am-tl-text">State the problem and the result people need</span></li><li class="am-tl-item"><span class="am-tl-when">Explore</span><span class="am-tl-dot"></span><span class="am-tl-title">Inspect</span><span class="am-tl-text">Read the code, evidence, and constraints</span></li><li class="am-tl-item"><span class="am-tl-when">Propose</span><span class="am-tl-dot"></span><span class="am-tl-title">Plan</span><span class="am-tl-text">Record why, behavior, design, and tasks in OpenSpec</span></li><li class="am-tl-item"><span class="am-tl-when">Apply</span><span class="am-tl-dot"></span><span class="am-tl-title">Build</span><span class="am-tl-text">Make the scoped change and update its task list</span></li><li class="am-tl-item"><span class="am-tl-when">Verify</span><span class="am-tl-dot"></span><span class="am-tl-title">Check</span><span class="am-tl-text">Run the stated checks and inspect the result</span></li><li class="am-tl-item"><span class="am-tl-when">Archive</span><span class="am-tl-dot"></span><span class="am-tl-title">Record</span><span class="am-tl-text">Move the completed change into the lasting spec history</span></li></ol></div>
+<div class="am-md"><div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>Term</th>
+<th>Plain meaning</th>
+<th>Software meaning</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Repository</td>
+<td>A project&#39;s tracked files</td>
+<td>Git history, branches, and current working tree</td>
+</tr>
+<tr>
+<td>Branch</td>
+<td>A separate line of work</td>
+<td>A named reference to a sequence of Git commits</td>
+</tr>
+<tr>
+<td>Pull request</td>
+<td>A proposed code change</td>
+<td>Review and merge interface for a branch</td>
+</tr>
+<tr>
+<td>Build</td>
+<td>Prepare software to run</td>
+<td>Compile, bundle, or package source files</td>
+</tr>
+<tr>
+<td>Test</td>
+<td>Check expected behavior</td>
+<td>Automated assertion over code or a user flow</td>
+</tr>
+<tr>
+<td>CI</td>
+<td>Automatic checks after a change</td>
+<td>Continuous integration jobs such as lint, tests, and builds</td>
+</tr>
+<tr>
+<td>Release</td>
+<td>A named deliverable</td>
+<td>Versioned package or deployment candidate</td>
+</tr>
+<tr>
+<td>Deploy</td>
+<td>Put a build in an environment</td>
+<td>Install or publish a chosen artifact to a target system</td>
+</tr>
+<tr>
+<td>OpenSpec</td>
+<td>A structured change record</td>
+<td>Proposal, requirements, design, tasks, and archive workflow</td>
+</tr>
+</tbody></table></div>
+<p>OpenSpec is change management. It helps teams plan and track implementation. Answer me with HTML turns a Markdown draft into a single offline explainer page. They complement the diagram tools.</p>
+</div></div>
+</section>
+<section class="am-panel" id="panel-E">
+<header class="am-panel-head"><span class="am-panel-id">E</span><h2>AI and model training, from data to review</h2></header>
+<div class="am-panel-body"><figure class="am-diagram am-flow"><svg viewBox="0 0 1743 80" width="1743" height="80" role="img" aria-label="Flowchart: Source data and provenance, Quality checks, Group-aware split, Train model, Held-out fold predictions, Metrics and error review, Model card and limitations, Application review" xmlns="http://www.w3.org/2000/svg"><defs><marker id="am3-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="am-arrow" d="M0,0 L10,5 L0,10 z"/></marker></defs><g></g><g><g data-step="0"><path class="am-edge" d="M139.8,40 L151.3,40 Q162.8,40 174.3,40 L185.8,40" marker-end="url(#am3-arrow)"/></g><g data-step="1"><path class="am-edge" d="M306.8,40 L318.3,40 Q329.8,40 341.3,40 L352.8,40" marker-end="url(#am3-arrow)"/></g><g data-step="2"><path class="am-edge" d="M493.4,40 L504.9,40 Q516.4,40 527.9,40 L539.4,40" marker-end="url(#am3-arrow)"/></g><g data-step="3"><path class="am-edge" d="M640.2,40 L651.7,40 Q663.2,40 674.7,40 L686.2,40" marker-end="url(#am3-arrow)"/></g><g data-step="4"><path class="am-edge" d="M794.6,40 L806.1,40 Q817.6,40 829.1,40 L840.6,40" marker-end="url(#am3-arrow)"/></g><g data-step="5"><path class="am-edge" d="M1016,40 L1027.5,40 Q1039,40 1050.5,40 L1062,40" marker-end="url(#am3-arrow)"/></g><g data-step="6"><path class="am-edge" d="M1182.8,40 L1194.3,40 Q1205.8,40 1217.3,40 L1228.8,40" marker-end="url(#am3-arrow)"/></g><g data-step="7"><path class="am-edge" d="M1371.2,40 L1382.7,40 Q1394.2,40 1405.7,40 L1417.2,40" marker-end="url(#am3-arrow)"/></g><g data-step="8"><path class="am-edge am-edge--dashed" d="M1567.9,40 L1579.4,40 Q1590.9,40 1602.4,40 L1613.9,40" marker-end="url(#am3-arrow)"/></g></g><g><g class="am-node am-node--rect" data-key="Source data and provenance" data-step="0"><rect class="am-node-shape" x="14" y="14" width="125.8" height="52" rx="3"/><text x="76.9" y="31.5" text-anchor="middle" dominant-baseline="central">Source data and</text><text x="76.9" y="48.5" text-anchor="middle" dominant-baseline="central">provenance</text></g><g class="am-node am-node--rect" data-key="Quality checks" data-step="0"><rect class="am-node-shape" x="185.8" y="22.5" width="121.1" height="35" rx="3"/><text x="246.3" y="40" text-anchor="middle" dominant-baseline="central">Quality checks</text></g><g class="am-node am-node--rect" data-key="Group-aware split" data-step="1"><rect class="am-node-shape" x="352.8" y="22.5" width="140.6" height="35" rx="3"/><text x="423.1" y="40" text-anchor="middle" dominant-baseline="central">Group-aware split</text></g><g class="am-node am-node--rect" data-key="Train model" data-step="2"><rect class="am-node-shape" x="539.4" y="22.5" width="100.8" height="35" rx="3"/><text x="589.8" y="40" text-anchor="middle" dominant-baseline="central">Train model</text></g><g class="am-node am-node--rect" data-key="Held-out fold predictions" data-step="3"><rect class="am-node-shape" x="686.2" y="14" width="108.3" height="52" rx="3"/><text x="740.4" y="31.5" text-anchor="middle" dominant-baseline="central">Held-out fold</text><text x="740.4" y="48.5" text-anchor="middle" dominant-baseline="central">predictions</text></g><g class="am-node am-node--rect" data-key="Metrics and error review" data-step="4"><rect class="am-node-shape" x="840.6" y="22.5" width="175.4" height="35" rx="3"/><text x="928.3" y="40" text-anchor="middle" dominant-baseline="central">Metrics and error review</text></g><g class="am-node am-node--rect" data-key="Model card and limitations" data-step="5"><rect class="am-node-shape" x="1062" y="14" width="120.8" height="52" rx="3"/><text x="1122.4" y="31.5" text-anchor="middle" dominant-baseline="central">Model card and</text><text x="1122.4" y="48.5" text-anchor="middle" dominant-baseline="central">limitations</text></g><g class="am-node am-node--rect" data-key="Application review" data-step="6"><rect class="am-node-shape" x="1228.8" y="22.5" width="142.4" height="35" rx="3"/><text x="1300" y="40" text-anchor="middle" dominant-baseline="central">Application review</text></g><g class="am-node am-node--rect" data-key="Append-only human event" data-step="7"><rect class="am-node-shape" x="1417.2" y="14" width="150.7" height="52" rx="3"/><text x="1492.6" y="31.5" text-anchor="middle" dominant-baseline="central">Append-only human</text><text x="1492.6" y="48.5" text-anchor="middle" dominant-baseline="central">event</text></g><g class="am-node am-node--rect" data-key="New approved experiment" data-step="8"><rect class="am-node-shape" x="1613.9" y="14" width="114.3" height="52" rx="3"/><text x="1671.1" y="31.5" text-anchor="middle" dominant-baseline="central">New approved</text><text x="1671.1" y="48.5" text-anchor="middle" dominant-baseline="central">experiment</text></g></g></svg></figure>
+<div class="am-md"><p>The upper stages describe a general machine-learning workflow. The app currently reads precomputed predictions. The app stores a reviewer correction as an event; it does not retrain a model automatically.</p>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>Term</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Epoch</td>
+<td>One pass over the training examples used by a run</td>
+</tr>
+<tr>
+<td>Fold</td>
+<td>One group-based split used to train and evaluate a model</td>
+</tr>
+<tr>
+<td>Out-of-fold prediction</td>
+<td>A prediction from a fold whose training set excluded that held-out group</td>
+</tr>
+<tr>
+<td>Recall</td>
+<td>The share of true examples of a class that the model found</td>
+</tr>
+<tr>
+<td>Calibration</td>
+<td>Whether scores match observed probabilities; the model reports uncalibrated class scores</td>
+</tr>
+<tr>
+<td>Model weights</td>
+<td>Learned numeric parameters saved in a model file</td>
+</tr>
+<tr>
+<td>Confusion matrix</td>
+<td>Counts of true classes against predicted classes</td>
+</tr>
+<tr>
+<td>Grad-CAM</td>
+<td>A visualization of model behavior; not a segmentation or causal explanation</td>
+</tr>
+</tbody></table></div>
+<p>Training loss describes fit to the training data. It does not show held-out performance. Read it with held-out metrics and the split design.</p>
+</div></div>
+</section>
+<section class="am-panel" id="panel-F">
+<header class="am-panel-head"><span class="am-panel-id">F</span><h2>Recorded G4 evidence and limits</h2></header>
+<div class="am-panel-body"><div class="am-md"><figure class="am-figure"><img data-am-src="g4-training-loss.svg" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iOTAwIiBoZWlnaHQ9IjM2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgdmVyc2lvbj0iMS4xIiBiYXNlUHJvZmlsZT0iZnVsbCIgdmlld0JveD0iMCAwIDkwMCAzNjAiPgo8cmVjdCB3aWR0aD0iOTAwIiBoZWlnaHQ9IjM2MCIgeD0iMCIgeT0iMCIgZmlsbD0ibm9uZSI+PC9yZWN0Pgo8cGF0aCBkPSJNMTM1IDI4MC41TDgxMCAyODAuNSIgZmlsbD0ibm9uZSIgcG9pbnRlci1ldmVudHM9InZpc2libGUiIHN0cm9rZT0iI2RiZGVlNCIgY2xhc3M9InpyMC1jbHMtMCI+PC9wYXRoPgo8cGF0aCBkPSJNMTM1IDI0NC41TDgxMCAyNDQuNSIgZmlsbD0ibm9uZSIgcG9pbnRlci1ldmVudHM9InZpc2libGUiIHN0cm9rZT0iI2RiZGVlNCIgY2xhc3M9InpyMC1jbHMtMCI+PC9wYXRoPgo8cGF0aCBkPSJNMTM1IDIwOC41TDgxMCAyMDguNSIgZmlsbD0ibm9uZSIgcG9pbnRlci1ldmVudHM9InZpc2libGUiIHN0cm9rZT0iI2RiZGVlNCIgY2xhc3M9InpyMC1jbHMtMCI+PC9wYXRoPgo8cGF0aCBkPSJNMTM1IDE3Mi41TDgxMCAxNzIuNSIgZmlsbD0ibm9uZSIgcG9pbnRlci1ldmVudHM9InZpc2libGUiIHN0cm9rZT0iI2RiZGVlNCIgY2xhc3M9InpyMC1jbHMtMCI+PC9wYXRoPgo8cGF0aCBkPSJNMTM1IDEzNi41TDgxMCAxMzYuNSIgZmlsbD0ibm9uZSIgcG9pbnRlci1ldmVudHM9InZpc2libGUiIHN0cm9rZT0iI2RiZGVlNCIgY2xhc3M9InpyMC1jbHMtMCI+PC9wYXRoPgo8cGF0aCBkPSJNMTM1IDEwMS41TDgxMCAxMDEuNSIgZmlsbD0ibm9uZSIgcG9pbnRlci1ldmVudHM9InZpc2libGUiIHN0cm9rZT0iI2RiZGVlNCIgY2xhc3M9InpyMC1jbHMtMCI+PC9wYXRoPgo8cGF0aCBkPSJNMTM1IDY1LjVMODEwIDY1LjUiIGZpbGw9Im5vbmUiIHBvaW50ZXItZXZlbnRzPSJ2aXNpYmxlIiBzdHJva2U9IiNkYmRlZTQiIGNsYXNzPSJ6cjAtY2xzLTAiPjwvcGF0aD4KPHRleHQgZG9taW5hbnQtYmFzZWxpbmU9ImNlbnRyYWwiIHRleHQtYW5jaG9yPSJtaWRkbGUiIHN0eWxlPSJmb250LXNpemU6MTJweDtmb250LWZhbWlseTpNaWNyb3NvZnQgWWFIZWk7IiB4bWw6c3BhY2U9InByZXNlcnZlIiB5PSItNiIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMTM1IDUwKSIgZmlsbD0iIzU0NTU1YSI+VHJhaW5pbmcgbG9zczwvdGV4dD4KPHRleHQgZG9taW5hbnQtYmFzZWxpbmU9ImNlbnRyYWwiIHRleHQtYW5jaG9yPSJzdGFydCIgc3R5bGU9ImZvbnQtc2l6ZToxMnB4O2ZvbnQtZmFtaWx5Ok1pY3Jvc29mdCBZYUhlaTsiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDgyNSAyODApIiBmaWxsPSIjNTQ1NTVhIj5FcG9jaDwvdGV4dD4KPHBhdGggZD0iTTEzNSAyODAuNUw4MTAgMjgwLjUiIGZpbGw9Im5vbmUiIHBvaW50ZXItZXZlbnRzPSJ2aXNpYmxlIiBzdHJva2U9IiM1NDU1NWEiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgY2xhc3M9InpyMC1jbHMtMCI+PC9wYXRoPgo8cGF0aCBkPSJNMTM1LjUgMjgwTDEzNS41IDI4NSIgZmlsbD0ibm9uZSIgcG9pbnRlci1ldmVudHM9InZpc2libGUiIHN0cm9rZT0iIzU0NTU1YSIgY2xhc3M9InpyMC1jbHMtMCI+PC9wYXRoPgo8cGF0aCBkPSJNMjEwLjUgMjgwTDIxMC41IDI4NSIgZmlsbD0ibm9uZSIgcG9pbnRlci1ldmVudHM9InZpc2libGUiIHN0cm9rZT0iIzU0NTU1YSIgY2xhc3M9InpyMC1jbHMtMCI+PC9wYXRoPgo8cGF0aCBkPSJNMjg1LjUgMjgwTDI4NS41IDI4NSIgZmlsbD0ibm9uZSIgcG9pbnRlci1ldmVudHM9InZpc2libGUiIHN0cm9rZT0iIzU0NTU1YSIgY2xhc3M9InpyMC1jbHMtMCI+PC9wYXRoPgo8cGF0aCBkPSJNMzYwLjUgMjgwTDM2MC41IDI4NSIgZmlsbD0ibm9uZSIgcG9pbnRlci1ldmVudHM9InZpc2libGUiIHN0cm9rZT0iIzU0NTU1YSIgY2xhc3M9InpyMC1jbHMtMCI+PC9wYXRoPgo8cGF0aCBkPSJNNDM1LjUgMjgwTDQzNS41IDI4NSIgZmlsbD0ibm9uZSIgcG9pbnRlci1ldmVudHM9InZpc2libGUiIHN0cm9rZT0iIzU0NTU1YSIgY2xhc3M9InpyMC1jbHMtMCI+PC9wYXRoPgo8cGF0aCBkPSJNNTEwLjUgMjgwTDUxMC41IDI4NSIgZmlsbD0ibm9uZSIgcG9pbnRlci1ldmVudHM9InZpc2libGUiIHN0cm9rZT0iIzU0NTU1YSIgY2xhc3M9InpyMC1jbHMtMCI+PC9wYXRoPgo8cGF0aCBkPSJNNTg1LjUgMjgwTDU4NS41IDI4NSIgZmlsbD0ibm9uZSIgcG9pbnRlci1ldmVudHM9InZpc2libGUiIHN0cm9rZT0iIzU0NTU1YSIgY2xhc3M9InpyMC1jbHMtMCI+PC9wYXRoPgo8cGF0aCBkPSJNNjYwLjUgMjgwTDY2MC41IDI4NSIgZmlsbD0ibm9uZSIgcG9pbnRlci1ldmVudHM9InZpc2libGUiIHN0cm9rZT0iIzU0NTU1YSIgY2xhc3M9InpyMC1jbHMtMCI+PC9wYXRoPgo8cGF0aCBkPSJNNzM1LjUgMjgwTDczNS41IDI4NSIgZmlsbD0ibm9uZSIgcG9pbnRlci1ldmVudHM9InZpc2libGUiIHN0cm9rZT0iIzU0NTU1YSIgY2xhc3M9InpyMC1jbHMtMCI+PC9wYXRoPgo8cGF0aCBkPSJNODEwLjUgMjgwTDgxMC41IDI4NSIgZmlsbD0ibm9uZSIgcG9pbnRlci1ldmVudHM9InZpc2libGUiIHN0cm9rZT0iIzU0NTU1YSIgY2xhc3M9InpyMC1jbHMtMCI+PC9wYXRoPgo8dGV4dCBkb21pbmFudC1iYXNlbGluZT0iY2VudHJhbCIgdGV4dC1hbmNob3I9ImVuZCIgc3R5bGU9ImZvbnQtc2l6ZToxMnB4O2ZvbnQtZmFtaWx5Ok1pY3Jvc29mdCBZYUhlaTsiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDEyNyAyODApIiBmaWxsPSIjNTQ1NTVhIj4wPC90ZXh0Pgo8dGV4dCBkb21pbmFudC1iYXNlbGluZT0iY2VudHJhbCIgdGV4dC1hbmNob3I9ImVuZCIgc3R5bGU9ImZvbnQtc2l6ZToxMnB4O2ZvbnQtZmFtaWx5Ok1pY3Jvc29mdCBZYUhlaTsiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDEyNyAyNDQuMTY2NykiIGZpbGw9IiM1NDU1NWEiPjAuMTwvdGV4dD4KPHRleHQgZG9taW5hbnQtYmFzZWxpbmU9ImNlbnRyYWwiIHRleHQtYW5jaG9yPSJlbmQiIHN0eWxlPSJmb250LXNpemU6MTJweDtmb250LWZhbWlseTpNaWNyb3NvZnQgWWFIZWk7IiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgxMjcgMjA4LjMzMzMpIiBmaWxsPSIjNTQ1NTVhIj4wLjI8L3RleHQ+Cjx0ZXh0IGRvbWluYW50LWJhc2VsaW5lPSJjZW50cmFsIiB0ZXh0LWFuY2hvcj0iZW5kIiBzdHlsZT0iZm9udC1zaXplOjEycHg7Zm9udC1mYW1pbHk6TWljcm9zb2Z0IFlhSGVpOyIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMTI3IDE3Mi41KSIgZmlsbD0iIzU0NTU1YSI+MC4zPC90ZXh0Pgo8dGV4dCBkb21pbmFudC1iYXNlbGluZT0iY2VudHJhbCIgdGV4dC1hbmNob3I9ImVuZCIgc3R5bGU9ImZvbnQtc2l6ZToxMnB4O2ZvbnQtZmFtaWx5Ok1pY3Jvc29mdCBZYUhlaTsiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDEyNyAxMzYuNjY2NykiIGZpbGw9IiM1NDU1NWEiPjAuNDwvdGV4dD4KPHRleHQgZG9taW5hbnQtYmFzZWxpbmU9ImNlbnRyYWwiIHRleHQtYW5jaG9yPSJlbmQiIHN0eWxlPSJmb250LXNpemU6MTJweDtmb250LWZhbWlseTpNaWNyb3NvZnQgWWFIZWk7IiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgxMjcgMTAwLjgzMzMpIiBmaWxsPSIjNTQ1NTVhIj4wLjU8L3RleHQ+Cjx0ZXh0IGRvbWluYW50LWJhc2VsaW5lPSJjZW50cmFsIiB0ZXh0LWFuY2hvcj0iZW5kIiBzdHlsZT0iZm9udC1zaXplOjEycHg7Zm9udC1mYW1pbHk6TWljcm9zb2Z0IFlhSGVpOyIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMTI3IDY1KSIgZmlsbD0iIzU0NTU1YSI+MC42PC90ZXh0Pgo8dGV4dCBkb21pbmFudC1iYXNlbGluZT0iY2VudHJhbCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgc3R5bGU9ImZvbnQtc2l6ZToxMnB4O2ZvbnQtZmFtaWx5Ok1pY3Jvc29mdCBZYUhlaTsiIHk9IjYiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDEzNSAyODgpIiBmaWxsPSIjNTQ1NTVhIj4wPC90ZXh0Pgo8dGV4dCBkb21pbmFudC1iYXNlbGluZT0iY2VudHJhbCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgc3R5bGU9ImZvbnQtc2l6ZToxMnB4O2ZvbnQtZmFtaWx5Ok1pY3Jvc29mdCBZYUhlaTsiIHk9IjYiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDIxMCAyODgpIiBmaWxsPSIjNTQ1NTVhIj4xPC90ZXh0Pgo8dGV4dCBkb21pbmFudC1iYXNlbGluZT0iY2VudHJhbCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgc3R5bGU9ImZvbnQtc2l6ZToxMnB4O2ZvbnQtZmFtaWx5Ok1pY3Jvc29mdCBZYUhlaTsiIHk9IjYiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDI4NSAyODgpIiBmaWxsPSIjNTQ1NTVhIj4yPC90ZXh0Pgo8dGV4dCBkb21pbmFudC1iYXNlbGluZT0iY2VudHJhbCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgc3R5bGU9ImZvbnQtc2l6ZToxMnB4O2ZvbnQtZmFtaWx5Ok1pY3Jvc29mdCBZYUhlaTsiIHk9IjYiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDM2MCAyODgpIiBmaWxsPSIjNTQ1NTVhIj4zPC90ZXh0Pgo8dGV4dCBkb21pbmFudC1iYXNlbGluZT0iY2VudHJhbCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgc3R5bGU9ImZvbnQtc2l6ZToxMnB4O2ZvbnQtZmFtaWx5Ok1pY3Jvc29mdCBZYUhlaTsiIHk9IjYiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDQzNSAyODgpIiBmaWxsPSIjNTQ1NTVhIj40PC90ZXh0Pgo8dGV4dCBkb21pbmFudC1iYXNlbGluZT0iY2VudHJhbCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgc3R5bGU9ImZvbnQtc2l6ZToxMnB4O2ZvbnQtZmFtaWx5Ok1pY3Jvc29mdCBZYUhlaTsiIHk9IjYiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDUxMCAyODgpIiBmaWxsPSIjNTQ1NTVhIj41PC90ZXh0Pgo8dGV4dCBkb21pbmFudC1iYXNlbGluZT0iY2VudHJhbCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgc3R5bGU9ImZvbnQtc2l6ZToxMnB4O2ZvbnQtZmFtaWx5Ok1pY3Jvc29mdCBZYUhlaTsiIHk9IjYiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDU4NSAyODgpIiBmaWxsPSIjNTQ1NTVhIj42PC90ZXh0Pgo8dGV4dCBkb21pbmFudC1iYXNlbGluZT0iY2VudHJhbCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgc3R5bGU9ImZvbnQtc2l6ZToxMnB4O2ZvbnQtZmFtaWx5Ok1pY3Jvc29mdCBZYUhlaTsiIHk9IjYiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDY2MCAyODgpIiBmaWxsPSIjNTQ1NTVhIj43PC90ZXh0Pgo8dGV4dCBkb21pbmFudC1iYXNlbGluZT0iY2VudHJhbCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgc3R5bGU9ImZvbnQtc2l6ZToxMnB4O2ZvbnQtZmFtaWx5Ok1pY3Jvc29mdCBZYUhlaTsiIHk9IjYiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDczNSAyODgpIiBmaWxsPSIjNTQ1NTVhIj44PC90ZXh0Pgo8dGV4dCBkb21pbmFudC1iYXNlbGluZT0iY2VudHJhbCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgc3R5bGU9ImZvbnQtc2l6ZToxMnB4O2ZvbnQtZmFtaWx5Ok1pY3Jvc29mdCBZYUhlaTsiIHk9IjYiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDgxMCAyODgpIiBmaWxsPSIjNTQ1NTVhIj45PC90ZXh0Pgo8ZyBjbGlwLXBhdGg9InVybCgjenIwLWMwKSI+CjxwYXRoIGQ9Ik0xMzUgODZMMjEwIDE4Ny40TDI4NSAyMDYuM0wzNjAgMjE2LjRMNDM1IDIyMy4yTDUxMCAyMjkuNUw1ODUgMjM0LjRMNjYwIDIzOS4yTDczNSAyNDIuNkw4MTAgMjM5LjgiIGZpbGw9Im5vbmUiIHBvaW50ZXItZXZlbnRzPSJ2aXNpYmxlIiBzdHJva2U9IiM1MDcwZGQiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVqb2luPSJiZXZlbCIgY2xhc3M9InpyMC1jbHMtMiI+PC9wYXRoPgo8L2c+CjxnIGNsaXAtcGF0aD0idXJsKCN6cjAtYzEpIj4KPHBhdGggZD0iTTEzNSAxMDIuMkwyMTAgMTg3LjRMMjg1IDIwMUwzNjAgMjA4LjhMNDM1IDIxMS45TDUxMCAyMjMuN0w1ODUgMjI1LjlMNjYwIDIyOS45TDczNSAyMjguOUw4MTAgMjMyLjIiIGZpbGw9Im5vbmUiIHBvaW50ZXItZXZlbnRzPSJ2aXNpYmxlIiBzdHJva2U9IiNiNmQ2MzQiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVqb2luPSJiZXZlbCIgY2xhc3M9InpyMC1jbHMtMiI+PC9wYXRoPgo8L2c+CjxnIGNsaXAtcGF0aD0idXJsKCN6cjAtYzIpIj4KPHBhdGggZD0iTTEzNSAxMDNMMjEwIDE5MC43TDI4NSAyMDUuN0wzNjAgMjEzLjhMNDM1IDIxOS42TDUxMCAyMTkuN0w1ODUgMjI3LjNMNjYwIDIyOS45TDczNSAyMzEuOEw4MTAgMjM1LjciIGZpbGw9Im5vbmUiIHBvaW50ZXItZXZlbnRzPSJ2aXNpYmxlIiBzdHJva2U9IiM1MDUzNzIiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVqb2luPSJiZXZlbCIgY2xhc3M9InpyMC1jbHMtMiI+PC9wYXRoPgo8L2c+CjxnIGNsaXAtcGF0aD0idXJsKCN6cjAtYzMpIj4KPHBhdGggZD0iTTEzNSA2OC4yTDIxMCAxNjEuNEwyODUgMTg0LjhMMzYwIDE5NC44TDQzNSAyMDAuOUw1MTAgMjA1LjRMNTg1IDIxMi40TDY2MCAyMTIuMUw3MzUgMjE4LjNMODEwIDIyMS41IiBmaWxsPSJub25lIiBwb2ludGVyLWV2ZW50cz0idmlzaWJsZSIgc3Ryb2tlPSIjZmY5OTRkIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lam9pbj0iYmV2ZWwiIGNsYXNzPSJ6cjAtY2xzLTIiPjwvcGF0aD4KPC9nPgo8cGF0aCBkPSJNMSAwQTEgMSAwIDEgMSAxIC0wLjFBMSAxIDAgMCAxIDEgMCIgdHJhbnNmb3JtPSJtYXRyaXgoMywwLDAsMywxMzUsODUuOTgxOCkiIGZpbGw9IiNmZmYiIHN0cm9rZT0iIzUwNzBkZCIgc3Ryb2tlLXdpZHRoPSIwLjY2NjY2NjY2NjY2NjY2NjYiIGVjbWV0YV9zZXJpZXNfaW5kZXg9IjAiIGVjbWV0YV9kYXRhX2luZGV4PSIwIiBlY21ldGFfc3NyX3R5cGU9ImNoYXJ0IiBjbGFzcz0ienIwLWNscy0zIj48L3BhdGg+CjxwYXRoIGQ9Ik0xIDBBMSAxIDAgMSAxIDEgLTAuMUExIDEgMCAwIDEgMSAwIiB0cmFuc2Zvcm09Im1hdHJpeCgzLDAsMCwzLDIxMCwxODcuNDAwMikiIGZpbGw9IiNmZmYiIHN0cm9rZT0iIzUwNzBkZCIgc3Ryb2tlLXdpZHRoPSIwLjY2NjY2NjY2NjY2NjY2NjYiIGVjbWV0YV9zZXJpZXNfaW5kZXg9IjAiIGVjbWV0YV9kYXRhX2luZGV4PSIxIiBlY21ldGFfc3NyX3R5cGU9ImNoYXJ0IiBjbGFzcz0ienIwLWNscy0zIj48L3BhdGg+CjxwYXRoIGQ9Ik0xIDBBMSAxIDAgMSAxIDEgLTAuMUExIDEgMCAwIDEgMSAwIiB0cmFuc2Zvcm09Im1hdHJpeCgzLDAsMCwzLDI4NSwyMDYuMjc0KSIgZmlsbD0iI2ZmZiIgc3Ryb2tlPSIjNTA3MGRkIiBzdHJva2Utd2lkdGg9IjAuNjY2NjY2NjY2NjY2NjY2NiIgZWNtZXRhX3Nlcmllc19pbmRleD0iMCIgZWNtZXRhX2RhdGFfaW5kZXg9IjIiIGVjbWV0YV9zc3JfdHlwZT0iY2hhcnQiIGNsYXNzPSJ6cjAtY2xzLTMiPjwvcGF0aD4KPHBhdGggZD0iTTEgMEExIDEgMCAxIDEgMSAtMC4xQTEgMSAwIDAgMSAxIDAiIHRyYW5zZm9ybT0ibWF0cml4KDMsMCwwLDMsMzYwLDIxNi4zNzY4KSIgZmlsbD0iI2ZmZiIgc3Ryb2tlPSIjNTA3MGRkIiBzdHJva2Utd2lkdGg9IjAuNjY2NjY2NjY2NjY2NjY2NiIgZWNtZXRhX3Nlcmllc19pbmRleD0iMCIgZWNtZXRhX2RhdGFfaW5kZXg9IjMiIGVjbWV0YV9zc3JfdHlwZT0iY2hhcnQiIGNsYXNzPSJ6cjAtY2xzLTMiPjwvcGF0aD4KPHBhdGggZD0iTTEgMEExIDEgMCAxIDEgMSAtMC4xQTEgMSAwIDAgMSAxIDAiIHRyYW5zZm9ybT0ibWF0cml4KDMsMCwwLDMsNDM1LDIyMy4yMDg1KSIgZmlsbD0iI2ZmZiIgc3Ryb2tlPSIjNTA3MGRkIiBzdHJva2Utd2lkdGg9IjAuNjY2NjY2NjY2NjY2NjY2NiIgZWNtZXRhX3Nlcmllc19pbmRleD0iMCIgZWNtZXRhX2RhdGFfaW5kZXg9IjQiIGVjbWV0YV9zc3JfdHlwZT0iY2hhcnQiIGNsYXNzPSJ6cjAtY2xzLTMiPjwvcGF0aD4KPHBhdGggZD0iTTEgMEExIDEgMCAxIDEgMSAtMC4xQTEgMSAwIDAgMSAxIDAiIHRyYW5zZm9ybT0ibWF0cml4KDMsMCwwLDMsNTEwLDIyOS41MjQ0KSIgZmlsbD0iI2ZmZiIgc3Ryb2tlPSIjNTA3MGRkIiBzdHJva2Utd2lkdGg9IjAuNjY2NjY2NjY2NjY2NjY2NiIgZWNtZXRhX3Nlcmllc19pbmRleD0iMCIgZWNtZXRhX2RhdGFfaW5kZXg9IjUiIGVjbWV0YV9zc3JfdHlwZT0iY2hhcnQiIGNsYXNzPSJ6cjAtY2xzLTMiPjwvcGF0aD4KPHBhdGggZD0iTTEgMEExIDEgMCAxIDEgMSAtMC4xQTEgMSAwIDAgMSAxIDAiIHRyYW5zZm9ybT0ibWF0cml4KDMsMCwwLDMsNTg1LDIzNC4zNTk4KSIgZmlsbD0iI2ZmZiIgc3Ryb2tlPSIjNTA3MGRkIiBzdHJva2Utd2lkdGg9IjAuNjY2NjY2NjY2NjY2NjY2NiIgZWNtZXRhX3Nlcmllc19pbmRleD0iMCIgZWNtZXRhX2RhdGFfaW5kZXg9IjYiIGVjbWV0YV9zc3JfdHlwZT0iY2hhcnQiIGNsYXNzPSJ6cjAtY2xzLTMiPjwvcGF0aD4KPHBhdGggZD0iTTEgMEExIDEgMCAxIDEgMSAtMC4xQTEgMSAwIDAgMSAxIDAiIHRyYW5zZm9ybT0ibWF0cml4KDMsMCwwLDMsNjYwLDIzOS4xODMpIiBmaWxsPSIjZmZmIiBzdHJva2U9IiM1MDcwZGQiIHN0cm9rZS13aWR0aD0iMC42NjY2NjY2NjY2NjY2NjY2IiBlY21ldGFfc2VyaWVzX2luZGV4PSIwIiBlY21ldGFfZGF0YV9pbmRleD0iNyIgZWNtZXRhX3Nzcl90eXBlPSJjaGFydCIgY2xhc3M9InpyMC1jbHMtMyI+PC9wYXRoPgo8cGF0aCBkPSJNMSAwQTEgMSAwIDEgMSAxIC0wLjFBMSAxIDAgMCAxIDEgMCIgdHJhbnNmb3JtPSJtYXRyaXgoMywwLDAsMyw3MzUsMjQyLjYzMzQpIiBmaWxsPSIjZmZmIiBzdHJva2U9IiM1MDcwZGQiIHN0cm9rZS13aWR0aD0iMC42NjY2NjY2NjY2NjY2NjY2IiBlY21ldGFfc2VyaWVzX2luZGV4PSIwIiBlY21ldGFfZGF0YV9pbmRleD0iOCIgZWNtZXRhX3Nzcl90eXBlPSJjaGFydCIgY2xhc3M9InpyMC1jbHMtMyI+PC9wYXRoPgo8cGF0aCBkPSJNMSAwQTEgMSAwIDEgMSAxIC0wLjFBMSAxIDAgMCAxIDEgMCIgdHJhbnNmb3JtPSJtYXRyaXgoMywwLDAsMyw4MTAsMjM5Ljc5NzkpIiBmaWxsPSIjZmZmIiBzdHJva2U9IiM1MDcwZGQiIHN0cm9rZS13aWR0aD0iMC42NjY2NjY2NjY2NjY2NjY2IiBlY21ldGFfc2VyaWVzX2luZGV4PSIwIiBlY21ldGFfZGF0YV9pbmRleD0iOSIgZWNtZXRhX3Nzcl90eXBlPSJjaGFydCIgY2xhc3M9InpyMC1jbHMtMyI+PC9wYXRoPgo8cGF0aCBkPSJNMSAwQTEgMSAwIDEgMSAxIC0wLjFBMSAxIDAgMCAxIDEgMCIgdHJhbnNmb3JtPSJtYXRyaXgoMywwLDAsMywxMzUsMTAyLjIxNjUpIiBmaWxsPSIjZmZmIiBzdHJva2U9IiNiNmQ2MzQiIHN0cm9rZS13aWR0aD0iMC42NjY2NjY2NjY2NjY2NjY2IiBlY21ldGFfc2VyaWVzX2luZGV4PSIxIiBlY21ldGFfZGF0YV9pbmRleD0iMCIgZWNtZXRhX3Nzcl90eXBlPSJjaGFydCIgY2xhc3M9InpyMC1jbHMtMyI+PC9wYXRoPgo8cGF0aCBkPSJNMSAwQTEgMSAwIDEgMSAxIC0wLjFBMSAxIDAgMCAxIDEgMCIgdHJhbnNmb3JtPSJtYXRyaXgoMywwLDAsMywyMTAsMTg3LjM3OTQpIiBmaWxsPSIjZmZmIiBzdHJva2U9IiNiNmQ2MzQiIHN0cm9rZS13aWR0aD0iMC42NjY2NjY2NjY2NjY2NjY2IiBlY21ldGFfc2VyaWVzX2luZGV4PSIxIiBlY21ldGFfZGF0YV9pbmRleD0iMSIgZWNtZXRhX3Nzcl90eXBlPSJjaGFydCIgY2xhc3M9InpyMC1jbHMtMyI+PC9wYXRoPgo8cGF0aCBkPSJNMSAwQTEgMSAwIDEgMSAxIC0wLjFBMSAxIDAgMCAxIDEgMCIgdHJhbnNmb3JtPSJtYXRyaXgoMywwLDAsMywyODUsMjAwLjk5MjUpIiBmaWxsPSIjZmZmIiBzdHJva2U9IiNiNmQ2MzQiIHN0cm9rZS13aWR0aD0iMC42NjY2NjY2NjY2NjY2NjY2IiBlY21ldGFfc2VyaWVzX2luZGV4PSIxIiBlY21ldGFfZGF0YV9pbmRleD0iMiIgZWNtZXRhX3Nzcl90eXBlPSJjaGFydCIgY2xhc3M9InpyMC1jbHMtMyI+PC9wYXRoPgo8cGF0aCBkPSJNMSAwQTEgMSAwIDEgMSAxIC0wLjFBMSAxIDAgMCAxIDEgMCIgdHJhbnNmb3JtPSJtYXRyaXgoMywwLDAsMywzNjAsMjA4Ljc2MjMpIiBmaWxsPSIjZmZmIiBzdHJva2U9IiNiNmQ2MzQiIHN0cm9rZS13aWR0aD0iMC42NjY2NjY2NjY2NjY2NjY2IiBlY21ldGFfc2VyaWVzX2luZGV4PSIxIiBlY21ldGFfZGF0YV9pbmRleD0iMyIgZWNtZXRhX3Nzcl90eXBlPSJjaGFydCIgY2xhc3M9InpyMC1jbHMtMyI+PC9wYXRoPgo8cGF0aCBkPSJNMSAwQTEgMSAwIDEgMSAxIC0wLjFBMSAxIDAgMCAxIDEgMCIgdHJhbnNmb3JtPSJtYXRyaXgoMywwLDAsMyw0MzUsMjExLjg1ODMpIiBmaWxsPSIjZmZmIiBzdHJva2U9IiNiNmQ2MzQiIHN0cm9rZS13aWR0aD0iMC42NjY2NjY2NjY2NjY2NjY2IiBlY21ldGFfc2VyaWVzX2luZGV4PSIxIiBlY21ldGFfZGF0YV9pbmRleD0iNCIgZWNtZXRhX3Nzcl90eXBlPSJjaGFydCIgY2xhc3M9InpyMC1jbHMtMyI+PC9wYXRoPgo8cGF0aCBkPSJNMSAwQTEgMSAwIDEgMSAxIC0wLjFBMSAxIDAgMCAxIDEgMCIgdHJhbnNmb3JtPSJtYXRyaXgoMywwLDAsMyw1MTAsMjIzLjcxOTgpIiBmaWxsPSIjZmZmIiBzdHJva2U9IiNiNmQ2MzQiIHN0cm9rZS13aWR0aD0iMC42NjY2NjY2NjY2NjY2NjY2IiBlY21ldGFfc2VyaWVzX2luZGV4PSIxIiBlY21ldGFfZGF0YV9pbmRleD0iNSIgZWNtZXRhX3Nzcl90eXBlPSJjaGFydCIgY2xhc3M9InpyMC1jbHMtMyI+PC9wYXRoPgo8cGF0aCBkPSJNMSAwQTEgMSAwIDEgMSAxIC0wLjFBMSAxIDAgMCAxIDEgMCIgdHJhbnNmb3JtPSJtYXRyaXgoMywwLDAsMyw1ODUsMjI1LjkwNikiIGZpbGw9IiNmZmYiIHN0cm9rZT0iI2I2ZDYzNCIgc3Ryb2tlLXdpZHRoPSIwLjY2NjY2NjY2NjY2NjY2NjYiIGVjbWV0YV9zZXJpZXNfaW5kZXg9IjEiIGVjbWV0YV9kYXRhX2luZGV4PSI2IiBlY21ldGFfc3NyX3R5cGU9ImNoYXJ0IiBjbGFzcz0ienIwLWNscy0zIj48L3BhdGg+CjxwYXRoIGQ9Ik0xIDBBMSAxIDAgMSAxIDEgLTAuMUExIDEgMCAwIDEgMSAwIiB0cmFuc2Zvcm09Im1hdHJpeCgzLDAsMCwzLDY2MCwyMjkuODg1MykiIGZpbGw9IiNmZmYiIHN0cm9rZT0iI2I2ZDYzNCIgc3Ryb2tlLXdpZHRoPSIwLjY2NjY2NjY2NjY2NjY2NjYiIGVjbWV0YV9zZXJpZXNfaW5kZXg9IjEiIGVjbWV0YV9kYXRhX2luZGV4PSI3IiBlY21ldGFfc3NyX3R5cGU9ImNoYXJ0IiBjbGFzcz0ienIwLWNscy0zIj48L3BhdGg+CjxwYXRoIGQ9Ik0xIDBBMSAxIDAgMSAxIDEgLTAuMUExIDEgMCAwIDEgMSAwIiB0cmFuc2Zvcm09Im1hdHJpeCgzLDAsMCwzLDczNSwyMjguODg0MSkiIGZpbGw9IiNmZmYiIHN0cm9rZT0iI2I2ZDYzNCIgc3Ryb2tlLXdpZHRoPSIwLjY2NjY2NjY2NjY2NjY2NjYiIGVjbWV0YV9zZXJpZXNfaW5kZXg9IjEiIGVjbWV0YV9kYXRhX2luZGV4PSI4IiBlY21ldGFfc3NyX3R5cGU9ImNoYXJ0IiBjbGFzcz0ienIwLWNscy0zIj48L3BhdGg+CjxwYXRoIGQ9Ik0xIDBBMSAxIDAgMSAxIDEgLTAuMUExIDEgMCAwIDEgMSAwIiB0cmFuc2Zvcm09Im1hdHJpeCgzLDAsMCwzLDgxMCwyMzIuMTk4MykiIGZpbGw9IiNmZmYiIHN0cm9rZT0iI2I2ZDYzNCIgc3Ryb2tlLXdpZHRoPSIwLjY2NjY2NjY2NjY2NjY2NjYiIGVjbWV0YV9zZXJpZXNfaW5kZXg9IjEiIGVjbWV0YV9kYXRhX2luZGV4PSI5IiBlY21ldGFfc3NyX3R5cGU9ImNoYXJ0IiBjbGFzcz0ienIwLWNscy0zIj48L3BhdGg+CjxwYXRoIGQ9Ik0xIDBBMSAxIDAgMSAxIDEgLTAuMUExIDEgMCAwIDEgMSAwIiB0cmFuc2Zvcm09Im1hdHJpeCgzLDAsMCwzLDEzNSwxMDIuOTg4MykiIGZpbGw9IiNmZmYiIHN0cm9rZT0iIzUwNTM3MiIgc3Ryb2tlLXdpZHRoPSIwLjY2NjY2NjY2NjY2NjY2NjYiIGVjbWV0YV9zZXJpZXNfaW5kZXg9IjIiIGVjbWV0YV9kYXRhX2luZGV4PSIwIiBlY21ldGFfc3NyX3R5cGU9ImNoYXJ0IiBjbGFzcz0ienIwLWNscy0zIj48L3BhdGg+CjxwYXRoIGQ9Ik0xIDBBMSAxIDAgMSAxIDEgLTAuMUExIDEgMCAwIDEgMSAwIiB0cmFuc2Zvcm09Im1hdHJpeCgzLDAsMCwzLDIxMCwxOTAuNzQ2KSIgZmlsbD0iI2ZmZiIgc3Ryb2tlPSIjNTA1MzcyIiBzdHJva2Utd2lkdGg9IjAuNjY2NjY2NjY2NjY2NjY2NiIgZWNtZXRhX3Nlcmllc19pbmRleD0iMiIgZWNtZXRhX2RhdGFfaW5kZXg9IjEiIGVjbWV0YV9zc3JfdHlwZT0iY2hhcnQiIGNsYXNzPSJ6cjAtY2xzLTMiPjwvcGF0aD4KPHBhdGggZD0iTTEgMEExIDEgMCAxIDEgMSAtMC4xQTEgMSAwIDAgMSAxIDAiIHRyYW5zZm9ybT0ibWF0cml4KDMsMCwwLDMsMjg1LDIwNS43MjcyKSIgZmlsbD0iI2ZmZiIgc3Ryb2tlPSIjNTA1MzcyIiBzdHJva2Utd2lkdGg9IjAuNjY2NjY2NjY2NjY2NjY2NiIgZWNtZXRhX3Nlcmllc19pbmRleD0iMiIgZWNtZXRhX2RhdGFfaW5kZXg9IjIiIGVjbWV0YV9zc3JfdHlwZT0iY2hhcnQiIGNsYXNzPSJ6cjAtY2xzLTMiPjwvcGF0aD4KPHBhdGggZD0iTTEgMEExIDEgMCAxIDEgMSAtMC4xQTEgMSAwIDAgMSAxIDAiIHRyYW5zZm9ybT0ibWF0cml4KDMsMCwwLDMsMzYwLDIxMy44MDU0KSIgZmlsbD0iI2ZmZiIgc3Ryb2tlPSIjNTA1MzcyIiBzdHJva2Utd2lkdGg9IjAuNjY2NjY2NjY2NjY2NjY2NiIgZWNtZXRhX3Nlcmllc19pbmRleD0iMiIgZWNtZXRhX2RhdGFfaW5kZXg9IjMiIGVjbWV0YV9zc3JfdHlwZT0iY2hhcnQiIGNsYXNzPSJ6cjAtY2xzLTMiPjwvcGF0aD4KPHBhdGggZD0iTTEgMEExIDEgMCAxIDEgMSAtMC4xQTEgMSAwIDAgMSAxIDAiIHRyYW5zZm9ybT0ibWF0cml4KDMsMCwwLDMsNDM1LDIxOS42MTE1KSIgZmlsbD0iI2ZmZiIgc3Ryb2tlPSIjNTA1MzcyIiBzdHJva2Utd2lkdGg9IjAuNjY2NjY2NjY2NjY2NjY2NiIgZWNtZXRhX3Nlcmllc19pbmRleD0iMiIgZWNtZXRhX2RhdGFfaW5kZXg9IjQiIGVjbWV0YV9zc3JfdHlwZT0iY2hhcnQiIGNsYXNzPSJ6cjAtY2xzLTMiPjwvcGF0aD4KPHBhdGggZD0iTTEgMEExIDEgMCAxIDEgMSAtMC4xQTEgMSAwIDAgMSAxIDAiIHRyYW5zZm9ybT0ibWF0cml4KDMsMCwwLDMsNTEwLDIxOS42OTI5KSIgZmlsbD0iI2ZmZiIgc3Ryb2tlPSIjNTA1MzcyIiBzdHJva2Utd2lkdGg9IjAuNjY2NjY2NjY2NjY2NjY2NiIgZWNtZXRhX3Nlcmllc19pbmRleD0iMiIgZWNtZXRhX2RhdGFfaW5kZXg9IjUiIGVjbWV0YV9zc3JfdHlwZT0iY2hhcnQiIGNsYXNzPSJ6cjAtY2xzLTMiPjwvcGF0aD4KPHBhdGggZD0iTTEgMEExIDEgMCAxIDEgMSAtMC4xQTEgMSAwIDAgMSAxIDAiIHRyYW5zZm9ybT0ibWF0cml4KDMsMCwwLDMsNTg1LDIyNy4zMDM5KSIgZmlsbD0iI2ZmZiIgc3Ryb2tlPSIjNTA1MzcyIiBzdHJva2Utd2lkdGg9IjAuNjY2NjY2NjY2NjY2NjY2NiIgZWNtZXRhX3Nlcmllc19pbmRleD0iMiIgZWNtZXRhX2RhdGFfaW5kZXg9IjYiIGVjbWV0YV9zc3JfdHlwZT0iY2hhcnQiIGNsYXNzPSJ6cjAtY2xzLTMiPjwvcGF0aD4KPHBhdGggZD0iTTEgMEExIDEgMCAxIDEgMSAtMC4xQTEgMSAwIDAgMSAxIDAiIHRyYW5zZm9ybT0ibWF0cml4KDMsMCwwLDMsNjYwLDIyOS45MjU4KSIgZmlsbD0iI2ZmZiIgc3Ryb2tlPSIjNTA1MzcyIiBzdHJva2Utd2lkdGg9IjAuNjY2NjY2NjY2NjY2NjY2NiIgZWNtZXRhX3Nlcmllc19pbmRleD0iMiIgZWNtZXRhX2RhdGFfaW5kZXg9IjciIGVjbWV0YV9zc3JfdHlwZT0iY2hhcnQiIGNsYXNzPSJ6cjAtY2xzLTMiPjwvcGF0aD4KPHBhdGggZD0iTTEgMEExIDEgMCAxIDEgMSAtMC4xQTEgMSAwIDAgMSAxIDAiIHRyYW5zZm9ybT0ibWF0cml4KDMsMCwwLDMsNzM1LDIzMS44MjMyKSIgZmlsbD0iI2ZmZiIgc3Ryb2tlPSIjNTA1MzcyIiBzdHJva2Utd2lkdGg9IjAuNjY2NjY2NjY2NjY2NjY2NiIgZWNtZXRhX3Nlcmllc19pbmRleD0iMiIgZWNtZXRhX2RhdGFfaW5kZXg9IjgiIGVjbWV0YV9zc3JfdHlwZT0iY2hhcnQiIGNsYXNzPSJ6cjAtY2xzLTMiPjwvcGF0aD4KPHBhdGggZD0iTTEgMEExIDEgMCAxIDEgMSAtMC4xQTEgMSAwIDAgMSAxIDAiIHRyYW5zZm9ybT0ibWF0cml4KDMsMCwwLDMsODEwLDIzNS43NDMzKSIgZmlsbD0iI2ZmZiIgc3Ryb2tlPSIjNTA1MzcyIiBzdHJva2Utd2lkdGg9IjAuNjY2NjY2NjY2NjY2NjY2NiIgZWNtZXRhX3Nlcmllc19pbmRleD0iMiIgZWNtZXRhX2RhdGFfaW5kZXg9IjkiIGVjbWV0YV9zc3JfdHlwZT0iY2hhcnQiIGNsYXNzPSJ6cjAtY2xzLTMiPjwvcGF0aD4KPHBhdGggZD0iTTEgMEExIDEgMCAxIDEgMSAtMC4xQTEgMSAwIDAgMSAxIDAiIHRyYW5zZm9ybT0ibWF0cml4KDMsMCwwLDMsMTM1LDY4LjIzMTUpIiBmaWxsPSIjZmZmIiBzdHJva2U9IiNmZjk5NGQiIHN0cm9rZS13aWR0aD0iMC42NjY2NjY2NjY2NjY2NjY2IiBlY21ldGFfc2VyaWVzX2luZGV4PSIzIiBlY21ldGFfZGF0YV9pbmRleD0iMCIgZWNtZXRhX3Nzcl90eXBlPSJjaGFydCIgY2xhc3M9InpyMC1jbHMtMyI+PC9wYXRoPgo8cGF0aCBkPSJNMSAwQTEgMSAwIDEgMSAxIC0wLjFBMSAxIDAgMCAxIDEgMCIgdHJhbnNmb3JtPSJtYXRyaXgoMywwLDAsMywyMTAsMTYxLjQzMjkpIiBmaWxsPSIjZmZmIiBzdHJva2U9IiNmZjk5NGQiIHN0cm9rZS13aWR0aD0iMC42NjY2NjY2NjY2NjY2NjY2IiBlY21ldGFfc2VyaWVzX2luZGV4PSIzIiBlY21ldGFfZGF0YV9pbmRleD0iMSIgZWNtZXRhX3Nzcl90eXBlPSJjaGFydCIgY2xhc3M9InpyMC1jbHMtMyI+PC9wYXRoPgo8cGF0aCBkPSJNMSAwQTEgMSAwIDEgMSAxIC0wLjFBMSAxIDAgMCAxIDEgMCIgdHJhbnNmb3JtPSJtYXRyaXgoMywwLDAsMywyODUsMTg0Ljc4MzMpIiBmaWxsPSIjZmZmIiBzdHJva2U9IiNmZjk5NGQiIHN0cm9rZS13aWR0aD0iMC42NjY2NjY2NjY2NjY2NjY2IiBlY21ldGFfc2VyaWVzX2luZGV4PSIzIiBlY21ldGFfZGF0YV9pbmRleD0iMiIgZWNtZXRhX3Nzcl90eXBlPSJjaGFydCIgY2xhc3M9InpyMC1jbHMtMyI+PC9wYXRoPgo8cGF0aCBkPSJNMSAwQTEgMSAwIDEgMSAxIC0wLjFBMSAxIDAgMCAxIDEgMCIgdHJhbnNmb3JtPSJtYXRyaXgoMywwLDAsMywzNjAsMTk0LjgxMzEpIiBmaWxsPSIjZmZmIiBzdHJva2U9IiNmZjk5NGQiIHN0cm9rZS13aWR0aD0iMC42NjY2NjY2NjY2NjY2NjY2IiBlY21ldGFfc2VyaWVzX2luZGV4PSIzIiBlY21ldGFfZGF0YV9pbmRleD0iMyIgZWNtZXRhX3Nzcl90eXBlPSJjaGFydCIgY2xhc3M9InpyMC1jbHMtMyI+PC9wYXRoPgo8cGF0aCBkPSJNMSAwQTEgMSAwIDEgMSAxIC0wLjFBMSAxIDAgMCAxIDEgMCIgdHJhbnNmb3JtPSJtYXRyaXgoMywwLDAsMyw0MzUsMjAwLjg3NSkiIGZpbGw9IiNmZmYiIHN0cm9rZT0iI2ZmOTk0ZCIgc3Ryb2tlLXdpZHRoPSIwLjY2NjY2NjY2NjY2NjY2NjYiIGVjbWV0YV9zZXJpZXNfaW5kZXg9IjMiIGVjbWV0YV9kYXRhX2luZGV4PSI0IiBlY21ldGFfc3NyX3R5cGU9ImNoYXJ0IiBjbGFzcz0ienIwLWNscy0zIj48L3BhdGg+CjxwYXRoIGQ9Ik0xIDBBMSAxIDAgMSAxIDEgLTAuMUExIDEgMCAwIDEgMSAwIiB0cmFuc2Zvcm09Im1hdHJpeCgzLDAsMCwzLDUxMCwyMDUuNDMzKSIgZmlsbD0iI2ZmZiIgc3Ryb2tlPSIjZmY5OTRkIiBzdHJva2Utd2lkdGg9IjAuNjY2NjY2NjY2NjY2NjY2NiIgZWNtZXRhX3Nlcmllc19pbmRleD0iMyIgZWNtZXRhX2RhdGFfaW5kZXg9IjUiIGVjbWV0YV9zc3JfdHlwZT0iY2hhcnQiIGNsYXNzPSJ6cjAtY2xzLTMiPjwvcGF0aD4KPHBhdGggZD0iTTEgMEExIDEgMCAxIDEgMSAtMC4xQTEgMSAwIDAgMSAxIDAiIHRyYW5zZm9ybT0ibWF0cml4KDMsMCwwLDMsNTg1LDIxMi4zNTkyKSIgZmlsbD0iI2ZmZiIgc3Ryb2tlPSIjZmY5OTRkIiBzdHJva2Utd2lkdGg9IjAuNjY2NjY2NjY2NjY2NjY2NiIgZWNtZXRhX3Nlcmllc19pbmRleD0iMyIgZWNtZXRhX2RhdGFfaW5kZXg9IjYiIGVjbWV0YV9zc3JfdHlwZT0iY2hhcnQiIGNsYXNzPSJ6cjAtY2xzLTMiPjwvcGF0aD4KPHBhdGggZD0iTTEgMEExIDEgMCAxIDEgMSAtMC4xQTEgMSAwIDAgMSAxIDAiIHRyYW5zZm9ybT0ibWF0cml4KDMsMCwwLDMsNjYwLDIxMi4xNDAzKSIgZmlsbD0iI2ZmZiIgc3Ryb2tlPSIjZmY5OTRkIiBzdHJva2Utd2lkdGg9IjAuNjY2NjY2NjY2NjY2NjY2NiIgZWNtZXRhX3Nlcmllc19pbmRleD0iMyIgZWNtZXRhX2RhdGFfaW5kZXg9IjciIGVjbWV0YV9zc3JfdHlwZT0iY2hhcnQiIGNsYXNzPSJ6cjAtY2xzLTMiPjwvcGF0aD4KPHBhdGggZD0iTTEgMEExIDEgMCAxIDEgMSAtMC4xQTEgMSAwIDAgMSAxIDAiIHRyYW5zZm9ybT0ibWF0cml4KDMsMCwwLDMsNzM1LDIxOC4yNjgxKSIgZmlsbD0iI2ZmZiIgc3Ryb2tlPSIjZmY5OTRkIiBzdHJva2Utd2lkdGg9IjAuNjY2NjY2NjY2NjY2NjY2NiIgZWNtZXRhX3Nlcmllc19pbmRleD0iMyIgZWNtZXRhX2RhdGFfaW5kZXg9IjgiIGVjbWV0YV9zc3JfdHlwZT0iY2hhcnQiIGNsYXNzPSJ6cjAtY2xzLTMiPjwvcGF0aD4KPHBhdGggZD0iTTEgMEExIDEgMCAxIDEgMSAtMC4xQTEgMSAwIDAgMSAxIDAiIHRyYW5zZm9ybT0ibWF0cml4KDMsMCwwLDMsODEwLDIyMS40ODk5KSIgZmlsbD0iI2ZmZiIgc3Ryb2tlPSIjZmY5OTRkIiBzdHJva2Utd2lkdGg9IjAuNjY2NjY2NjY2NjY2NjY2NiIgZWNtZXRhX3Nlcmllc19pbmRleD0iMyIgZWNtZXRhX2RhdGFfaW5kZXg9IjkiIGVjbWV0YV9zc3JfdHlwZT0iY2hhcnQiIGNsYXNzPSJ6cjAtY2xzLTMiPjwvcGF0aD4KPHBhdGggZD0iTS01IC01bDI5OC40IDBsMCAyMy4ybC0yOTguNCAwWiIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMzA1LjggMzMxLjgpIiBmaWxsPSJyZ2IoMCwwLDApIiBmaWxsLW9wYWNpdHk9IjAiIHN0cm9rZT0iI2I3YjliZSIgc3Ryb2tlLXdpZHRoPSIwIiBjbGFzcz0ienIwLWNscy0wIj48L3BhdGg+CjxwYXRoIGQ9Ik0wIDdMMjUgNyIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMzA2LjggMzMxLjQpIiBmaWxsPSIjMDAwIiBzdHJva2U9IiM1MDcwZGQiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9ImJ1dHQiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgY2xhc3M9InpyMC1jbHMtMCI+PC9wYXRoPgo8cGF0aCBkPSJNMTguMSA3QTUuNiA1LjYgMCAxIDEgMTguMSA2LjRBNS42IDUuNiAwIDAgMSAxOC4xIDciIHRyYW5zZm9ybT0idHJhbnNsYXRlKDMwNi44IDMzMS40KSIgZmlsbD0iI2ZmZiIgc3Ryb2tlPSIjNTA3MGRkIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJidXR0IiBzdHJva2UtbWl0ZXJsaW1pdD0iMTAiIGNsYXNzPSJ6cjAtY2xzLTAiPjwvcGF0aD4KPHRleHQgZG9taW5hbnQtYmFzZWxpbmU9ImNlbnRyYWwiIHRleHQtYW5jaG9yPSJzdGFydCIgc3R5bGU9ImZvbnQtc2l6ZToxMnB4O2ZvbnQtZmFtaWx5Ok1pY3Jvc29mdCBZYUhlaTsiIHhtbDpzcGFjZT0icHJlc2VydmUiIHg9IjMwIiB5PSI3IiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgzMDYuOCAzMzEuNCkiIGZpbGw9IiM1NDU1NWEiPkZvbGQgQTwvdGV4dD4KPHBhdGggZD0iTS0xIDAuNGw2NS44IDBsMCAxMy4ybC02NS44IDBaIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgzMDYuOCAzMzEuNCkiIGZpbGw9Im5vbmUiIHBvaW50ZXItZXZlbnRzPSJ2aXNpYmxlIiBlY21ldGFfc2VyaWVzX2luZGV4PSIwIiBlY21ldGFfZGF0YV9pbmRleD0iMCIgZWNtZXRhX3Nzcl90eXBlPSJsZWdlbmQiIGNsYXNzPSJ6cjAtY2xzLTQiPjwvcGF0aD4KPHBhdGggZD0iTTAgN0wyNSA3IiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgzODAuNiAzMzEuNCkiIGZpbGw9IiMwMDAiIHN0cm9rZT0iI2I2ZDYzNCIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0iYnV0dCIgc3Ryb2tlLW1pdGVybGltaXQ9IjEwIiBjbGFzcz0ienIwLWNscy0wIj48L3BhdGg+CjxwYXRoIGQ9Ik0xOC4xIDdBNS42IDUuNiAwIDEgMSAxOC4xIDYuNEE1LjYgNS42IDAgMCAxIDE4LjEgNyIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMzgwLjYgMzMxLjQpIiBmaWxsPSIjZmZmIiBzdHJva2U9IiNiNmQ2MzQiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9ImJ1dHQiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgY2xhc3M9InpyMC1jbHMtMCI+PC9wYXRoPgo8dGV4dCBkb21pbmFudC1iYXNlbGluZT0iY2VudHJhbCIgdGV4dC1hbmNob3I9InN0YXJ0IiBzdHlsZT0iZm9udC1zaXplOjEycHg7Zm9udC1mYW1pbHk6TWljcm9zb2Z0IFlhSGVpOyIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSIgeD0iMzAiIHk9IjciIHRyYW5zZm9ybT0idHJhbnNsYXRlKDM4MC42IDMzMS40KSIgZmlsbD0iIzU0NTU1YSI+Rm9sZCBCPC90ZXh0Pgo8cGF0aCBkPSJNLTEgMC40bDY1LjggMGwwIDEzLjJsLTY1LjggMFoiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDM4MC42IDMzMS40KSIgZmlsbD0ibm9uZSIgcG9pbnRlci1ldmVudHM9InZpc2libGUiIGVjbWV0YV9zZXJpZXNfaW5kZXg9IjEiIGVjbWV0YV9kYXRhX2luZGV4PSIxIiBlY21ldGFfc3NyX3R5cGU9ImxlZ2VuZCIgY2xhc3M9InpyMC1jbHMtNCI+PC9wYXRoPgo8cGF0aCBkPSJNMCA3TDI1IDciIHRyYW5zZm9ybT0idHJhbnNsYXRlKDQ1NC40IDMzMS40KSIgZmlsbD0iIzAwMCIgc3Ryb2tlPSIjNTA1MzcyIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJidXR0IiBzdHJva2UtbWl0ZXJsaW1pdD0iMTAiIGNsYXNzPSJ6cjAtY2xzLTAiPjwvcGF0aD4KPHBhdGggZD0iTTE4LjEgN0E1LjYgNS42IDAgMSAxIDE4LjEgNi40QTUuNiA1LjYgMCAwIDEgMTguMSA3IiB0cmFuc2Zvcm09InRyYW5zbGF0ZSg0NTQuNCAzMzEuNCkiIGZpbGw9IiNmZmYiIHN0cm9rZT0iIzUwNTM3MiIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0iYnV0dCIgc3Ryb2tlLW1pdGVybGltaXQ9IjEwIiBjbGFzcz0ienIwLWNscy0wIj48L3BhdGg+Cjx0ZXh0IGRvbWluYW50LWJhc2VsaW5lPSJjZW50cmFsIiB0ZXh0LWFuY2hvcj0ic3RhcnQiIHN0eWxlPSJmb250LXNpemU6MTJweDtmb250LWZhbWlseTpNaWNyb3NvZnQgWWFIZWk7IiB4bWw6c3BhY2U9InByZXNlcnZlIiB4PSIzMCIgeT0iNyIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoNDU0LjQgMzMxLjQpIiBmaWxsPSIjNTQ1NTVhIj5Gb2xkIEM8L3RleHQ+CjxwYXRoIGQ9Ik0tMSAwLjRsNjYuNCAwbDAgMTMuMmwtNjYuNCAwWiIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoNDU0LjQgMzMxLjQpIiBmaWxsPSJub25lIiBwb2ludGVyLWV2ZW50cz0idmlzaWJsZSIgZWNtZXRhX3Nlcmllc19pbmRleD0iMiIgZWNtZXRhX2RhdGFfaW5kZXg9IjIiIGVjbWV0YV9zc3JfdHlwZT0ibGVnZW5kIiBjbGFzcz0ienIwLWNscy00Ij48L3BhdGg+CjxwYXRoIGQ9Ik0wIDdMMjUgNyIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoNTI4LjggMzMxLjQpIiBmaWxsPSIjMDAwIiBzdHJva2U9IiNmZjk5NGQiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9ImJ1dHQiIHN0cm9rZS1taXRlcmxpbWl0PSIxMCIgY2xhc3M9InpyMC1jbHMtMCI+PC9wYXRoPgo8cGF0aCBkPSJNMTguMSA3QTUuNiA1LjYgMCAxIDEgMTguMSA2LjRBNS42IDUuNiAwIDAgMSAxOC4xIDciIHRyYW5zZm9ybT0idHJhbnNsYXRlKDUyOC44IDMzMS40KSIgZmlsbD0iI2ZmZiIgc3Ryb2tlPSIjZmY5OTRkIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJidXR0IiBzdHJva2UtbWl0ZXJsaW1pdD0iMTAiIGNsYXNzPSJ6cjAtY2xzLTAiPjwvcGF0aD4KPHRleHQgZG9taW5hbnQtYmFzZWxpbmU9ImNlbnRyYWwiIHRleHQtYW5jaG9yPSJzdGFydCIgc3R5bGU9ImZvbnQtc2l6ZToxMnB4O2ZvbnQtZmFtaWx5Ok1pY3Jvc29mdCBZYUhlaTsiIHhtbDpzcGFjZT0icHJlc2VydmUiIHg9IjMwIiB5PSI3IiB0cmFuc2Zvcm09InRyYW5zbGF0ZSg1MjguOCAzMzEuNCkiIGZpbGw9IiM1NDU1NWEiPkZvbGQgRDwvdGV4dD4KPHBhdGggZD0iTS0xIDAuNGw2Ni40IDBsMCAxMy4ybC02Ni40IDBaIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSg1MjguOCAzMzEuNCkiIGZpbGw9Im5vbmUiIHBvaW50ZXItZXZlbnRzPSJ2aXNpYmxlIiBlY21ldGFfc2VyaWVzX2luZGV4PSIzIiBlY21ldGFfZGF0YV9pbmRleD0iMyIgZWNtZXRhX3Nzcl90eXBlPSJsZWdlbmQiIGNsYXNzPSJ6cjAtY2xzLTQiPjwvcGF0aD4KPHBhdGggZD0iTS0xNDAuNiAtNWwyODEuMyAwbDAgMjhsLTI4MS4zIDBaIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSg0NTAgMjApIiBmaWxsPSJyZ2IoMCwwLDApIiBmaWxsLW9wYWNpdHk9IjAiIHN0cm9rZT0iIzNjM2M0MSIgc3Ryb2tlLXdpZHRoPSIwIiBjbGFzcz0ienIwLWNscy0wIj48L3BhdGg+Cjx0ZXh0IGRvbWluYW50LWJhc2VsaW5lPSJjZW50cmFsIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBzdHlsZT0iZm9udC1zaXplOjE4cHg7Zm9udC1mYW1pbHk6TWljcm9zb2Z0IFlhSGVpO2ZvbnQtd2VpZ2h0OmJvbGQ7IiB4bWw6c3BhY2U9InByZXNlcnZlIiB5PSI5IiB0cmFuc2Zvcm09InRyYW5zbGF0ZSg0NTAgMjApIiBmaWxsPSIjM2MzYzQxIj5HNCB0cmFpbmluZyBsb3NzIGJ5IGhlbGQtb3V0IGdyb3VwPC90ZXh0Pgo8ZGVmcyA+CjxjbGlwUGF0aCBpZD0ienIwLWMwIj4KPHBhdGggZD0iTTEzNCA2NGw2NzcgMGwwIDIxN2wtNjc3IDBaIiBmaWxsPSIjMDAwIiBjbGFzcz0ienIwLWNscy0xIj48L3BhdGg+CjwvY2xpcFBhdGg+CjxjbGlwUGF0aCBpZD0ienIwLWMxIj4KPHBhdGggZD0iTTEzNCA2NGw2NzcgMGwwIDIxN2wtNjc3IDBaIiBmaWxsPSIjMDAwIiBjbGFzcz0ienIwLWNscy0xIj48L3BhdGg+CjwvY2xpcFBhdGg+CjxjbGlwUGF0aCBpZD0ienIwLWMyIj4KPHBhdGggZD0iTTEzNCA2NGw2NzcgMGwwIDIxN2wtNjc3IDBaIiBmaWxsPSIjMDAwIiBjbGFzcz0ienIwLWNscy0xIj48L3BhdGg+CjwvY2xpcFBhdGg+CjxjbGlwUGF0aCBpZD0ienIwLWMzIj4KPHBhdGggZD0iTTEzNCA2NGw2NzcgMGwwIDIxN2wtNjc3IDBaIiBmaWxsPSIjMDAwIiBjbGFzcz0ienIwLWNscy0xIj48L3BhdGg+CjwvY2xpcFBhdGg+CjwvZGVmcz4KPHN0eWxlID48IVtDREFUQVsKLnpyMC1jbHMtMDpob3ZlciB7CnBvaW50ZXItZXZlbnRzOm5vbmU7Cn0KLnpyMC1jbHMtMTpob3ZlciB7CmN1cnNvcjpwb2ludGVyOwpmaWxsOnJnYmEoMCwwLDAsMSk7Cn0KLnpyMC1jbHMtMjpob3ZlciB7CmN1cnNvcjpwb2ludGVyOwp9Ci56cjAtY2xzLTM6aG92ZXIgewpjdXJzb3I6cG9pbnRlcjsKZmlsbDpyZ2JhKDI1NSwyNTUsMjU1LDEpOwp9Ci56cjAtY2xzLTQ6aG92ZXIgewpjdXJzb3I6cG9pbnRlcjsKZmlsbDpyZ2JhKDAsMCwwLDApOwp9CgpdXT4KCjwvc3R5bGU+Cjwvc3ZnPgo=" alt="Historical G4 training loss for four anonymized held-out groups across ten epochs. These are training-loss curves, not validation curves."><figcaption>Historical G4 training loss for four anonymized held-out groups across ten epochs. These are training-loss curves, not validation curves.</figcaption></figure>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>Frozen pooled out-of-fold measure</th>
+<th align="right">Value</th>
+<th>What it says</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Macro-F1</td>
+<td align="right">0.562311</td>
+<td>Mean F1 across the three configured classes</td>
+</tr>
+<tr>
+<td>Balanced accuracy</td>
+<td align="right">0.626460</td>
+<td>Mean recall across the three configured classes</td>
+</tr>
+<tr>
+<td>Secondary accuracy</td>
+<td align="right">0.670233</td>
+<td>Overall correct fraction; secondary summary only</td>
+</tr>
+<tr>
+<td><code>VIABLE_TUMOR</code> recall</td>
+<td align="right"><strong>0.110345</strong></td>
+<td>The model missed most eligible viable-tumor patches in this evaluation</td>
+</tr>
+</tbody></table></div>
+<p>The run scored each of 1,028 eligible patches once across four case or slide groups. The full locally verified source collection has 1,144 patches. The historical public demo uses a separate 50-image subset.</p>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>Class</th>
+<th align="right">Recall</th>
+<th align="right">F1</th>
+<th align="right">Support</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>NON_TUMOR</code></td>
+<td align="right">0.902893</td>
+<td align="right">0.842004</td>
+<td align="right">484</td>
+</tr>
+<tr>
+<td><code>VIABLE_TUMOR</code></td>
+<td align="right">0.110345</td>
+<td align="right">0.179272</td>
+<td align="right">290</td>
+</tr>
+<tr>
+<td><code>NECROSIS</code></td>
+<td align="right">0.866142</td>
+<td align="right">0.665658</td>
+<td align="right">254</td>
+</tr>
+</tbody></table></div>
+<p>These are exploratory case or slide-group results. We lack evidence for patient-level independence. One fold is single-class, and two held-out class supports are very small. Scores are not calibrated disease probabilities. They do not establish prospective or clinical performance.</p>
+<p>The original <code>baseline-frozen-g4</code> model binary is absent. The recovered attribution head has a different identity and cannot inherit the original model&#39;s evaluation. The app is for education and research, not diagnosis or treatment decisions.</p>
+<p>Sources: <a href="../architecture.md">architecture</a>, <a href="../08_data_and_api_contracts.md">API contracts</a>, <a href="../model-evidence.md">model evidence</a>, <a href="../../aidlc-docs/inception/model/g4/overall-oof-metrics.json">frozen G4 metrics</a>, and <a href="../../aidlc-docs/inception/model/g4/fold-histories.json">G4 fold histories</a>.</p>
+</div></div>
+</section>
+<section class="am-panel" id="panel-G">
+<header class="am-panel-head"><span class="am-panel-id">G</span><h2>Local tools, skills, and MCP servers</h2></header>
+<div class="am-panel-body"><div class="am-md"><div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>Tool or collection</th>
+<th>Best use</th>
+<th>Installed state, license, and source</th>
+<th>Limits</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>OpenSpec CLI</td>
+<td>Plan, validate, and track code changes</td>
+<td>Installed 1.14.1; MIT; <a href="https://github.com/Fission-AI/OpenSpec">OpenSpec</a></td>
+<td>Workflow tool; it does not draw diagrams</td>
+</tr>
+<tr>
+<td>Answer me with HTML</td>
+<td>Render an explainer from Markdown</td>
+<td>Installed from upstream; no release version declared in <code>SKILL.md</code>; MIT; <a href="https://github.com/QingYunA/answer-me-with-html">skill</a></td>
+<td>Generates the page; the authoring draft stays in this folder</td>
+</tr>
+<tr>
+<td>Excalidraw MCP App</td>
+<td>Interactive hand-drawn diagrams</td>
+<td>Local stdio server 0.3.2; MIT; <a href="https://github.com/excalidraw/excalidraw-mcp">source</a></td>
+<td>Export to excalidraw.com is an explicit external action</td>
+</tr>
+<tr>
+<td>Netron</td>
+<td>Inspect supported neural-network model files</td>
+<td>Installed 9.3.1; MIT; <a href="https://github.com/lutzroeder/netron">Netron</a></td>
+<td>No model-weight file is present in this repository</td>
+</tr>
+<tr>
+<td>TensorBoard</td>
+<td>View logged metrics, graphs, and distributions</td>
+<td>Installed 2.21.0; Apache-2.0; <a href="https://github.com/tensorflow/tensorboard">TensorBoard</a></td>
+<td>No event log is present; current results come from tracked JSON and CSV</td>
+</tr>
+<tr>
+<td>Draw.io MCP</td>
+<td>Edit local <code>.drawio</code> pages and open diagrams for review</td>
+<td>Local page editing works; Apache-2.0; <a href="https://github.com/jgraph/drawio-mcp">server</a></td>
+<td>The open action loads app.diagrams.net with XML in the URL fragment. Use it only for non-sensitive diagrams. Keep private content in local <code>.drawio</code> files and renders. Draw.io Desktop is absent, so desktop export is unavailable</td>
+</tr>
+<tr>
+<td>Mermaid renderer</td>
+<td>Render Mermaid diagrams as PNG</td>
+<td>Installed and tool-tested; MIT; <a href="https://github.com/Volare-Consulting-Software/mermaid-mcp">server</a></td>
+<td>Static render; source diagram remains the editable form</td>
+</tr>
+<tr>
+<td>PlantUML renderer</td>
+<td>Validate UML and render SVG</td>
+<td>Installed and tool-tested; MCP MIT, PlantUML core LGPL-3.0; <a href="https://github.com/plantuml/plantuml">project</a></td>
+<td>Check the core LGPL terms before redistribution</td>
+</tr>
+<tr>
+<td>ECharts MCP</td>
+<td>Render chart families locally</td>
+<td>Installed and tested; MIT; <a href="https://github.com/hustcc/mcp-echarts">server</a></td>
+<td>Downloads its package at first launch</td>
+</tr>
+<tr>
+<td>AntV chart MCP</td>
+<td>Build common business and data charts</td>
+<td>Installed and tested; MIT; <a href="https://github.com/antvis/mcp-server-chart">server</a></td>
+<td>Returned image uses an external endpoint; do not send private data</td>
+</tr>
+<tr>
+<td>PPTX editor</td>
+<td>Create and inspect editable PowerPoint decks</td>
+<td>Installed and tested; MIT; <a href="https://github.com/knorq-ai/pptx-mcp-server">server</a></td>
+<td>Built a local 5-slide deck; layout check passed; PNG preview needs LibreOffice, which is absent</td>
+</tr>
+<tr>
+<td>Marp MCP</td>
+<td>Author and export Markdown slide decks</td>
+<td>Installed and tested; MIT; <a href="https://github.com/masaki39/marp-mcp">server</a></td>
+<td>Deck workflow rather than an interactive software map</td>
+</tr>
+<tr>
+<td>Slidev CLI and skills</td>
+<td>Create web-based developer presentations</td>
+<td>Installed; MIT; <a href="https://github.com/slidevjs/slidev">Slidev</a> and <a href="https://github.com/yoanbernabeu/slidev-skills">skills</a></td>
+<td>Produces a presentation, not an API reference</td>
+</tr>
+<tr>
+<td>PPTXGenJS MCP</td>
+<td>Build slides with native shapes and charts</td>
+<td>Installed and tool-tested; upstream source does not state a license; <a href="https://github.com/Hrithik-s-Raj/PptxGenJS-mcp-server">source</a></td>
+<td>Avoid redistribution until its maintainers clarify the license</td>
+</tr>
+<tr>
+<td>Python PowerPoint MCP</td>
+<td>Edit presentations through python-pptx</td>
+<td>Installed in an isolated legacy environment; MIT; <a href="https://github.com/juanocampo400/powerpoint-mcp">source</a></td>
+<td>Not tool-tested; requires <code>python-pptx &lt;0.7</code></td>
+</tr>
+<tr>
+<td>Presentation skill</td>
+<td>Plan and build professional decks</td>
+<td>Installed; MIT; <a href="https://github.com/siril9/presentation-skill">source</a></td>
+<td>Skill files found; representative skill call not tested</td>
+</tr>
+<tr>
+<td>HTML PPT skill</td>
+<td>Build slide-like HTML presentations</td>
+<td>Installed; MIT; <a href="https://github.com/lewislulu/html-ppt-skill">source</a></td>
+<td>Skill files found; representative skill call not tested</td>
+</tr>
+<tr>
+<td>HTML slides skill</td>
+<td>Build custom HTML slides</td>
+<td>Installed; MIT; <a href="https://github.com/robbertvanempel/slides">source</a></td>
+<td>Skill invocation not tested</td>
+</tr>
+<tr>
+<td>AntV chart skills</td>
+<td>Choose and author charts with AntV</td>
+<td>Nine skills installed; MIT; <a href="https://github.com/antvis/chart-visualization-skills">source</a></td>
+<td>Local G2/G6/X6/GPT-Vis examples are source-only because their packages are absent; hosted API was not called</td>
+</tr>
+<tr>
+<td>Hugging Face skills</td>
+<td>Work with model jobs, datasets, and Gradio demos</td>
+<td>Curated skills available in the local Codex plugin cache</td>
+<td>Training jobs and dataset API access can send or retrieve data; we did not submit any jobs, make row requests, or upload data</td>
+</tr>
+<tr>
+<td>OpenDesign presentation skills</td>
+<td>Prepare branded slide formats</td>
+<td>Sixteen skills installed; Apache-2.0; <a href="https://github.com/vustudio/opendesign">source</a></td>
+<td>Presentation-focused skill collection</td>
+</tr>
+<tr>
+<td>OpenAI Figma skills</td>
+<td>Design files, systems, and diagrams</td>
+<td>Five skills available; licenses vary by skill; <a href="https://github.com/openai/skills">skills</a></td>
+<td>Use an account-connected Figma document only with its own sharing controls</td>
+</tr>
+</tbody></table></div>
+</div></div>
+</section>
+<section class="am-panel" id="panel-H">
+<header class="am-panel-head"><span class="am-panel-id">H</span><h2>Available integrations and excluded alternatives</h2></header>
+<div class="am-panel-body"><div class="am-md"><p>Figma and FigJam, tldraw, Canva, Google Slides, MagicPath, Inwjud, and BioRender are available as managed Codex integrations. Their account, sharing, and data-handling rules depend on the connected service. The workspace lists Tableau as an MCP-only connector and flags it EOL-soon. This offline guide does not send repository content to these services.</p>
+<div class="am-table-wrap"><table>
+<thead>
+<tr>
+<th>Alternative</th>
+<th>Status and reason</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>PPT-MCP</td>
+<td>Not installed; Apache-2.0; overlaps the tested PPTX editor</td>
+</tr>
+<tr>
+<td>Archived Office PowerPoint MCP</td>
+<td>Present in the local toolkit audit, but archived and fails startup because its published wheel omits a module</td>
+</tr>
+<tr>
+<td>Vega MCP package</td>
+<td>Unavailable under the advertised npm package name; install returned 404</td>
+</tr>
+<tr>
+<td>cmd8 Excalidraw MCP</td>
+<td>Not installed; prior clone failed; the tested local Excalidraw server covers interactive diagrams</td>
+</tr>
+<tr>
+<td>Structurizr CLI</td>
+<td>Not installed; its CLI is legacy; existing Mermaid and PlantUML cover diagrams as code</td>
+</tr>
+<tr>
+<td>MLflow and Weights &amp; Biases</td>
+<td>Not configured; these add experiment tracking and possible remote storage beyond this guide</td>
+</tr>
+</tbody></table></div>
+<p>The guide sends no repository images, database rows, credentials, or model weights. Follow each upstream license before redistributing its software or generated assets.</p>
+<p><a href="showcase/index.html">Open the local visualization gallery</a> for C4 context and container views, UML deployment and API sequence diagrams, the AI lifecycle, and frozen G4 evidence. Each view includes editable sources.</p>
+</div></div>
+</section>
+</div>
+</div>
+</main>
+<div class="am-lightbox" hidden aria-modal="true" role="dialog" aria-label="Diagram viewer" data-expand="Expand diagram">
+<div class="am-lightbox-backdrop"></div>
+<div class="am-lightbox-header">
+<div class="am-lightbox-title">
+<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
+<span class="am-lightbox-title-text"></span>
+</div>
+<div class="am-lightbox-actions">
+<button class="am-lightbox-close" data-action="close" title="Close" aria-label="Close">✕</button>
+</div>
+</div>
+<div class="am-lightbox-stage">
+<div class="am-lightbox-canvas am-diagram"></div>
+</div>
+</div>
+<footer class="am-colophon">Generated by <a href="https://github.com/QingYunA/answer-me-with-html" target="_blank" rel="noopener">Answer me with HTML</a> 0.5.0 · 2026-10-11 12:13 · <a href="https://github.com/QingYunA/answer-me-with-html" target="_blank" rel="noopener">★ Star on GitHub</a></footer>
+<textarea id="am-source" hidden readonly aria-hidden="true">---
+template: doc
+theme: blueprint
+title: OsteoPatch software and AI field guide
+subtitle: Architecture, API, development terms, model evidence, and visualization tools
+source: Repository documentation and frozen records · 11 October 2026
+---
+
+Lead: OsteoPatch is an educational and research prototype for human review of osteosarcoma image patches. This guide maps its software, API, development workflow, and documented model evidence.
+
+## A Start with the system
+
+The local reviewer uses a browser interface, a FastAPI service, and local records. The static website documents the project. It does not serve the review API.
+
+```kv
+Intended use: Education and research only
+Browser app: React 18 and TypeScript
+Local web server: Vite on 127.0.0.1:5173
+Core API: FastAPI on 127.0.0.1:8137 with /v1 routes
+Review store: SQLite
+Model output: Precomputed immutable predictions
+Image records: Source and quality-control metadata
+Enterprise extension: Roles, projects, audit, registry, and worker services
+Training runtime: Optional PyTorch dependencies in an isolated environment
+```
+
+An API is the agreed way that one program asks another program for data or an action. An endpoint is one address and method in that API.
+
+## B Software architecture and deployment boundaries
+
+```flow LR
+Reviewer -&gt; Browser: choose and inspect a patch
+Browser -&gt; Vite: local development server
+Vite -&gt; FastAPI: proxy requests under /v1
+FastAPI -&gt; [(SQLite)]: read and append review state
+FastAPI -&gt; [Predictions]: read immutable stored result
+FastAPI -&gt; [Source and QC]: read allowlisted metadata
+FastAPI -&gt; [Verified images]: read thumbnail or full image
+Enterprise UI -&gt; [Enterprise API]: identity, capabilities, and project scope
+[Enterprise API] -&gt; [(Enterprise SQLite)]: users, projects, memberships
+[Enterprise API] -&gt; [G6 core package]: in-process Python delegation
+[G6 core package] -&gt; [(SQLite)]: shared review data and predictions
+[Enterprise API] -&gt; [Audit JSONL]: append successful review actions
+```
+
+| Surface | What it serves | Boundary |
+|---|---|---|
+| Local reviewer | React app, API, review store, and local evidence | Development runtime |
+| `site/` | Static documentation and project pages | No inference or reviewer data |
+| Historical AWS demo | CloudFront, private S3, API Gateway, Lambda, and DynamoDB | Separate workshop deployment; status may lag the repository |
+
+The Vite proxy is a development convenience. G6 listens on port 8137 and G7 on port 8140. G7 calls the G6 review package in-process, while keeping its own identity and project store. The [visualization gallery](showcase/index.html) has separate context, container, and deployment views.
+
+## C The API review path
+
+```sequence num
+participants: Reviewer, React app, FastAPI, Local records
+Reviewer -&gt; React app: select an image
+React app -&gt; FastAPI: GET /v1/images/{image_id}
+FastAPI -&gt; Local records: check allowlist and read metadata
+Local records --&gt; FastAPI: image and QC fields
+FastAPI --&gt; React app: selected image details
+React app -&gt; FastAPI: GET /v1/predictions/{prediction_id}
+FastAPI -&gt; Local records: read immutable prediction
+FastAPI --&gt; React app: class scores and model identity
+Reviewer -&gt; React app: accept, correct, or defer
+React app -&gt; FastAPI: POST /v1/images/{image_id}/reviews
+FastAPI -&gt; Local records: append revision-aware review event
+FastAPI --&gt; React app: updated review state
+```
+
+| Method and endpoint | Purpose |
+|---|---|
+| `GET /v1/health`, `/v1/meta` | Service health and runtime metadata |
+| `GET /v1/model-card` | Model identity and evidence summary |
+| `GET /v1/images`, `/v1/images/{image_id}` | Allowlisted image records |
+| `GET /v1/predictions/{prediction_id}` | Stored prediction record |
+| `GET /v1/images/{image_id}/thumbnail`, `/full` | Protected image derivatives |
+| `GET /v1/images/{image_id}/review`, `POST .../reviews` | Read review state and append a review event |
+| `GET /v1/images/{image_id}/attribution`, `/attribution/meta` | Qualified attribution and its metadata |
+| `GET /v1/exports/reviews` | Export review records |
+
+When the local FastAPI app runs, its default API references are at `/docs`, `/redoc`, and `/openapi.json`. This guide documents routes; it adds no endpoint.
+
+An HTTP method describes the action: `GET` reads, and `POST` submits a new action or record. A proxy forwards a request to another service. SQLite is a local relational database.
+
+## D Development terms and change workflow
+
+```timeline
+Need | Describe | State the problem and the result people need
+Explore | Inspect | Read the code, evidence, and constraints
+Propose | Plan | Record why, behavior, design, and tasks in OpenSpec
+Apply | Build | Make the scoped change and update its task list
+Verify | Check | Run the stated checks and inspect the result
+Archive | Record | Move the completed change into the lasting spec history
+```
+
+| Term | Plain meaning | Software meaning |
+|---|---|---|
+| Repository | A project&#39;s tracked files | Git history, branches, and current working tree |
+| Branch | A separate line of work | A named reference to a sequence of Git commits |
+| Pull request | A proposed code change | Review and merge interface for a branch |
+| Build | Prepare software to run | Compile, bundle, or package source files |
+| Test | Check expected behavior | Automated assertion over code or a user flow |
+| CI | Automatic checks after a change | Continuous integration jobs such as lint, tests, and builds |
+| Release | A named deliverable | Versioned package or deployment candidate |
+| Deploy | Put a build in an environment | Install or publish a chosen artifact to a target system |
+| OpenSpec | A structured change record | Proposal, requirements, design, tasks, and archive workflow |
+
+OpenSpec is change management. It helps teams plan and track implementation. Answer me with HTML turns a Markdown draft into a single offline explainer page. They complement the diagram tools.
+
+## E AI and model training, from data to review
+
+```flow LR
+[Source data and provenance] -&gt; [Quality checks]
+[Quality checks] -&gt; [Group-aware split]
+[Group-aware split] -&gt; [Train model]
+[Train model] -&gt; [Held-out fold predictions]
+[Held-out fold predictions] -&gt; [Metrics and error review]
+[Metrics and error review] -&gt; [Model card and limitations]
+[Model card and limitations] -&gt; [Application review]
+[Application review] -&gt; [Append-only human event]
+[Append-only human event] --&gt; [New approved experiment]
+```
+
+The upper stages describe a general machine-learning workflow. The app currently reads precomputed predictions. The app stores a reviewer correction as an event; it does not retrain a model automatically.
+
+| Term | Meaning |
+|---|---|
+| Epoch | One pass over the training examples used by a run |
+| Fold | One group-based split used to train and evaluate a model |
+| Out-of-fold prediction | A prediction from a fold whose training set excluded that held-out group |
+| Recall | The share of true examples of a class that the model found |
+| Calibration | Whether scores match observed probabilities; the model reports uncalibrated class scores |
+| Model weights | Learned numeric parameters saved in a model file |
+| Confusion matrix | Counts of true classes against predicted classes |
+| Grad-CAM | A visualization of model behavior; not a segmentation or causal explanation |
+
+Training loss describes fit to the training data. It does not show held-out performance. Read it with held-out metrics and the split design.
+
+## F Recorded G4 evidence and limits
+
+![Historical G4 training loss for four anonymized held-out groups across ten epochs. These are training-loss curves, not validation curves.](g4-training-loss.svg)
+
+| Frozen pooled out-of-fold measure | Value | What it says |
+|---|---:|---|
+| Macro-F1 | 0.562311 | Mean F1 across the three configured classes |
+| Balanced accuracy | 0.626460 | Mean recall across the three configured classes |
+| Secondary accuracy | 0.670233 | Overall correct fraction; secondary summary only |
+| `VIABLE_TUMOR` recall | **0.110345** | The model missed most eligible viable-tumor patches in this evaluation |
+
+The run scored each of 1,028 eligible patches once across four case or slide groups. The full locally verified source collection has 1,144 patches. The historical public demo uses a separate 50-image subset.
+
+| Class | Recall | F1 | Support |
+|---|---:|---:|---:|
+| `NON_TUMOR` | 0.902893 | 0.842004 | 484 |
+| `VIABLE_TUMOR` | 0.110345 | 0.179272 | 290 |
+| `NECROSIS` | 0.866142 | 0.665658 | 254 |
+
+These are exploratory case or slide-group results. We lack evidence for patient-level independence. One fold is single-class, and two held-out class supports are very small. Scores are not calibrated disease probabilities. They do not establish prospective or clinical performance.
+
+The original `baseline-frozen-g4` model binary is absent. The recovered attribution head has a different identity and cannot inherit the original model&#39;s evaluation. The app is for education and research, not diagnosis or treatment decisions.
+
+Sources: [architecture](../architecture.md), [API contracts](../08_data_and_api_contracts.md), [model evidence](../model-evidence.md), [frozen G4 metrics](../../aidlc-docs/inception/model/g4/overall-oof-metrics.json), and [G4 fold histories](../../aidlc-docs/inception/model/g4/fold-histories.json).
+
+## G Local tools, skills, and MCP servers
+
+| Tool or collection | Best use | Installed state, license, and source | Limits |
+|---|---|---|---|
+| OpenSpec CLI | Plan, validate, and track code changes | Installed 1.14.1; MIT; [OpenSpec](https://github.com/Fission-AI/OpenSpec) | Workflow tool; it does not draw diagrams |
+| Answer me with HTML | Render an explainer from Markdown | Installed from upstream; no release version declared in `SKILL.md`; MIT; [skill](https://github.com/QingYunA/answer-me-with-html) | Generates the page; the authoring draft stays in this folder |
+| Excalidraw MCP App | Interactive hand-drawn diagrams | Local stdio server 0.3.2; MIT; [source](https://github.com/excalidraw/excalidraw-mcp) | Export to excalidraw.com is an explicit external action |
+| Netron | Inspect supported neural-network model files | Installed 9.3.1; MIT; [Netron](https://github.com/lutzroeder/netron) | No model-weight file is present in this repository |
+| TensorBoard | View logged metrics, graphs, and distributions | Installed 2.21.0; Apache-2.0; [TensorBoard](https://github.com/tensorflow/tensorboard) | No event log is present; current results come from tracked JSON and CSV |
+| Draw.io MCP | Edit local `.drawio` pages and open diagrams for review | Local page editing works; Apache-2.0; [server](https://github.com/jgraph/drawio-mcp) | The open action loads app.diagrams.net with XML in the URL fragment. Use it only for non-sensitive diagrams. Keep private content in local `.drawio` files and renders. Draw.io Desktop is absent, so desktop export is unavailable |
+| Mermaid renderer | Render Mermaid diagrams as PNG | Installed and tool-tested; MIT; [server](https://github.com/Volare-Consulting-Software/mermaid-mcp) | Static render; source diagram remains the editable form |
+| PlantUML renderer | Validate UML and render SVG | Installed and tool-tested; MCP MIT, PlantUML core LGPL-3.0; [project](https://github.com/plantuml/plantuml) | Check the core LGPL terms before redistribution |
+| ECharts MCP | Render chart families locally | Installed and tested; MIT; [server](https://github.com/hustcc/mcp-echarts) | Downloads its package at first launch |
+| AntV chart MCP | Build common business and data charts | Installed and tested; MIT; [server](https://github.com/antvis/mcp-server-chart) | Returned image uses an external endpoint; do not send private data |
+| PPTX editor | Create and inspect editable PowerPoint decks | Installed and tested; MIT; [server](https://github.com/knorq-ai/pptx-mcp-server) | Built a local 5-slide deck; layout check passed; PNG preview needs LibreOffice, which is absent |
+| Marp MCP | Author and export Markdown slide decks | Installed and tested; MIT; [server](https://github.com/masaki39/marp-mcp) | Deck workflow rather than an interactive software map |
+| Slidev CLI and skills | Create web-based developer presentations | Installed; MIT; [Slidev](https://github.com/slidevjs/slidev) and [skills](https://github.com/yoanbernabeu/slidev-skills) | Produces a presentation, not an API reference |
+| PPTXGenJS MCP | Build slides with native shapes and charts | Installed and tool-tested; upstream source does not state a license; [source](https://github.com/Hrithik-s-Raj/PptxGenJS-mcp-server) | Avoid redistribution until its maintainers clarify the license |
+| Python PowerPoint MCP | Edit presentations through python-pptx | Installed in an isolated legacy environment; MIT; [source](https://github.com/juanocampo400/powerpoint-mcp) | Not tool-tested; requires `python-pptx &lt;0.7` |
+| Presentation skill | Plan and build professional decks | Installed; MIT; [source](https://github.com/siril9/presentation-skill) | Skill files found; representative skill call not tested |
+| HTML PPT skill | Build slide-like HTML presentations | Installed; MIT; [source](https://github.com/lewislulu/html-ppt-skill) | Skill files found; representative skill call not tested |
+| HTML slides skill | Build custom HTML slides | Installed; MIT; [source](https://github.com/robbertvanempel/slides) | Skill invocation not tested |
+| AntV chart skills | Choose and author charts with AntV | Nine skills installed; MIT; [source](https://github.com/antvis/chart-visualization-skills) | Local G2/G6/X6/GPT-Vis examples are source-only because their packages are absent; hosted API was not called |
+| Hugging Face skills | Work with model jobs, datasets, and Gradio demos | Curated skills available in the local Codex plugin cache | Training jobs and dataset API access can send or retrieve data; we did not submit any jobs, make row requests, or upload data |
+| OpenDesign presentation skills | Prepare branded slide formats | Sixteen skills installed; Apache-2.0; [source](https://github.com/vustudio/opendesign) | Presentation-focused skill collection |
+| OpenAI Figma skills | Design files, systems, and diagrams | Five skills available; licenses vary by skill; [skills](https://github.com/openai/skills) | Use an account-connected Figma document only with its own sharing controls |
+
+## H Available integrations and excluded alternatives
+
+Figma and FigJam, tldraw, Canva, Google Slides, MagicPath, Inwjud, and BioRender are available as managed Codex integrations. Their account, sharing, and data-handling rules depend on the connected service. The workspace lists Tableau as an MCP-only connector and flags it EOL-soon. This offline guide does not send repository content to these services.
+
+| Alternative | Status and reason |
+|---|---|
+| PPT-MCP | Not installed; Apache-2.0; overlaps the tested PPTX editor |
+| Archived Office PowerPoint MCP | Present in the local toolkit audit, but archived and fails startup because its published wheel omits a module |
+| Vega MCP package | Unavailable under the advertised npm package name; install returned 404 |
+| cmd8 Excalidraw MCP | Not installed; prior clone failed; the tested local Excalidraw server covers interactive diagrams |
+| Structurizr CLI | Not installed; its CLI is legacy; existing Mermaid and PlantUML cover diagrams as code |
+| MLflow and Weights &amp; Biases | Not configured; these add experiment tracking and possible remote storage beyond this guide |
+
+The guide sends no repository images, database rows, credentials, or model weights. Follow each upstream license before redistributing its software or generated assets.
+
+
+[Open the local visualization gallery](showcase/index.html) for C4 context and container views, UML deployment and API sequence diagrams, the AI lifecycle, and frozen G4 evidence. Each view includes editable sources.
+</textarea>
+<script>
+(() => {
+  const root = document.documentElement;
+  // A host that serves this page inside its own document leaves the real root without the page's settings. The toolbar keeps a copy;
+  // set back what the root lacks, before anything below reads the root. A root's own value, even an empty one, is never replaced.
+  const carrier = document.querySelector('.am-toolbar');
+  for (const [attr, key] of [['lang', 'data-am-root-lang'], ['dir', 'data-am-root-dir'], ['data-theme', 'data-am-root-theme'], ['data-mode', 'data-am-root-mode'], ['data-style', 'data-am-root-style']]) {
+    if (root.getAttribute(attr) === null && carrier?.getAttribute(key) != null) root.setAttribute(attr, carrier.getAttribute(key));
+  }
+  // Each toolbar list sets one root attribute; its options name the values, so the runtime names no theme or mode.
+  for (const [name, attr] of [['theme', 'data-theme'], ['mode', 'data-mode']]) {
+    const select = document.querySelector(`select[data-am="${name}"]`);
+    if (!select) continue;
+    select.value = root.getAttribute(attr);
+    select.addEventListener('change', () => root.setAttribute(attr, select.value));
+  }
+
+  const copyText = async (text) => {
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch {
+      const ta = Object.assign(document.createElement('textarea'), { value: text });
+      document.body.append(ta);
+      ta.select();
+      document.execCommand('copy');
+      ta.remove();
+    }
+  };
+  // The button reads its label from data-done for a moment after a copy.
+  const flash = (btn) => {
+    const original = btn.textContent;
+    btn.textContent = btn.dataset.done;
+    setTimeout(() => { btn.textContent = original; }, 1400);
+  };
+
+  const copyBtn = document.querySelector('[data-am="copy"]');
+  copyBtn?.addEventListener('click', async () => {
+    const nodes = document.querySelectorAll('#am-source');
+    await copyText(nodes[nodes.length - 1]?.value ?? '');
+    flash(copyBtn);
+  });
+
+  // Each code block copies its own lines, without the line numbers.
+  for (const btn of document.querySelectorAll('[data-am="copy-code"]')) {
+    btn.addEventListener('click', async () => {
+      const lines = btn.closest('.am-codeblock')?.querySelectorAll('.am-ln') ?? [];
+      await copyText([...lines].map((l) => l.textContent).join('\n'));
+      flash(btn);
+    });
+  }
+
+  // ── Diagram Lightbox & Pan-Zoom Viewer ─────────────
+  const diagrams = document.querySelectorAll('.am-diagram:not(.am-lightbox-canvas)');
+  const lb = document.querySelector('.am-lightbox');
+  if (diagrams.length && lb) {
+    const backdrop = lb.querySelector('.am-lightbox-backdrop');
+    const titleText = lb.querySelector('.am-lightbox-title-text');
+    const stage = lb.querySelector('.am-lightbox-stage');
+    const canvas = lb.querySelector('.am-lightbox-canvas');
+    const closeBtn = lb.querySelector('.am-lightbox-close');
+    const expandLabel = lb.getAttribute('data-expand') || 'Expand diagram';
+
+    let scale = 1, x = 0, y = 0, fitScale = 1, curVw = 800, curVh = 600;
+    let isDragging = false, activePointerId = null, startX = 0, startY = 0, origX = 0, origY = 0;
+    let lastTrigger = null;
+
+    const apply = () => {
+      canvas.style.transform = `translate3d(${x.toFixed(2)}px, ${y.toFixed(2)}px, 0) scale(${scale.toFixed(4)})`;
+    };
+
+    const zoomTo = (newScale, pivotX, pivotY) => {
+      newScale = Math.max(0.2, Math.min(6.0, newScale));
+      if (Math.abs(newScale - scale) < 0.0001) return;
+      const r = newScale / scale;
+      x = pivotX - (pivotX - x) * r;
+      y = pivotY - (pivotY - y) * r;
+      scale = newScale;
+      apply();
+    };
+
+    const open = (diag, trigger) => {
+      const svg = [...diag.children].find((el) => el.tagName.toLowerCase() === 'svg');
+      if (!svg) return;
+      lastTrigger = trigger;
+
+      const panel = diag.closest('.am-panel');
+      const panelTitle = panel?.querySelector('.am-panel-head h2')?.textContent?.trim() || panel?.querySelector('h2')?.textContent?.trim() || lb.getAttribute('aria-label') || 'Diagram viewer';
+      if (titleText) titleText.textContent = panelTitle;
+
+      const clone = svg.cloneNode(true);
+      const defElements = clone.querySelectorAll('[id]');
+      if (defElements.length) {
+        const idMap = new Map();
+        defElements.forEach((el, i) => {
+          const oldId = el.id;
+          const newId = `${oldId}-lb-${i}`;
+          idMap.set(oldId, newId);
+          el.id = newId;
+        });
+        const urlAttrs = ['marker-start', 'marker-mid', 'marker-end', 'fill', 'stroke', 'filter', 'clip-path', 'mask'];
+        clone.querySelectorAll('*').forEach((el) => {
+          for (const attr of urlAttrs) {
+            const val = el.getAttribute(attr);
+            if (val && val.startsWith('url(#')) {
+              const id = val.slice(5, -1);
+              if (idMap.has(id)) el.setAttribute(attr, `url(#${idMap.get(id)})`);
+            }
+          }
+          const href = el.getAttribute('href') || el.getAttribute('xlink:href');
+          if (href && href.startsWith('#')) {
+            const id = href.slice(1);
+            if (idMap.has(id)) {
+              if (el.hasAttribute('href')) el.setAttribute('href', `#${idMap.get(id)}`);
+              if (el.hasAttribute('xlink:href')) el.setAttribute('xlink:href', `#${idMap.get(id)}`);
+            }
+          }
+        });
+      }
+
+      const vb = svg.viewBox?.baseVal;
+      curVw = (vb && vb.width > 0) ? vb.width : (parseFloat(svg.getAttribute('width')) || svg.clientWidth || 800);
+      curVh = (vb && vb.height > 0) ? vb.height : (parseFloat(svg.getAttribute('height')) || svg.clientHeight || 600);
+      clone.style.width = `${curVw}px`;
+      clone.style.height = `${curVh}px`;
+      canvas.innerHTML = '';
+      canvas.append(clone);
+      lb.removeAttribute('hidden');
+      document.body.style.overflow = 'hidden';
+
+      const rect = stage.getBoundingClientRect();
+      const pad = 48;
+      const availW = Math.max(100, rect.width - pad * 2);
+      const availH = Math.max(100, rect.height - pad * 2);
+      fitScale = Math.min(availW / curVw, availH / curVh, 1.0);
+      scale = fitScale;
+      x = (rect.width - curVw * scale) / 2;
+      y = (rect.height - curVh * scale) / 2;
+      apply();
+      closeBtn.focus();
+    };
+
+    const close = () => {
+      if (lb.hasAttribute('hidden')) return;
+      lb.setAttribute('hidden', '');
+      canvas.innerHTML = '';
+      document.body.style.overflow = '';
+      lastTrigger?.focus();
+    };
+
+    stage.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      const rect = stage.getBoundingClientRect();
+      const dy = e.deltaMode === 1 ? e.deltaY * 16 : (e.deltaMode === 2 ? e.deltaY * 400 : e.deltaY);
+      const factor = Math.exp(-Math.max(-200, Math.min(200, dy)) * 0.0015);
+      zoomTo(scale * factor, e.clientX - rect.left, e.clientY - rect.top);
+    }, { passive: false });
+
+    stage.addEventListener('pointerdown', (e) => {
+      if (e.button !== 0 || isDragging) return;
+      isDragging = true;
+      activePointerId = e.pointerId;
+      startX = e.clientX;
+      startY = e.clientY;
+      origX = x;
+      origY = y;
+      stage.setPointerCapture(e.pointerId);
+      stage.classList.add('am-panning');
+    });
+
+    stage.addEventListener('pointermove', (e) => {
+      if (!isDragging || e.pointerId !== activePointerId) return;
+      x = origX + (e.clientX - startX);
+      y = origY + (e.clientY - startY);
+      apply();
+    });
+
+    const endDrag = (e) => {
+      if (!isDragging || e.pointerId !== activePointerId) return;
+      isDragging = false;
+      activePointerId = null;
+      stage.classList.remove('am-panning');
+      try { stage.releasePointerCapture(e.pointerId); } catch {}
+    };
+    stage.addEventListener('pointerup', endDrag);
+    stage.addEventListener('pointercancel', endDrag);
+
+    stage.addEventListener('dblclick', () => {
+      const rect = stage.getBoundingClientRect();
+      scale = fitScale;
+      x = (rect.width - curVw * scale) / 2;
+      y = (rect.height - curVh * scale) / 2;
+      apply();
+    });
+
+    closeBtn.addEventListener('click', close);
+    backdrop.addEventListener('click', close);
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !lb.hasAttribute('hidden')) close();
+    });
+
+    lb.addEventListener('keydown', (e) => {
+      if (e.key !== 'Tab') return;
+      const focusables = lb.querySelectorAll('button:not([disabled]), [tabindex]:not([tabindex="-1"])');
+      if (!focusables.length) return;
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    });
+
+    const expandSvg = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 3 21 3 21 9"></polyline><polyline points="9 21 3 21 3 15"></polyline><line x1="21" y1="3" x2="14" y2="10"></line><line x1="3" y1="21" x2="10" y2="14"></line></svg>';
+    diagrams.forEach((diag) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'am-diagram-expand';
+      btn.title = expandLabel;
+      btn.setAttribute('aria-label', expandLabel);
+      btn.innerHTML = expandSvg;
+      btn.addEventListener('click', () => open(diag, btn));
+      diag.prepend(btn);
+    });
+  }
+})();
+(() => {
+// The reply a reader copies from the page: one Markdown text with the decisions, the panel comments and the block remarks.
+// A plain ES module for tests; the page gets it with its `export` keyword dropped (src/runtime/compose.js).
+// decisions: [{ panel, question, picked: [label], suggested: [label], touched }]; comments: [{ panel, title, text }];
+// remarks: [{ panel, quote, kind, note }], where quote is the start of the marked block and kind is a key of ui.kinds.
+// Comment and remark text is quoted line by line, so text the reader typed cannot pass as part of the structure.
+// rtl: the page reads right to left, so the arrow before each answer points left, the way the text runs.
+function replyText({ title, decisions, comments, remarks = [], ui, rtl = false }) {
+  const arrow = rtl ? '←' : '→';
+  const out = [`# Re: ${title}`];
+  if (decisions.length) {
+    out.push('', `## ${ui.decisions}`);
+    decisions.forEach((d, i) => {
+      const answer = d.picked.length ? d.picked.map((l) => `**${l}**`).join(', ') : '**—**';
+      const same = d.picked.length === d.suggested.length && d.picked.every((l) => d.suggested.includes(l));
+      const why = same ? (d.touched ? ui.confirmed : ui.untouched) : `${ui.was}: ${d.suggested.join(', ') || '—'}`;
+      out.push(`${i + 1}. [${d.panel}] ${d.question}`, `   ${arrow} ${answer} _(${why})_`);
+    });
+  }
+  const written = comments.filter((c) => c.text.trim());
+  const quoted = (text) => (text.trim() ? text.trim().split('\n').map((l) => `  > ${l}`) : []);
+  if (written.length) {
+    out.push('', `## ${ui.comments}`);
+    for (const c of written) out.push(`- **${c.panel} · ${c.title}**`, ...quoted(c.text));
+  }
+  if (remarks.length) {
+    out.push('', `## ${ui.remarks}`);
+    for (const r of remarks) {
+      const label = [r.panel, ui.kinds?.[r.kind] ?? r.kind].filter(Boolean).join(' · ');
+      out.push(`- **${label}** "${r.quote}"`, ...quoted(r.note));
+    }
+  }
+  if (written.length || remarks.some((r) => r.note.trim())) out.push('', `_${ui.typed}_`);
+  return `${out.join('\n')}\n`;
+}
+
+// Answer on the page: every panel gets a Comment box, and the Reply button collects the ask answers, the comments and the remarks
+// into one Markdown reply (replyText) to copy back to the agent. Answers and comments stay in localStorage across reloads.
+// The remark script (remark.js) adds the blocks the reader marked, through window.__amRemarkData.
+const replyBtn = document.querySelector('[data-am="reply"]');
+const COMMENT_ICON = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>';
+if (replyBtn) {
+  const ui = JSON.parse(replyBtn.dataset.ui);
+  const storeKey = `am-reply:${location.pathname}`;
+  const panels = [...document.querySelectorAll('.am-panel')];
+  const asks = [...document.querySelectorAll('.am-ask')];
+  // Answers are saved by question text, so they still match after am patch has renumbered the asks.
+  // Page text without the word joiners a right-to-left page puts after a Hebrew prefix hyphen (src/bidi.js): the reply and the saved
+  // answers hold the text as the draft wrote it.
+  const WJ = new RegExp(String.fromCharCode(0x2060), 'g');
+  const textOf = (el) => el?.textContent.replace(WJ, '').trim();
+  const keyOf = (ask) => textOf(ask.querySelector('legend')) ?? ask.dataset.ask;
+  const touched = new Set();
+  const boxes = new Map();
+
+  const load = () => {
+    try {
+      return JSON.parse(localStorage.getItem(storeKey)) || {};
+    } catch {
+      return {};
+    }
+  };
+  const save = () => {
+    const state = {
+      asks: Object.fromEntries(asks.map((a) => [keyOf(a), { picked: picked(a), touched: touched.has(a) }])),
+      comments: Object.fromEntries([...boxes].map(([id, box]) => [id, box.value]).filter(([, text]) => text.trim())),
+    };
+    try {
+      localStorage.setItem(storeKey, JSON.stringify(state));
+    } catch {
+      // Storage may be off (private window, file:// policy); answers then last until the page closes.
+    }
+  };
+  const picked = (ask) => [...ask.querySelectorAll('input')].filter((i) => i.checked).map((i) => i.value);
+  const panelOf = (el) => {
+    const panel = el.closest('.am-panel');
+    return { id: panel?.id.replace(/^panel-/, '') ?? '', title: textOf(panel?.querySelector('.am-panel-head h2')) ?? '' };
+  };
+
+  const saved = load();
+  for (const ask of asks) {
+    const inputs = [...ask.querySelectorAll('input')];
+    const state = saved.asks?.[keyOf(ask)];
+    // A saved answer applies only while every picked option still exists on the page.
+    if (state && state.picked.every((v) => inputs.some((i) => i.value === v))) {
+      for (const input of inputs) input.checked = state.picked.includes(input.value);
+      if (state.touched) touched.add(ask);
+    }
+    // A click counts even on the option that is already picked: the reader confirms the suggestion.
+    const answer = () => {
+      touched.add(ask);
+      save();
+    };
+    ask.addEventListener('change', answer);
+    ask.addEventListener('click', (e) => { if (e.target.matches('input')) answer(); });
+  }
+
+  for (const panel of panels) {
+    const id = panel.id.replace(/^panel-/, '');
+    // An icon only: narrow panels have no room for a word next to the title.
+    const btn = Object.assign(document.createElement('button'), { type: 'button', className: 'am-comment-btn', title: ui.comment, innerHTML: COMMENT_ICON });
+    btn.setAttribute('aria-label', `${ui.comment} ${id}`);
+    btn.setAttribute('aria-expanded', 'false');
+    const wrap = Object.assign(document.createElement('div'), { className: 'am-comment', hidden: true });
+    const box = Object.assign(document.createElement('textarea'), { rows: 3, placeholder: ui.commentHint, value: saved.comments?.[id] ?? '' });
+    box.setAttribute('aria-label', `${ui.comment} ${id}`);
+    wrap.append(box);
+    const show = (open) => {
+      wrap.hidden = !open;
+      btn.setAttribute('aria-expanded', String(open));
+    };
+    btn.addEventListener('click', () => {
+      show(wrap.hidden);
+      if (!wrap.hidden) box.focus();
+    });
+    box.addEventListener('input', () => {
+      btn.classList.toggle('am-comment-btn--on', Boolean(box.value.trim()));
+      save();
+    });
+    btn.classList.toggle('am-comment-btn--on', Boolean(box.value.trim()));
+    if (box.value.trim()) show(true);
+    (panel.querySelector('.am-panel-head') ?? panel).append(btn);
+    panel.append(wrap);
+    boxes.set(id, box);
+  }
+
+  const sheet = document.createElement('dialog');
+  sheet.className = 'am-reply';
+  sheet.setAttribute('aria-label', ui.title);
+  sheet.innerHTML = '<div class="am-reply-head"><strong></strong><span></span></div><textarea readonly rows="14"></textarea><div class="am-reply-actions"><button type="button" class="am-btn" data-act="copy"></button><button type="button" class="am-btn" data-act="close"></button></div>';
+  sheet.querySelector('strong').textContent = ui.title;
+  sheet.querySelector('span').textContent = ui.hint;
+  const text = sheet.querySelector('textarea');
+  const copy = sheet.querySelector('[data-act="copy"]');
+  const close = sheet.querySelector('[data-act="close"]');
+  copy.textContent = ui.copy;
+  close.textContent = ui.close;
+  document.body.append(sheet);
+
+  const compose = () => {
+    const decisions = asks.map((ask) => ({
+      panel: panelOf(ask).id,
+      question: textOf(ask.querySelector('legend')) ?? '',
+      picked: picked(ask),
+      suggested: [...ask.querySelectorAll('input[data-suggested]')].map((i) => i.value),
+      touched: touched.has(ask),
+    }));
+    const comments = [...boxes].map(([id, box]) => ({ panel: id, title: panelOf(box).title, text: box.value }));
+    const remarks = window.__amRemarkData?.() ?? [];
+    const empty = !decisions.length && !comments.some((c) => c.text.trim()) && !remarks.length;
+    const title = textOf(document.querySelector('.am-head h1')) ?? document.title;
+    return empty ? '' : replyText({ title, decisions, comments, remarks, ui, rtl: document.documentElement.dir === 'rtl' });
+  };
+
+  replyBtn.addEventListener('click', () => {
+    const reply = compose();
+    text.value = reply || ui.empty;
+    copy.disabled = !reply;
+    if (sheet.showModal) sheet.showModal();
+    else sheet.setAttribute('open', '');
+    (reply ? copy : close).focus();
+  });
+  close.addEventListener('click', () => (sheet.close ? sheet.close() : sheet.removeAttribute('open')));
+  copy.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(text.value);
+    } catch {
+      text.select();
+      document.execCommand('copy');
+    }
+    copy.textContent = ui.done;
+    setTimeout(() => { copy.textContent = ui.copy; }, 1400);
+  });
+}
+})();
+(() => {
+// Text helpers for remark mode (src/runtime/remark.js): how a marked block is named and quoted.
+// A plain ES module for tests; the page gets it with its `export` keyword dropped (src/runtime/compose.js).
+// A block keeps its mark across `am patch` because the key is its panel, its tag and the start of its text, not its position.
+
+const collapse = (text) => String(text).replace(/\s+/g, ' ').trim();
+
+// The start of a block's text with whitespace collapsed: the readable identity of the block.
+function fingerprint(text, len = 80) {
+  return collapse(text).slice(0, len);
+}
+
+// What the reply quotes of a block: the start of its text, with an ellipsis when it is cut.
+function quote(text, len = 60) {
+  const t = collapse(text);
+  return t.length > len ? `${t.slice(0, len).trimEnd()}…` : t;
+}
+
+// Two blocks with the same text (two identical list items) get the same base key. The n-th one in the page gets "\t<n>" added;
+// a tab cannot be in a fingerprint, which has its whitespace collapsed, so the new key never meets another base key.
+function occurrenceKeys(bases) {
+  const seen = new Map();
+  return bases.map((base) => {
+    const n = seen.get(base) ?? 0;
+    seen.set(base, n + 1);
+    return n ? `${base}\t${n}` : base;
+  });
+}
+
+// Remark mode: the reader turns it on, clicks a block, tags it (suggestion, keep, question, concern) and may add a note.
+// A mark shows as a bar and a note chip inside the block, lives in localStorage like panel comments, and the Reply button carries it
+// back to the agent: reply.js calls window.__amRemarkData, and replyText (reply-text.js) writes the Remarks section.
+(() => {
+  const btn = document.querySelector('[data-am="remark"]');
+  if (!btn) return;
+  const ui = JSON.parse(btn.dataset.ui);
+  const KINDS = ['suggestion', 'keep', 'question', 'concern'];
+  const storeKey = `am-remark:${location.pathname}`;
+  // The one definition of a block a reader can mark: the content under <main>. The page and panel titles are left out, because the
+  // reply reads them as text; a panel has its Comment button.
+  const BLOCK = 'main :is(h1,h2,h3,h4,h5,h6,p,li,blockquote,pre,table,dd,dt,figure):not(.am-head *, .am-panel-head *)';
+  // A click on these does what it always did.
+  const LIVE = '.am-remark-pop, .am-toolbar, a, button, input, textarea, select, label';
+  const blockAt = (target) => (target.closest(LIVE) ? null : target.closest(BLOCK));
+
+  const WJ = new RegExp(String.fromCharCode(0x2060), 'g'); // word joiners of a right-to-left page (src/bidi.js); not part of the draft's text
+  const inlineBox = new WeakMap();
+  const isInline = (el) => {
+    if (!inlineBox.has(el)) inlineBox.set(el, getComputedStyle(el).display.startsWith('inline'));
+    return inlineBox.get(el);
+  };
+  // The text of a block as the reader sees it: separate lines, cells and timeline parts are joined by a space (textContent would run
+  // "2026" and "Ship" together), and the note chip is not part of it.
+  const blockText = (el) => {
+    const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+    let text = '';
+    let last = null;
+    for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+      if (node.parentElement.closest('.am-mark-note')) continue;
+      let box = node.parentElement;
+      while (box !== el && isInline(box)) box = box.parentElement;
+      if (last && box !== last) text += ' ';
+      text += node.data.replace(WJ, '');
+      last = box;
+    }
+    return text;
+  };
+
+  const panelOf = (el) => el.closest('.am-panel')?.id.replace(/^panel-/, '') ?? '';
+  // Block keys, in page order. Built when first needed: a page nobody marked pays nothing.
+  let keys = null;
+  const keyMap = () => {
+    if (!keys) {
+      const blocks = [...document.querySelectorAll(BLOCK)];
+      const ids = occurrenceKeys(blocks.map((el) => `${panelOf(el)}|${el.localName}|${fingerprint(blockText(el))}`));
+      keys = new Map(blocks.map((el, i) => [el, ids[i]]));
+    }
+    return keys;
+  };
+
+  const load = () => {
+    try {
+      const saved = JSON.parse(localStorage.getItem(storeKey));
+      return Array.isArray(saved) ? saved.filter((m) => typeof m?.key === 'string' && KINDS.includes(m.kind)) : [];
+    } catch {
+      return [];
+    }
+  };
+  // A mark whose block is gone from the page stays stored (it may return with `am patch`); it is neither painted nor sent.
+  const marks = new Map(load().map((m) => [m.key, { key: m.key, kind: m.kind, note: String(m.note ?? '') }]));
+  const save = () => {
+    try {
+      localStorage.setItem(storeKey, JSON.stringify([...marks.values()]));
+    } catch {
+      // Storage may be off (private window, a sandboxed page); marks then last until the page closes.
+    }
+  };
+
+  const chip = (el, mark) => {
+    const note = document.createElement(el.localName === 'table' ? 'caption' : 'span');
+    note.className = 'am-mark-note';
+    const kind = document.createElement('b');
+    kind.textContent = ui.kinds[mark.kind];
+    note.append(kind, mark.note ? ` ${mark.note}` : '');
+    return note;
+  };
+  const clearChip = (el) => el.querySelector(':scope > .am-mark-note')?.remove();
+  const paint = (el, mark) => {
+    clearChip(el);
+    el.classList.add('am-mark');
+    el.dataset.kind = mark.kind;
+    // Inside the block, so a list item stays a child of its list. A table takes it as its caption; a list item with a sub-list shows
+    // it under its own text, before the sub-list.
+    const sub = el.querySelector(':scope > ul, :scope > ol');
+    if (el.localName === 'table') el.prepend(chip(el, mark));
+    else if (sub) sub.before(chip(el, mark));
+    else el.append(chip(el, mark));
+  };
+  const unpaint = (el) => {
+    clearChip(el);
+    el.classList.remove('am-mark');
+    delete el.dataset.kind;
+  };
+  if (marks.size) for (const [el, key] of keyMap()) if (marks.has(key)) paint(el, marks.get(key));
+
+  // The popover edits one block. Save stays off until a kind is picked.
+  const pop = document.createElement('div');
+  pop.className = 'am-remark-pop';
+  pop.hidden = true;
+  pop.setAttribute('role', 'dialog');
+  pop.setAttribute('aria-label', ui.button);
+  document.body.append(pop);
+  let opener = null;
+  let anchor = null;
+  const close = (restoreFocus) => {
+    if (pop.hidden) return;
+    pop.hidden = true;
+    if (restoreFocus) (opener?.isConnected && opener !== document.body ? opener : btn).focus();
+  };
+  const place = () => {
+    const rect = anchor.getBoundingClientRect();
+    const rtl = getComputedStyle(document.documentElement).direction === 'rtl';
+    const x = rtl ? rect.right - pop.offsetWidth : rect.left;
+    // Under the block; a block taller than the window gets the popover at the bottom of the window instead.
+    const y = Math.min(rect.bottom + 6, window.innerHeight - pop.offsetHeight - 8);
+    pop.style.left = `${window.scrollX + Math.min(Math.max(8, x), window.innerWidth - pop.offsetWidth - 8)}px`;
+    pop.style.top = `${window.scrollY + Math.max(8, y)}px`;
+  };
+  const make = (tag, props) => Object.assign(document.createElement(tag), props);
+  const open = (el) => {
+    const key = keyMap().get(el);
+    const mark = marks.get(key);
+    let kind = mark?.kind ?? '';
+    opener = document.activeElement;
+    anchor = el;
+
+    const note = make('textarea', { rows: 2, placeholder: ui.hint, value: mark?.note ?? '' });
+    note.setAttribute('aria-label', ui.hint);
+    const keep = make('button', { type: 'button', className: 'am-btn', textContent: ui.save, disabled: !kind });
+    keep.addEventListener('click', () => {
+      const saved = { key, kind, note: note.value.trim() };
+      marks.set(key, saved);
+      save();
+      paint(el, saved);
+      close(true);
+    });
+    const actions = make('div', { className: 'am-remark-actions' });
+    actions.append(keep);
+    if (mark) {
+      const drop = make('button', { type: 'button', className: 'am-btn', textContent: ui.remove });
+      drop.addEventListener('click', () => {
+        marks.delete(key);
+        save();
+        unpaint(el);
+        close(true);
+      });
+      actions.append(drop);
+    }
+    const kindBtns = KINDS.map((k) => {
+      const kb = make('button', { type: 'button', className: 'am-remark-kind', textContent: ui.kinds[k] });
+      kb.dataset.kind = k;
+      kb.setAttribute('aria-pressed', String(k === kind));
+      kb.addEventListener('click', () => {
+        kind = k;
+        for (const other of kindBtns) other.setAttribute('aria-pressed', String(other === kb));
+        keep.disabled = false;
+      });
+      return kb;
+    });
+    pop.replaceChildren(make('div', { className: 'am-remark-kinds' }), note, actions);
+    pop.firstChild.append(...kindBtns);
+    pop.hidden = false;
+    place();
+    (kindBtns.find((b) => b.dataset.kind === kind) ?? kindBtns[0]).focus({ preventScroll: true });
+  };
+
+  // Picking works only while remark mode is on. A click on a marked block edits its mark, on a plain block starts one.
+  // The block under the pointer gets an outline: the same blockAt decides what is outlined and what a click picks.
+  let hover = null;
+  const track = (e) => {
+    const el = e.type === 'mouseout' && e.relatedTarget === null ? null : blockAt(e.target);
+    if (el === hover) return;
+    hover?.classList.remove('am-remark-hover');
+    hover = el;
+    hover?.classList.add('am-remark-hover');
+  };
+  const pick = (e) => {
+    const el = blockAt(e.target);
+    if (el) open(el);
+  };
+  const setMode = (on) => {
+    btn.classList.toggle('is-on', on);
+    btn.setAttribute('aria-pressed', String(on));
+    const toggle = on ? 'addEventListener' : 'removeEventListener';
+    document.body[toggle]('click', pick);
+    document.body[toggle]('mouseover', track);
+    document.body[toggle]('mouseout', track);
+    if (!on) {
+      track({ type: 'mouseout', relatedTarget: null });
+      close(false);
+    }
+  };
+  btn.addEventListener('click', () => setMode(btn.getAttribute('aria-pressed') !== 'true'));
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') close(true);
+  });
+  // A click outside the popover closes it; the same click may then start another mark.
+  document.addEventListener('click', (e) => {
+    if (!pop.hidden && !pop.contains(e.target)) close(false);
+  }, true);
+  setMode(false);
+
+  // What the Reply button reads: the marked blocks that are on the page, in page order.
+  window.__amRemarkData = () => {
+    if (!marks.size) return [];
+    const live = [];
+    for (const [el, key] of keyMap()) {
+      const mark = marks.get(key);
+      if (mark) live.push({ panel: panelOf(el), quote: quote(blockText(el)), kind: mark.kind, note: mark.note });
+    }
+    return live;
+  };
+})();
+})();
+(() => {
+// Pure planner for justified ("photo wall") rows on sheet pages. No DOM access.
+//
+// This file must stay inlinable into the page script: top-level declarations only, no imports, and the exports are
+// `planLayout` and the constants the DOM adapter shares (STEP, MAX_SCALE, MIN_SCALE). The page build strips the `export ` keyword,
+// and test/layout-plan.test.js checks that this still works.
+//
+// planLayout({ width, gap, cols, panels }) -> { rows: [{ columns: [{ panels: [index, ...], width }], height }] }
+//
+// Input (all lengths in px):
+//   width   container width
+//   gap     space between columns, and between two panels stacked in one column
+//   cols    most columns in one row (the planner never uses more than MAX_COLUMNS, but spans stay shares of `cols`)
+//   panels  one entry per panel, in reading order:
+//     samples   [{ w, h }] panel height at sampled widths, ascending by w (heights between samples are interpolated)
+//     minWidth  narrowest feasible width (clamped to `width`)
+//     maxWidth  widest useful width; beyond it the panel only gains empty space (default: no limit)
+//     natural   natural diagram width for a diagram-only panel (default: none)
+//     pad       panel width not used by the diagram (padding and border; default 0)
+//     span      the author's width hint in grid columns (default 1); span >= cols keeps the panel alone in its row
+//
+// Output: { rows, maxScale }. Rows are in reading order; a row is a list of columns (at most `cols`); a column holds one panel or two
+// consecutive panels, stacked. For integer inputs the column widths plus the gaps between them equal `width`.
+// Rows are chosen by dynamic programming over break points; widths by a search in STEP px steps. Cost per row:
+//   H = tallest column; waste = sum((H - columnHeight) * columnWidth) + sum over diagrams wider than maxWidth of (w - maxWidth) * h
+//   dev = sum(((w - preferred) / oneColumn)^2) + SCALE_WEIGHT * sum over diagrams of (ln(scale) / ln(MAX_SCALE))^2
+//   cost = waste / 1000 + PREF_WEIGHT * dev * H
+// Scale band: diagrams on one page stay at similar sizes. With the result's `maxScale` as the diagram size limit, a diagram is
+// shown at scale min(maxScale, (width - pad) / natural). The planner tries a few bands [lo, lo * BAND_RATIO] (lo in BAND_LOS) and
+// keeps the cheapest plan in which no diagram is narrower than scale lo and none is shown above the band's top, so the largest and
+// smallest diagram scale on the page differ by at most BAND_RATIO. A panel wider than its diagram's top size keeps the diagram at
+// that size, and the page script must set the diagram's max-width to natural * maxScale. The band starts no higher than the
+// largest scale the page allows the least roomy diagram, so one wide diagram lowers the band for the others.
+// If no band is feasible the plan is made without a band (maxScale = MAX_SCALE); if no plan fits (or the input is unusable) the
+// result is a single column: one panel per row at the full width.
+
+const STEP = 10;
+const MAX_SCALE = 1.25;
+const MIN_SCALE = 0.75; // the narrowest a diagram is shown, as a share of its natural width
+const MAX_COLUMNS = 6; // rows with more columns are unreadable, and the search grows steeply with the column count
+const BAND_RATIO = 1.25; // the largest and smallest diagram scale on a page differ by at most this
+const BAND_LOS = [MIN_SCALE, 0.85, 0.95, 1]; // lower ends tried for the band; lo * BAND_RATIO is the upper end (1.25 means no upper limit)
+const SCALE_WEIGHT = 3;
+const PREF_WEIGHT = 0.15;
+
+function heightAt(samples, w) {
+  const i = samples.findIndex((s) => s.w >= w);
+  if (i === -1) return samples[samples.length - 1].h;
+  if (i === 0) return samples[0].h;
+  const a = samples[i - 1];
+  const b = samples[i];
+  return a.h + ((b.h - a.h) * (w - a.w)) / (b.w - a.w);
+}
+
+// Every way to split `len` consecutive panels into columns of 1 or 2 panels, as lists of column sizes.
+function splits(len) {
+  if (len === 0) return [[]];
+  return [1, 2].filter((k) => k <= len).flatMap((k) => splits(len - k).map((rest) => [k, ...rest]));
+}
+
+function singleColumn(width, panels) {
+  return { rows: panels.map((_, i) => ({ columns: [{ panels: [i], width }], height: 0 })) };
+}
+
+function planLayout({ width, gap = 0, cols = 3, panels }) {
+  const usable = Number.isFinite(width) && width > 0 && panels.every((p) => Array.isArray(p.samples) && p.samples.length > 0);
+  if (!usable) return singleColumn(width, panels);
+
+  // `cols` stays the unit of the author's spans; no row gets more than MAX_COLUMNS columns however large `cols` is.
+  const maxColumns = Math.min(cols, MAX_COLUMNS);
+  const oneColumn = Math.max(1, (width - gap * (cols - 1)) / cols);
+  // Per-panel limits. With a band [lo, lo * BAND_RATIO], a diagram is no narrower than scale lo and shown at most at the top of the
+  // band: a wider panel keeps it at that size and gains empty space, which the cost counts as waste.
+  const prepare = (lo) => panels.map((p) => {
+    const pad = p.pad ?? 0;
+    const diagram = lo > 0 && p.natural > 0;
+    const scaleCap = diagram ? Math.min(MAX_SCALE, lo * BAND_RATIO) : MAX_SCALE;
+    return {
+      ...p,
+      minWidth: Math.min(width, Math.max(Math.ceil(p.minWidth || 0), diagram ? Math.ceil(p.natural * lo + pad) : 0)),
+      maxWidth: Math.min(p.maxWidth ?? Infinity, diagram ? p.natural * scaleCap + pad : Infinity),
+      scaleCap,
+      pad,
+      preferred: Math.min(width, (p.span ?? 1) * oneColumn + ((p.span ?? 1) - 1) * gap),
+      alone: (p.span ?? 1) >= cols,
+    };
+  });
+  let info = prepare(0);
+  // Beyond its maxWidth a panel only gains empty space, so its height stops changing there (matters when a band lowers maxWidth).
+  const heightOf = (p, w) => heightAt(p.samples, Math.min(w, p.maxWidth));
+  const columnHeight = (col, w) => col.reduce((h, k) => h + heightOf(info[k], w), 0) + gap * (col.length - 1);
+
+  function bestColumns(columns) {
+    const avail = width - gap * (columns.length - 1);
+    const mins = columns.map((c) => Math.max(...c.map((k) => info[k].minWidth)));
+    const minsFrom = mins.map((_, n) => mins.slice(n).reduce((s, w) => s + w, 0));
+    if (minsFrom[0] > avail) return null;
+    let best = null;
+    const evaluate = (ws) => {
+      const hs = ws.map((w, n) => columnHeight(columns[n], w));
+      const H = Math.max(...hs);
+      let waste = 0;
+      let dev = 0;
+      ws.forEach((w, n) => {
+        waste += (H - hs[n]) * w;
+        for (const k of columns[n]) {
+          const p = info[k];
+          if (w > p.maxWidth) waste += (w - p.maxWidth) * heightOf(p, w);
+          dev += ((w - p.preferred) / oneColumn) ** 2;
+          if (p.natural > 0) {
+            const scale = Math.min(p.scaleCap, Math.max(w - p.pad, 1) / p.natural);
+            dev += SCALE_WEIGHT * (Math.log(scale) / Math.log(MAX_SCALE)) ** 2;
+          }
+        }
+      });
+      const cost = waste / 1000 + PREF_WEIGHT * dev * H;
+      if (!best || cost < best.cost) best = { cost, ws, height: H, columns };
+    };
+    const choose = (n, used, ws) => {
+      if (n === columns.length - 1) {
+        const w = avail - used;
+        if (w >= mins[n]) evaluate([...ws, w]);
+        return;
+      }
+      for (let w = mins[n]; used + w + minsFrom[n + 1] <= avail; w += STEP) choose(n + 1, used + w, [...ws, w]);
+    };
+    choose(0, 0, []);
+    return best;
+  }
+
+  // Best columns for one row of panels i..j.
+  function bestRow(i, j) {
+    if (j > i && info.slice(i, j + 1).some((p) => p.alone)) return null;
+    let best = null;
+    for (const split of splits(j - i + 1)) {
+      if (split.length > maxColumns) continue;
+      let next = i;
+      const columns = split.map((size) => Array.from({ length: size }, () => next++));
+      const r = bestColumns(columns);
+      if (r && (!best || r.cost < best.cost)) best = r;
+    }
+    return best;
+  }
+
+  // Row breaks in reading order, for the band set up in `info`. A row holds at most 2 * maxColumns panels. Null if nothing fits.
+  function solve() {
+    const n = panels.length;
+    const total = Array(n + 1).fill(Infinity);
+    const from = Array(n + 1).fill(-1);
+    const chosen = Array(n + 1).fill(null);
+    total[0] = 0;
+    for (let j = 1; j <= n; j++) {
+      for (let i = Math.max(0, j - 2 * maxColumns); i < j; i++) {
+        if (total[i] === Infinity) continue;
+        const r = bestRow(i, j - 1);
+        if (r && total[i] + r.cost < total[j]) {
+          total[j] = total[i] + r.cost;
+          from[j] = i;
+          chosen[j] = r;
+        }
+      }
+    }
+    if (total[n] === Infinity) return null;
+    const rows = [];
+    for (let j = n; j > 0; j = from[j]) {
+      const r = chosen[j];
+      rows.unshift({ columns: r.columns.map((panelsInColumn, c) => ({ panels: panelsInColumn, width: r.ws[c] })), height: r.height });
+    }
+    return { rows, cost: total[n] };
+  }
+
+  let best = null;
+  const diagrams = panels.filter((p) => p.natural > 0);
+  if (diagrams.length > 1) {
+    // No diagram can be shown larger than the page allows, so the band cannot start above the smallest of those limits.
+    const reach = Math.min(...diagrams.map((p) => Math.min(MAX_SCALE, Math.max(width - (p.pad ?? 0), 1) / p.natural)));
+    for (const lo of new Set([...BAND_LOS.filter((x) => x < reach), reach])) {
+      info = prepare(lo);
+      const r = solve();
+      if (r && (!best || r.cost < best.cost)) best = { ...r, maxScale: Math.min(MAX_SCALE, lo * BAND_RATIO) };
+    }
+    info = prepare(0);
+  }
+  best ??= solve();
+  return best ? { rows: best.rows, maxScale: best.maxScale ?? MAX_SCALE } : singleColumn(width, panels);
+}
+
+// DOM adapter for the sheet's justified ("photo wall") layout. Not a module: compose.js puts it after src/runtime/layout-plan.js
+// (which defines planLayout and the shared STEP, MAX_SCALE, MIN_SCALE) inside one function scope of the page script.
+//
+// It measures every panel at sampled widths, asks planLayout for rows and column widths, and applies them with flexbox.
+// The rendered HTML keeps the plain CSS grid: with JavaScript off, at the single-column breakpoint, or while printing, the grid is what
+// shows (the planned widths belong to the screen width, so print never gets a mix of the two); after printing the layout comes back.
+
+const grid = document.querySelector('.am-grid');
+const panels = grid ? [...grid.children].filter((el) => el.classList.contains('am-panel')) : [];
+
+if (panels.length > 1) {
+  const SINGLE_COLUMN = '(max-width: 760px)'; // the single-column breakpoint in src/themes/base.css
+  const TWO_COLUMNS = '(max-width: 1100px)'; // below this the CSS grid has two columns
+  const SAMPLE_STEP = 20; // width sampling step, px; the planner interpolates between samples
+  const TEXT_MIN = 260; // text keeps at least about 16 CJK characters per line
+  const TABLE_COL_MIN = 96; // per table column, px
+  const TABLE_COL_COMFORT = 220; // a table column this wide reads three or four words per line
+  const KV_COL_MIN = 120; // per key-value column, px: a value of two short words stays on one line
+  const DIAGRAM_MIN = 160;
+  const RESIZE_DELAY = 150;
+  const OVERFLOWING = '.am-table-wrap, .am-diagram, .am-annot-scroll, pre';
+
+  // The first-row cells of each table carry the column widths fitTables() sets, so restore() resets them too.
+  const tables = [...grid.querySelectorAll('.am-table-wrap > table')];
+  const headCells = (table) => [...(table.rows[0]?.cells ?? [])];
+  const original = new Map([grid, ...panels, ...grid.querySelectorAll('.am-diagram > svg'), ...tables.flatMap(headCells)].map((el) => [el, el.getAttribute('style')]));
+  const restoreStyle = (el) => (original.get(el) === null ? el.removeAttribute('style') : el.setAttribute('style', original.get(el)));
+
+  // Back to the plain grid markup and styles.
+  const restore = () => {
+    for (const box of grid.querySelectorAll(':scope > .am-col')) box.replaceWith(...box.children);
+    for (const el of original.keys()) restoreStyle(el);
+  };
+
+  // The author's width hint, rendered as data-span only when the author wrote one. The inline grid-column is the no-JavaScript fallback
+  // and may hold spans the server added, so it is never read here.
+  const spanHint = (el) => Number(el.dataset.span) || 1;
+  const diagramOnly = (el) => {
+    const body = el.querySelector(':scope > .am-panel-body');
+    return body && body.children.length === 1 ? body.querySelector(':scope > .am-diagram > svg') : null;
+  };
+  const naturalWidth = (svg) => Number(svg.getAttribute('width')) || 0;
+
+  // The width each column of a table reads well at: its natural width, but no wider than TABLE_COL_COMFORT unless its longest word
+  // needs more. Below it the cells wrap one word per line, so a panel with a table is not planned narrower than the sum, and
+  // fitTables() keeps each column at its share (the browser would otherwise give the room to the longest column).
+  const columnWidths = new Map();
+  function comfortableWidth(table) {
+    const saved = table.getAttribute('style');
+    const columns = (width) => {
+      table.style.width = width;
+      return headCells(table).map((cell) => cell.getBoundingClientRect().width);
+    };
+    const most = columns('max-content');
+    const least = columns('min-content');
+    if (saved === null) table.removeAttribute('style');
+    else table.setAttribute('style', saved);
+    // A max-content column comes out a fraction under its text in Chrome, enough to wrap the last word, so it gets one pixel more.
+    const want = most.map((w, i) => Math.min(Math.ceil(w) + 1, Math.max(least[i], TABLE_COL_COMFORT)));
+    columnWidths.set(table, { least, want });
+    return want.reduce((sum, w) => sum + w, 0);
+  }
+
+  // After the layout: each column gets at least its comfortable width, scaled down toward its longest word when the panel came out
+  // narrower than planned (a page narrower than the table), so a table scrolls sideways only when even its longest words do not fit.
+  function fitTables() {
+    for (const [table, { least, want }] of columnWidths) {
+      // Each width is rounded up to a whole pixel (a column a fraction too narrow wraps its last word), so keep a pixel per column spare.
+      const room = table.parentElement.clientWidth - want.length;
+      const low = least.reduce((s, w) => s + w, 0);
+      const high = want.reduce((s, w) => s + w, 0);
+      const k = high > room ? Math.max(0, (room - low) / (high - low || 1)) : 1;
+      headCells(table).forEach((cell, i) => { cell.style.minWidth = `${Math.ceil(least[i] + (want[i] - least[i]) * k)}px`; });
+    }
+  }
+
+  // Height (and, for panels with tables or code, the narrowest width without sideways scrolling) at sampled widths.
+  // Only one panel is displayed while it is measured, so each width change lays out that panel alone.
+  function measure(width) {
+    grid.style.display = 'block';
+    for (const el of panels) {
+      el.style.display = 'none';
+      el.style.boxSizing = 'border-box';
+      for (const svg of el.querySelectorAll('.am-diagram > svg')) {
+        svg.style.width = '100%';
+        svg.style.maxWidth = `${naturalWidth(svg) * MAX_SCALE}px`;
+      }
+    }
+    const info = panels.map((el) => {
+      const svg = diagramOnly(el);
+      const svgs = [...el.querySelectorAll('.am-diagram > svg')];
+      const scrollers = el.querySelectorAll(OVERFLOWING);
+      const tableCols = Math.max(0, ...[...el.querySelectorAll('table tr:first-child')].map((tr) => tr.children.length));
+      el.style.display = '';
+      el.style.width = `${width}px`;
+      const pad = svg ? el.offsetWidth - svg.parentElement.clientWidth : 0;
+      const natural = svg ? naturalWidth(svg) : 0;
+      const shrunk = Math.max(0, ...svgs.map((s) => naturalWidth(s) * MIN_SCALE)) + (svg ? pad : 34);
+      const tableFloors = [...el.querySelectorAll('.am-table-wrap > table')].map((t) => comfortableWidth(t) + el.offsetWidth - t.parentElement.clientWidth);
+      // A key-value grid gets the same care: the room a table gains must not squeeze a neighbouring grid to one word per line.
+      const kvs = [...el.querySelectorAll('.am-kv')].map((kv) => (Number(kv.style.getPropertyValue('--kv-cols')) || 1) * KV_COL_MIN + el.offsetWidth - kv.clientWidth);
+      const floor = svg ? Math.max(DIAGRAM_MIN, natural * MIN_SCALE + pad) : Math.max(TEXT_MIN, shrunk, tableCols * TABLE_COL_MIN + 34, ...tableFloors, ...kvs);
+      const from = Math.min(width, Math.floor(floor / STEP) * STEP);
+      const samples = [];
+      let fits = null;
+      for (let w = from; ; w += SAMPLE_STEP) {
+        w = Math.min(w, width);
+        el.style.width = `${w}px`;
+        if (fits === null && !svg && scrollers.length && ![...scrollers].some((s) => s.scrollWidth > s.clientWidth + 1)) fits = w;
+        samples.push({ w, h: el.offsetHeight });
+        if (w === width) break;
+      }
+      el.style.display = 'none';
+      return {
+        samples,
+        minWidth: svg ? floor : Math.max(floor, fits ?? (scrollers.length ? width : 0)),
+        maxWidth: svg ? natural * MAX_SCALE + pad : Infinity,
+        natural,
+        pad,
+        span: spanHint(el),
+      };
+    });
+    for (const el of panels) {
+      el.style.display = '';
+      el.style.width = '';
+    }
+    return info;
+  }
+
+  // Each column gets a fixed width. A row adds up to the full width, so flex-wrap breaks rows by itself.
+  // Stacked panels go into a column wrapper whose last panel absorbs the extra height.
+  function apply(plan, gap) {
+    grid.style.display = 'flex';
+    grid.style.flexWrap = 'wrap';
+    grid.style.alignItems = 'stretch';
+    grid.style.gap = `${gap}px`;
+    for (const el of panels) {
+      el.style.gridColumn = '';
+      el.style.gridRow = '';
+      el.style.flex = '0 0 auto';
+    }
+    for (const row of plan.rows) {
+      for (const col of row.columns) {
+        const width = `${col.width}px`;
+        if (col.panels.length === 1) {
+          panels[col.panels[0]].style.width = width;
+          continue;
+        }
+        const box = document.createElement('div');
+        box.className = 'am-col';
+        box.style.cssText = `width:${width};flex:0 0 auto;display:flex;flex-direction:column;gap:${gap}px`;
+        panels[col.panels[0]].before(box);
+        for (const k of col.panels) {
+          panels[k].style.width = '';
+          box.append(panels[k]);
+        }
+        panels[col.panels[col.panels.length - 1]].style.flex = '1 1 auto';
+      }
+    }
+  }
+
+  // Diagram-only panels show their diagram at most at the top of the page's scale band; a wider panel gains empty space instead.
+  function capDiagrams(maxScale) {
+    for (const el of panels) {
+      const svg = diagramOnly(el);
+      if (svg) svg.style.maxWidth = `${naturalWidth(svg) * maxScale}px`;
+    }
+  }
+
+  const containerWidth = () => Math.floor(grid.getBoundingClientRect().width);
+
+  function justify() {
+    if (printing || printQuery.matches) return;
+    try {
+      // A vertical scrollbar can appear or vanish once the rows change height; plan again if the width moved.
+      let planned = -1;
+      for (let pass = 0; pass < 3 && planned !== containerWidth(); pass++) {
+        restore();
+        if (matchMedia(SINGLE_COLUMN).matches) return;
+        planned = containerWidth();
+        const gap = parseFloat(getComputedStyle(grid).columnGap) || 0;
+        const cols = Math.max(1, Number(getComputedStyle(grid).getPropertyValue('--cols')) || 3);
+        const plan = planLayout({ width: planned, gap, cols: matchMedia(TWO_COLUMNS).matches ? Math.min(cols, 2) : cols, panels: measure(planned) });
+        apply(plan, gap);
+        capDiagrams(plan.maxScale);
+        fitTables();
+      }
+      // The width never settled: columns planned for another width would overflow or leave gaps, so show the plain grid.
+      if (planned !== containerWidth()) restore();
+    } catch {
+      restore();
+    }
+  }
+
+  // Printing: back to the plain grid (spans and all), and the layout again afterwards. Browsers disagree on which of the
+  // `beforeprint` event and the print media query change fires first, or at all, so listen to both; both are idempotent.
+  // While `printing` is set (beforeprint to afterprint) justify() does nothing, so a late resize cannot bring flex widths into the print layout.
+  let printing = false;
+  const printQuery = matchMedia('print');
+  let timer = 0;
+  const later = () => {
+    clearTimeout(timer);
+    timer = setTimeout(justify, RESIZE_DELAY);
+  };
+  const toPrint = () => {
+    clearTimeout(timer);
+    restore();
+  };
+  justify();
+  addEventListener('resize', later);
+  addEventListener('beforeprint', () => {
+    printing = true;
+    toPrint();
+  });
+  addEventListener('afterprint', () => {
+    printing = false;
+    later();
+  });
+  printQuery.addEventListener('change', (e) => (e.matches ? toPrint() : later()));
+  // Late changes to panel heights: web fonts arriving, and images inside the grid finishing their load (load does not bubble, so capture it).
+  document.fonts?.ready.then(later);
+  grid.addEventListener('load', later, true);
+  // Switching theme changes paddings and fonts, hence panel heights.
+  document.querySelector('[data-am="theme"]')?.addEventListener('click', later);
+}
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+{
+  "type": "interval",
+  "data": [
+    { "class": "NON_TUMOR", "recall": 0.902893 },
+    { "class": "VIABLE_TUMOR", "recall": 0.110345 },
+    { "class": "NECROSIS", "recall": 0.866142 }
+  ],
+  "encode": { "x": "class", "y": "recall", "color": "class" },
+  "scale": { "y": { "domain": [0, 1] } },
+  "coordinate": { "transform": [{ "type": "transpose" }] },
+  "title": "Frozen G4 out-of-fold recall by class",
+  "description": "Exploratory pooled out-of-fold values; not clinical performance."
+}

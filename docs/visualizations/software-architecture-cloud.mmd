@@ -1,0 +1,15 @@
+---
+title: "AWS cloud design · deployment not checked · 2026-10-11"
+---
+%%{init: {'theme':'base','themeVariables': {'background':'#f7f5ef','primaryColor':'#e8eee9','primaryTextColor':'#34362f','primaryBorderColor':'#9ebbb0','lineColor':'#89877e','secondaryColor':'#eeeae0','tertiaryColor':'#f7e8dc','fontFamily':'Segoe UI'}}}%%
+flowchart LR
+  browser["Browser review app"] -->|secure connection| cf["CloudFront · delivers app files<br/>defined in deployment code"]
+  cf -->|restricted bucket access| web[("Private S3 file storage<br/>browser app files")]
+  cf -->|review requests · secure connection| api["API Gateway · routes requests<br/>defined in deployment code"]
+  api --> lambda["Image review API container<br/>runs on AWS Lambda"]
+  lambda -->|read image, preview, or model files| artifacts[("Private S3 file storage<br/>images and model files")]
+  lambda -->|record reviewer decisions| ddb[("DynamoDB review database<br/>on-demand · safe retry handling")]
+  lambda --> sqlite[("Bundled read-only image-result database file")]
+  note["Source: cloud infrastructure definition and review storage implementation. This shows the design only; live deployment was not checked. Demo data stores can be deleted when the design is taken down."] -.-> cf
+  classDef warning fill:#f7e8dc,stroke:#d9a887,color:#543b2e
+  class note warning

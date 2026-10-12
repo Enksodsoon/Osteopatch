@@ -1,0 +1,21 @@
+---
+title: "Review request handled within one process · implemented · 2026-10-11"
+---
+%%{init: {'theme':'base','themeVariables': {'background':'#f7f5ef','primaryColor':'#e8eee9','primaryTextColor':'#34362f','primaryBorderColor':'#9ebbb0','lineColor':'#89877e','secondaryColor':'#eeeae0','fontFamily':'Segoe UI'}}}%%
+sequenceDiagram
+  participant UI as Browser review interface
+  participant API as Review API
+  participant Gate as Sign-in and project access checks
+  participant Proxy as Project access handler
+  participant Backend as Image review backend
+  participant DB as Image review database
+  UI->>API: request + signed sign-in credential + selected project
+  API->>Gate: check account, permission, and project access
+  Gate-->>API: account and project access confirmed
+  API->>Proxy: image or review operation
+  Proxy->>Backend: direct call within this running program
+  Backend->>DB: read selected project data / record reviewer decision
+  DB-->>Backend: saved data or notice that it changed
+  Backend-->>API: response
+  API-->>UI: result (images outside the project are shown as not found)
+  Note over API,Backend: Both review components run inside the same program.

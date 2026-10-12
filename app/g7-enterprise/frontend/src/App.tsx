@@ -7,6 +7,7 @@ import { Login } from "./components/Login";
 import { Workbench } from "./components/Workbench";
 import { PatchReview } from "./components/PatchReview";
 import { ModelCard } from "./components/ModelCard";
+import { AnalysisWithImage } from "./components/AnalysisWithImage";
 import { RegistryScreen } from "./components/RegistryScreen";
 import { LiveScreen } from "./components/live/LiveScreen";
 import { ReportScreen } from "./components/reports/ReportScreen";
@@ -75,6 +76,14 @@ export function App() {
             onClick={() => setTab("model-card")}
           >
             {t("nav.modelCard")}
+          </button>
+          <button
+            className={tab === "analysis" ? "active" : ""}
+            onClick={() => setTab("analysis")}
+            disabled={!viewingImageId}
+            title={t("analysis.title")}
+          >
+            {t("analysis.title")}
           </button>
           <button
             className={tab === "live" ? "active" : ""}
@@ -148,6 +157,20 @@ export function App() {
           />
         )}
         {tab === "model-card" && <ModelCard />}
+        {tab === "analysis" && viewingImageId && meta && (
+          <AnalysisWithImage
+            imageId={viewingImageId}
+            meta={meta}
+            onBack={() => { setTab("patch"); }}
+            onOpenAnalysis={() => setTab("analysis")}
+          />
+        )}
+        {tab === "analysis" && !viewingImageId && (
+          <div className="empty-state">
+            <strong>{t("patch.noPrediction")}</strong>
+            <span>Pick a patch from the workbench, then open analysis.</span>
+          </div>
+        )}
         {tab === "live" && projectId && <LiveScreen key={projectId} role={role} projectId={projectId} />}
         {tab === "report" && projectId && (
           <ReportScreen key={projectId} role={role} projectId={projectId} />

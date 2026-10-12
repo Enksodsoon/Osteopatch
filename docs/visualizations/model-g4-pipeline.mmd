@@ -1,0 +1,14 @@
+---
+title: "Reference-model image-scoring flow · documented design · 2026-10-11"
+---
+%%{init: {'theme':'base','themeVariables': {'background':'#f7f5ef','primaryColor':'#e8eee9','primaryTextColor':'#34362f','primaryBorderColor':'#9ebbb0','lineColor':'#89877e','secondaryColor':'#eeeae0','tertiaryColor':'#f7e8dc','fontFamily':'Segoe UI'}}}%%
+flowchart LR
+  input["Color image<br/>full field, no crop"] --> prep["Resize to 384 × 384 pixels<br/>smooth image resampling<br/>color scaling matches training"]
+  prep --> enc["MobileNetV3-Small image encoder<br/>converts pixels into image features<br/>image-processing blocks kept fixed"]
+  enc --> scorer["Class scorer<br/>1,024 image features → 3 categories"]
+  scorer --> score["Raw category scores<br/>not chance estimates or probabilities"]
+  score --> classes["Non-tumor tissue<br/>Viable tumor<br/>Necrotic tissue"]
+  score --> eval["Each image group excluded from training in turn<br/>combined results · 1,028 image patches<br/>separate patients not verified"]
+  src["Sources: stored model configuration and evaluation records; model evidence notes. Original reference-model file unavailable."] -. "evidence" .-> enc
+  classDef note fill:#f7e8dc,stroke:#d9a887,color:#543b2e
+  class src note
