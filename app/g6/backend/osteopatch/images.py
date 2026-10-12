@@ -60,8 +60,8 @@ def thumbnail_png(conn: sqlite3.Connection, image_id: str) -> bytes:
         return cache.read_bytes()
     src = _resolve_tiff(conn, image_id)
     try:
-        with Image.open(src) as im:
-            im = im.convert("RGB")
+        with Image.open(src) as opened:
+            im = opened.convert("RGB")
             im.thumbnail((config.THUMBNAIL_SIZE, config.THUMBNAIL_SIZE))
             buf = io.BytesIO()
             im.save(buf, format="PNG")
@@ -78,8 +78,8 @@ def full_png(conn: sqlite3.Connection, image_id: str) -> bytes:
     """Render the full patch as PNG (loaded only when selected)."""
     src = _resolve_tiff(conn, image_id)
     try:
-        with Image.open(src) as im:
-            im = im.convert("RGB")
+        with Image.open(src) as opened:
+            im = opened.convert("RGB")
             buf = io.BytesIO()
             im.save(buf, format="PNG")
     except (OSError, ValueError) as exc:

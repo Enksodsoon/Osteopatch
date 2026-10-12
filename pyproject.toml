@@ -22,31 +22,29 @@ license = { text = "Proprietary" }
 # ---------------------------------------------------------------------------
 dependencies = [
     # --- web / review stack (torch-free on the serve path by design) ---
-    "fastapi==0.115.6",
+    "fastapi==0.142.2",
     "uvicorn[standard]==0.34.0",
     "pydantic==2.10.4",
-    "pillow==11.0.0",
-    # numpy DEVIATION (documented): the previous pin was exactly 2.5.3.
-    # tiatoolbox 2.1.3 declares numpy>=2.0.0,<2.4.4, so an exact 2.5.3 pin makes
-    # the `wsi` extra unsatisfiable. The frozen G4 preprocessing contract
-    # (384x384 bilinear, ImageNet mean/std) is *data* carried in the bundle and
-    # is independent of the numpy build; no compiled extension of ours binds to
-    # a numpy ABI. The range below satisfies both the core and the WSI extra.
+    "pillow==12.3.0",
+    # numpy upper bound is kept deliberately for the currently certified core
+    # environment. The frozen G4 preprocessing contract (384x384 bilinear,
+    # ImageNet mean/std) is data carried in the bundle and is independent of
+    # the numpy build. Widen this range only in a separately tested dependency PR.
     "numpy>=2.0.0,<2.4.4",
 
     # --- identity (enterprise layer) ---
-    "PyJWT==2.10.1",
+    "PyJWT==2.15.1",
 ]
 
 [project.optional-dependencies]
 # ---------------------------------------------------------------------------
 # Extras are split by COST, not by feature area.
 #
-# `tiatoolbox` transitively depends on torch, jupyterlab, sphinx, transformers
-# and matplotlib — installing it alongside openslide-python turns a ~50 MB
-# environment into 1.7 GB. Keeping it in its own group is what preserves the
-# architectural claim that the web serve path is torch-free, and it keeps CI
-# fast and cheap.
+# Extras are isolated so the normal web serve path stays torch-free and CI
+# remains small. A previous `tissue` extra based on tiatoolbox 2.1.3 has been
+# suspended: upstream currently requires Pillow <12.2, while current security
+# fixes require Pillow >=12.3. Reintroduce it only when that constraint is fixed
+# and the optional pathology stack is revalidated.
 # ---------------------------------------------------------------------------
 
 # Whole-slide metadata + region reading. Lightweight (bindings + native lib).
@@ -54,25 +52,17 @@ dependencies = [
 # availability at runtime and falls back to the pure-Python Pillow reader,
 # which reports only genuinely-present metadata (null otherwise, never invented).
 wsi = [
-    # tiatoolbox 2.1.3 declares openslide-python>=1.4.0,<1.4.6, so this upper
-    # bound is not ours to choose — do not raise it without checking that
-    # constraint first.
-    "openslide-python>=1.4.0,<1.4.6",
+    "openslide-python>=1.4.0,<2",
     # Ships the native OpenSlide shared library on Windows, where it is not
     # available from the OS. Without this, `import openslide` fails with
     # "Couldn't locate OpenSlide DLL".
     "openslide-bin; sys_platform == 'win32'",
 ]
 
-# Tissue masking / pathology preprocessing. HEAVY (pulls torch transitively).
-tissue = [
-    "tiatoolbox>=2.1.3",
-]
-
 # The offline inference worker. Installed only into the model venv; the web
 # serve path must never import torch.
 model = [
-    "torch>=2.2",
+    "torch>=2.13",
     "torchvision>=0.17",
     # Distribution name is `grad-cam`; the IMPORT name is `pytorch_grad_cam`.
     # The mismatch is upstream's, not ours — do not "fix" it back.
@@ -80,7 +70,7 @@ model = [
 ]
 
 dev = [
-    "pytest==8.3.4",
+    "pytest==9.1.1",
     "httpx==0.28.1",
     "coverage>=7.0",
     "ruff>=0.6",
