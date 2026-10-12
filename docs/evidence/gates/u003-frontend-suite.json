@@ -1,0 +1,22 @@
+{
+  "gate": "u003-frontend-suite",
+  "command": "'C:\\Program Files\\nodejs\\npm.cmd' --prefix app/g6/frontend test",
+  "argv": [
+    "C:\\Program Files\\nodejs\\npm.cmd",
+    "--prefix",
+    "app/g6/frontend",
+    "test"
+  ],
+  "cwd": "C:\\Users\\enkso\\.kiro\\crew\\workspace\\osteopatch\\wt\\pack",
+  "exit_code": 0,
+  "ok": true,
+  "observed_at_utc": "2026-10-05T15:03:23Z",
+  "observed_at_utc_source": "captured by `date -u +%Y-%m-%dT%H:%M:%SZ` at spawn time",
+  "timestamp_status": "CAPTURED",
+  "summary": "\u001b[2m      Tests \u001b[22m \u001b[1m\u001b[32m138 passed\u001b[39m\u001b[22m\u001b[90m (138)\u001b[39m",
+  "output_tail": "> osteopatch-g6-frontend@0.6.0 test\n> vitest run\n\n\n\u001b[1m\u001b[7m\u001b[36m RUN \u001b[39m\u001b[27m\u001b[22m \u001b[36mv2.1.9 \u001b[39m\u001b[90mC:/Users/enkso/.kiro/crew/workspace/osteopatch/wt/pack/app/g6/frontend\u001b[39m\n\n \u001b[32m✓\u001b[39m src/test/api-client.test.ts \u001b[2m(\u001b[22m\u001b[2m32 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[90m 30\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m✓\u001b[39m src/test/design-tokens.test.tsx \u001b[2m(\u001b[22m\u001b[2m28 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[90m 46\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m✓\u001b[39m src/test/navigation.test.tsx \u001b[2m(\u001b[22m\u001b[2m9 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[90m 215\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m✓\u001b[39m src/test/async-state.test.tsx \u001b[2m(\u001b[22m\u001b[2m40 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[33m 404\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m✓\u001b[39m src/test/ui.test.tsx \u001b[2m(\u001b[22m\u001b[2m29 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[33m 471\u001b[2mms\u001b[22m\u001b[39m\n\n\u001b[2m Test Files \u001b[22m \u001b[1m\u001b[32m5 passed\u001b[39m\u001b[22m\u001b[90m (5)\u001b[39m\n\u001b[2m      Tests \u001b[22m \u001b[1m\u001b[32m138 passed\u001b[39m\u001b[22m\u001b[90m (138)\u001b[39m\n\u001b[2m   Start at \u001b[22m 22:03:24\n\u001b[2m   Duration \u001b[22m 1.89s\u001b[2m (transform 498ms, setup 469ms, collect 1.59s, tests 1.17s, environment 2.71s, prepare 603ms)\u001b[22m",
+  "output_chars": 997,
+  "output_truncated": false,
+  "output_log": null,
+  "durability": "VERSIONED"
+}

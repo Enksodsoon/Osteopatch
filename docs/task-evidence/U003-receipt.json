@@ -1,0 +1,282 @@
+{
+  "task_id": "U003",
+  "task_title": "Standardize loading, empty, offline, and retry states",
+  "status": "IMPLEMENTED_VERIFIED",
+  "acceptance_status": "NOT_REVIEWED - this receipt is the implementer's, not an acceptance. Test success and acceptance are separate; a reviewer may still reject this for an incorrect requirement, an accessibility boundary, or a misleading claim.",
+  "baseline_sha": "626aaadc9e4282b470b74fe94893a412cf7d127a",
+  "baseline_sha_note": "Inherited from the uncommitted baseline and unchanged by U003; this worktree still carries zero commits beyond origin/main, so the baseline is the HEAD the worktree started from.",
+  "remote_main_sha": "626aaadc9e4282b470b74fe94893a412cf7d127a",
+  "candidate_sha": null,
+  "candidate_sha_note": "No commit was authorized for this turn, so the working tree carries the change; diff_sha256 identifies the reviewed tree instead.",
+  "diff_sha256": "58c71b4e3dc915f9a439537f9df265a8dda7b098dd6fd18cb8c98b9a4292700b",
+  "diff_sha256_covers": "Uncommitted working-tree change (Turn 0 baseline + F001/F002/F004/U002/F003/F007/U001 evidence and product code + the three U003 files). Recomputed as this receipt's final write with scratch/diff_digest.py, excluding this receipt file itself.",
+  "branch": "feat/prompt-pack-run",
+  "worktree": "C:/Users/enkso/.kiro/crew/workspace/osteopatch/wt/pack",
+  "isolation": "Dedicated git worktree; one writer; nothing committed, nothing pushed, nothing staged. The canonical review store was opened read-only throughout and its sha256 was compared before and after every gate, including the write-bearing browser rehearsal, which booted the real API against the throwaway scratch/throwaway-db/throwaway.sqlite3 (OSTEOPATCH_DB from scripts/task_env.sh). No other worker's files were touched.",
+  "dirty_paths": [
+    "M .gitignore",
+    " M app/g6/backend/osteopatch/app.py",
+    " M app/g6/backend/osteopatch/db.py",
+    " M app/g6/backend/osteopatch/queries.py",
+    " M app/g6/frontend/src/App.tsx",
+    " M app/g6/frontend/src/api.ts",
+    " M app/g6/frontend/src/components/Workbench.tsx",
+    " M app/g6/frontend/src/styles.css",
+    " M app/g7-enterprise/backend/enterprise/review_proxy.py",
+    " M app/local-tester.py",
+    " M docs/evidence/README.md",
+    " M docs/evidence/e2e-ui-result.json",
+    " M docs/task-evidence/F001-baseline.json",
+    " M docs/task-evidence/F001-baseline.md",
+    " M docs/task-evidence/F001-receipt.json",
+    " M scripts/check_repository.py",
+    " M scripts/e2e_ui.py",
+    " M tests/tooling/test_repository.py",
+    "?? aidlc-docs/prompt-pack/",
+    "?? app/g6/backend/osteopatch/scope.py",
+    "?? app/g6/backend/tests/fixtures/",
+    "?? app/g6/backend/tests/test_connection_lifecycle.py",
+    "?? app/g6/backend/tests/test_fixture_contract.py",
+    "?? app/g6/backend/tests/test_scope_contract.py",
+    "?? app/g6/frontend/src/apiErrors.ts",
+    "?? app/g6/frontend/src/components/AsyncState.tsx",
+    "?? app/g6/frontend/src/navigation.ts",
+    "?? app/g6/frontend/src/styles/",
+    "?? app/g6/frontend/src/test/api-client.test.ts",
+    "?? app/g6/frontend/src/test/async-state.test.tsx",
+    "?? app/g6/frontend/src/test/design-tokens.test.tsx",
+    "?? app/g6/frontend/src/test/navigation.test.tsx",
+    "?? docs/evidence/gates/",
+    "?? docs/task-evidence/F002-receipt.json",
+    "?? docs/task-evidence/F002.md",
+    "?? docs/task-evidence/F003-receipt.json",
+    "?? docs/task-evidence/F003.md",
+    "?? docs/task-evidence/F004-receipt.json",
+    "?? docs/task-evidence/F004.md",
+    "?? docs/task-evidence/F007-receipt.json",
+    "?? docs/task-evidence/F007.md",
+    "?? docs/task-evidence/STATUS.md",
+    "?? docs/task-evidence/TURN0-setup-baseline.md",
+    "?? docs/task-evidence/TURN0-setup-receipt.json",
+    "?? docs/task-evidence/U001-receipt.json",
+    "?? docs/task-evidence/U001.md",
+    "?? docs/task-evidence/U002-receipt.json",
+    "?? docs/task-evidence/U002.md",
+    "?? docs/task-evidence/U003-receipt.json",
+    "?? docs/task-evidence/U003.md",
+    "?? scripts/run_gate.py",
+    "?? scripts/task_env.sh",
+    "?? scripts/verify_prompt_pack.py",
+    "?? tests/tooling/test_run_gate.py"
+  ],
+  "dirty_paths_note": "Exact `git status --porcelain` captured at write time (54 paths). The three U003 files are among them: the new components/AsyncState.tsx, the modified components/Workbench.tsx, and the new test/async-state.test.tsx. Nothing is staged.",
+  "changed_files": [
+    {
+      "path": "app/g6/frontend/src/components/AsyncState.tsx",
+      "why": "CREATED - one of the three paths §5 names as task-owned. Holds the AsyncState<T> union §6 requires (idle, loading, refreshing(data), ready(data), empty, failed(error), offline(previousData)), the pure transitions between them, and the AsyncStatus component that renders them with status/alert semantics and a retry action. It adds no CSS: every class it uses (inline-error, empty-state, gallery-skeleton, muted, small) already exists."
+    },
+    {
+      "path": "app/g6/frontend/src/components/Workbench.tsx",
+      "why": "MODIFIED - the other task-owned path. Replaces three independent booleans (data/loading/failed) with one AsyncState<ImageList>, passes an AbortSignal so a superseded query is cancelled rather than ignored, bounds consecutive retries per query, and publishes data-async-state for browser tests. Narrowly edited; the gallery, cards, toolbar and pager are untouched. Verified by inventory rather than asserted: across app/g6/frontend/src, 0 pre-existing data-testid values were REMOVED (45 -> 49 unique; 4 added: async-state, async-status, async-retry, plus route-unavailable from U001). One testid MOVED rather than changed meaning - workbench-empty now lives in AsyncState.tsx because the empty box is rendered by the shared component - and it is still rendered for the empty state."
+    },
+    {
+      "path": "app/g6/frontend/src/test/async-state.test.tsx",
+      "why": "CREATED - the named §9 test file. 40 tests: U003-AT01..AT05 plus the transition table, the boundary and failure review, and the Step 08 browser handle. Written and observed failing (39/39) before any implementation."
+    }
+  ],
+  "product_code_changed": true,
+  "product_files_modified": [
+    "app/g6/frontend/src/components/AsyncState.tsx",
+    "app/g6/frontend/src/components/Workbench.tsx"
+  ],
+  "dependency_receipts_inspected": [
+    "F004 (docs/task-evidence/F004-receipt.json, IMPLEMENTED_VERIFIED) - its ApiError{status, code, message, request_id, outcome} contract was confirmed present in app/g6/frontend/src/apiErrors.ts before starting, and this task reuses it rather than inventing a second error type: rejectFetch/classifyError, isRetryable (which decides whether a retry can help) and the aborted getter (which is how a cancelled request is told from a failure) are all F004's.",
+    "U002 (docs/task-evidence/U002-receipt.json, IMPLEMENTED_VERIFIED) - its semantic tokens (--text, --surface, --border, --warning*) were confirmed present in styles.css, and this task adds NO new stylesheet rule and no inline style; it reuses the existing class vocabulary so the earth-tone direction is untouched."
+  ],
+  "produced_interfaces": [
+    "AsyncState<T> = idle | loading | refreshing{data} | ready{data} | empty{reason,data} | failed{error} | offline{error,data} - the §6 contract as a discriminated union",
+    "AsyncKind = 'idle'|'loading'|'refreshing'|'ready'|'empty'|'failed'|'offline'",
+    "EmptyReason = 'no_dataset'|'no_match' - Step 04's three-way distinction (the third, permission denied, is a failed state, not an empty one)",
+    "beginFetch(prev) / resolveFetch(prev, data, {filtered}) / rejectFetch(prev, err) - pure transitions, testable without React",
+    "canRetry(state, {inFlight, attempts}) - false for a permission code, while in flight, or once MAX_CONSECUTIVE_RETRIES attempts are spent",
+    "MAX_CONSECUTIVE_RETRIES = 3",
+    "isStale(state) - true exactly for refreshing and offline",
+    "isPermissionDenied(err) - true for forbidden and auth_required",
+    "dataOf(state) - the carried payload, or undefined",
+    "announcement(state) - the concise live-region sentence for a state",
+    "<AsyncStatus state onRetry attempts inFlight /> - renders async-status (live region) and async-state (the actionable box), plus async-retry",
+    "data-async-state on the workbench root and data-stale on the gallery - the Step 08 handle a browser test awaits instead of sleeping"
+  ],
+  "produced_endpoints": [],
+  "produced_endpoints_note": "None, deliberately: U003 adds no route and calls no new endpoint. It standardizes how EXISTING /v1/images responses are presented. The permission path in particular makes no fallback request - a 403 ends the state machine rather than retrying against a public endpoint.",
+  "produced_types": [
+    "AsyncState<T>",
+    "AsyncKind",
+    "EmptyReason",
+    "AsyncStatusProps<T>"
+  ],
+  "tests": [
+    {
+      "command": "'C:\\Program Files\\nodejs\\npm.cmd' --prefix app/g6/frontend test -- src/test/async-state.test.tsx",
+      "cwd": "C:\\Users\\enkso\\.kiro\\crew\\workspace\\osteopatch\\wt\\pack",
+      "exit_code": 0,
+      "note": "[TASK VERIFICATION COMMAND 1] task section 10 command 1, `npm --prefix app/g6/frontend test -- src/test/async-state.test.tsx`. Spawned as the absolute npm.cmd because bare `npm`/`npm.cmd` is not spawnable by name on this host (verified: absolute path exit 0 npm 11.17.0; bare npm.cmd on PATH exit 1). Same test runner, same locked environment, same argument list as the task's command.",
+      "observed_at_utc": "2026-10-05T15:03:13Z",
+      "observed_at_utc_source": "captured by `date -u +%Y-%m-%dT%H:%M:%SZ` at spawn time",
+      "timestamp_status": "CAPTURED",
+      "gate_record": "docs/evidence/gates/u003-async-state.json",
+      "passed": "40 passed, 0 failed, 0 skipped"
+    },
+    {
+      "command": "'C:\\Program Files\\nodejs\\npm.cmd' --prefix app/g6/frontend run build",
+      "cwd": "C:\\Users\\enkso\\.kiro\\crew\\workspace\\osteopatch\\wt\\pack",
+      "exit_code": 0,
+      "note": "[TASK VERIFICATION COMMAND 2] task section 10 command 2, `npm --prefix app/g6/frontend run build` (tsc -b && vite build). This is the gate that exercises the change's real type contract; it caught an unused ReactNode import that the test suite did not.",
+      "observed_at_utc": "2026-10-05T15:03:15Z",
+      "observed_at_utc_source": "captured by `date -u +%Y-%m-%dT%H:%M:%SZ` at spawn time",
+      "timestamp_status": "CAPTURED",
+      "gate_record": "docs/evidence/gates/u003-build.json",
+      "passed": "tsc -b && vite build succeeded"
+    },
+    {
+      "command": "git diff --check",
+      "cwd": "C:\\Users\\enkso\\.kiro\\crew\\workspace\\osteopatch\\wt\\pack",
+      "exit_code": 0,
+      "note": "[TASK VERIFICATION COMMAND 3] task section 10 command 3, `git diff --check`. Clean, including the CRLF line endings of the three files this task wrote.",
+      "observed_at_utc": "2026-10-05T15:03:29Z",
+      "observed_at_utc_source": "captured by `date -u +%Y-%m-%dT%H:%M:%SZ` at spawn time",
+      "timestamp_status": "CAPTURED",
+      "gate_record": "docs/evidence/gates/u003-diff-check.json",
+      "passed": "no whitespace errors reported"
+    },
+    {
+      "command": "'C:\\Program Files\\nodejs\\npm.cmd' --prefix app/g6/frontend test",
+      "cwd": "C:\\Users\\enkso\\.kiro\\crew\\workspace\\osteopatch\\wt\\pack",
+      "exit_code": 0,
+      "note": "Targeted regression: the whole frontend suite, to prove the Workbench rewrite broke none of the 98 pre-existing tests (89 baseline + 9 from U001).",
+      "observed_at_utc": "2026-10-05T15:03:23Z",
+      "observed_at_utc_source": "captured by `date -u +%Y-%m-%dT%H:%M:%SZ` at spawn time",
+      "timestamp_status": "CAPTURED",
+      "gate_record": "docs/evidence/gates/u003-frontend-suite.json",
+      "passed": "138 passed, 0 failed, 0 skipped"
+    },
+    {
+      "command": "'.venv\\Scripts\\python.exe' scratch/task/u003_sweep_gate.py",
+      "cwd": "C:\\Users\\enkso\\.kiro\\crew\\workspace\\osteopatch\\wt\\pack",
+      "exit_code": 0,
+      "note": "Boundary sweep of this task's own code, OUTSIDE the test harness: AsyncState.tsx is esbuild-bundled and driven from plain node with react-dom/server, over 86 hostile inputs (malformed payloads, throwing getters, null rows, NaN/Infinity/huge totals, non-ApiError throwables, prototype pollution, every state kind).",
+      "observed_at_utc": "2026-10-05T15:05:21Z",
+      "observed_at_utc_source": "captured by `date -u +%Y-%m-%dT%H:%M:%SZ` at spawn time",
+      "timestamp_status": "CAPTURED",
+      "gate_record": "docs/evidence/gates/u003-boundary-sweep.json",
+      "passed": "86 hostile checks, 0 unstable/throwing"
+    },
+    {
+      "command": "'.venv\\Scripts\\python.exe' scratch/task/u003_rehearsal.py",
+      "cwd": "C:\\Users\\enkso\\.kiro\\crew\\workspace\\osteopatch\\wt\\pack",
+      "exit_code": 0,
+      "note": "[USER-VISIBLE REHEARSAL] task section 11, real Chromium against the real G6 API and the real 1144-image store. Expected visible results were written down before each action. Full transcript at docs/evidence/gates/u003-rehearsal-output.txt.",
+      "observed_at_utc": "2026-10-05T15:04:04Z",
+      "observed_at_utc_source": "captured by `date -u +%Y-%m-%dT%H:%M:%SZ` at spawn time",
+      "timestamp_status": "CAPTURED",
+      "gate_record": "docs/evidence/gates/u003-rehearsal.json",
+      "passed": "32 browser checks passed, 0 failed"
+    }
+  ],
+  "tests_note": "Every entry above was produced by actually running the command through scripts/run_gate.py, which wrote the JSON record cited in gate_record at the moment it spawned the process; command, cwd, exit_code, the captured stamp and the output tail in each entry are read out of that record, not typed in. All six exited 0. The three §10 commands appear verbatim; npm was spawned by absolute path because bare npm is not resolvable by name on this host, which was verified before relying on it.",
+  "evidence_path": "docs/task-evidence/U003.md and docs/task-evidence/U003-receipt.json; gate records under docs/evidence/gates/u003-*.json; the full browser transcript at docs/evidence/gates/u003-rehearsal-output.txt",
+  "acceptance_tests": [
+    {
+      "id": "U003-AT01",
+      "result": "PASS",
+      "evidence": "Different wording, asserted in both directions so neither can borrow the other's text. An un-ingested dataset renders 'No patches have been loaded into this dataset yet.'; an HTTP 500 renders 'The patch queue could not be loaded.' The test asserts each does NOT match the other's phrasing. The task's Step 04 distinction is also pinned: data-empty-reason is 'no_dataset' with no filter applied and 'no_match' once a filter excludes everything, and the two wordings differ. Browser-confirmed against the real store: a search for a non-existent patch id reached state=empty with reason=no_match."
+    },
+    {
+      "id": "U003-AT02",
+      "result": "PASS",
+      "evidence": "Table-driven over 403 forbidden and 401 auth_required. In both: async-retry is absent, role=link is absent, and the state box contains no <a> element. Exactly one /v1/ request is issued, with the original unscoped-change parameters (filter=all) - no fallback to a public or unauthenticated endpoint. canRetry() additionally returns false for a permission code regardless of attempts spent. Browser-confirmed: a fulfilled 403 offered no retry, rendered no link, and produced 1 observed /v1/ request."
+    },
+    {
+      "id": "U003-AT03",
+      "result": "PASS",
+      "evidence": "Three separate assertions. (1) A failed refresh after a successful load keeps the previous page with data-stale=true on both the state box and the gallery, and the box says 'out of date' - the cards are retained, never presented as current. (2) While a NEW query is still loading, the previous page is already marked stale (state=refreshing), so it is never shown as results for the new query. (3) A first-load failure shows no cards at all, so nothing is invented. A fourth test, added after the rehearsal found a real defect, pins that a 500 or 403 is NOT announced as being offline - only a dropped connection is."
+    },
+    {
+      "id": "U003-AT04",
+      "result": "PASS",
+      "evidence": "Concurrency is structurally impossible rather than merely counted. The retry control is absent while a request is in flight, AND the handler returns early on an in-flight ref, so twelve rapid clicks produce exactly one additional request (asserted twice: still 2 after the clicks and still 2 after it resolves). Consecutive sequential retries are separately bounded at MAX_CONSECUTIVE_RETRIES=3: 6 clicks yield 1 initial + 3 retries and the control is then withdrawn with reload advice, never 6 calls. Superseded queries are genuinely aborted: three rapid sort changes produce four AbortSignals of which all but the live one report aborted=true, and an abort of our own making leaves the state untouched."
+    },
+    {
+      "id": "U003-AT05",
+      "result": "PASS",
+      "evidence": "A persistent live region (data-testid=async-status) carries role=status with aria-live=polite and aria-busy true while loading, flipping to false on completion; a hard failure with nothing to read switches to role=alert with aria-live=assertive. Concision is asserted, not assumed: the announcement is <=120 characters and contains no patch id and no score. It announces the real count ('1144 patches loaded.') in the browser rehearsal. Browser check: the retry control is focusable and is a real <button>."
+    }
+  ],
+  "data_mode": "verified_replay",
+  "data_mode_detail": "Both halves are real and neither is claimed as the other. The 40 unit/component tests use deterministic fixtures (synthetic ImageList values built in the test file) for the state machine - no store is touched, which is what makes the 39/39 red and the boundary sweep reproducible. The §11 rehearsal is a verified replay against the REAL authorized store: 1144 images, 1144 predictions, model bundle 01727fb832f9, read through the real G6 API and the real Vite dev server. Its 32 checks include real rendered output ('1144 patches loaded.') and a real 60-card gallery marked stale.",
+  "scope": "app/g6/frontend only. Three files, all inside §5's allowed change surface. app/g6/frontend/src/strings.ts was deliberately NOT edited - its workbench.loadError / workbench.empty / workbench.emptyHint / common.retry keys are now unused because the state wording lives in AsyncState.tsx, and removing them would have meant editing a file outside the boundary. Those keys are harmless dead entries for the integrator to retire.",
+  "model_artifact_identities": "Not touched by this task, and asserted not touched: the rehearsal read the real store and reported model bundle 01727fb832f9, unchanged from the F003/F007/U001 receipts. No score, reference label, prediction or real review was altered anywhere in U003.",
+  "canonical_data_unchanged": {
+    "verified": true,
+    "sha256_before_and_after": "0e4524db91f7a6e22dfbdc3395cf0fce6b7bf1b5628ac4cd1198be291d01ac40",
+    "how": "sha256sum of the canonical store read after `source scripts/task_env.sh`, compared before and after each of the six gates including the write-bearing browser rehearsal. Identical every time. The API the rehearsal booted was pointed at the throwaway scratch/throwaway-db/throwaway.sqlite3 by OSTEOPATCH_DB, never at the canonical file."
+  },
+  "ui_browser_observations": "32 checks, 0 failures, real Chromium, real store (docs/evidence/gates/u003-rehearsal-output.txt). Empty filter: a search for a non-existent patch id reached state=empty with reason=no_match and the no-match wording, not the failure wording. Offline API: aborting the request after a successful load reached state=offline, kept all 60 previous cards, set data-stale=true, and said 'You appear to be offline. Showing the previous list - out of date.' Repeated retries while still offline withdrew the control and offered reload advice instead of looping. Restoring the route recovered to state=ready with data-stale=false. A fulfilled 500 and a fulfilled 403 both kept the previous page labelled stale but were NOT reported as offline, offered no retry for the 403, rendered no link, and produced exactly one observed /v1/ request. The live region announced '1144 patches loaded.' on the real count. Keyboard: the retry control is focusable and is a real <button>.",
+  "limitations": [
+    "AT01 and AT05 are verified structurally (ARIA role/aria-live/aria-busy, announcement length, no card content in the announcement) and by a real focus() probe in Chromium. They were NOT confirmed with an actual screen reader, and the stale banner has no visual treatment beyond the existing .inline-error class because this task adds no CSS.",
+    "Step 06's 'disable mistaken bulk actions' is vacuous here: the workbench has no bulk action. The stale cards stay clickable, which is a deliberate choice - the ids are real and already in scope - and correctness rests on the labelling, which is asserted. If the integrator wants stale cards non-interactive, that is a small change.",
+    "strings.ts still carries workbench.loadError, workbench.empty, workbench.emptyHint and common.retry, now unused. Not removed: strings.ts is outside §5's boundary.",
+    "Other screens (PatchReview, ModelCard, AttributionPanel) were left untouched on purpose - §8 Step 03 says wire the workbench first and leave other screens alone unless their markup is a direct replacement of the same state component. They still use their own ad-hoc loading and error markup, so the standardization is not yet global.",
+    "A payload whose items array is empty while total > 0 is reported as empty rather than flagged as an inconsistent response. The guard rejects only what cannot be rendered; it does not cross-validate the page count.",
+    "Nothing is committed, so a fresh clone will fail check_repository.py on every citation in every receipt. That is the honest cost of the no-commit instruction, not a defect in the check.",
+    "run_gate.py loses a gate's entire captured output when the child emits a byte the Windows locale cannot decode: subprocess text=True decodes as cp1252 and the reader thread dies. Found here when a vitest failure record came back with no output at all. Worked around per-invocation with PYTHONUTF8=1 (UTF-8 mode changes text I/O decoding) rather than editing run_gate.py, which this task does not own. The durable fix belongs to whoever owns that script. RESOLVED AFTER U003, 2026-10-05: run_gate.py now captures bytes and decodes them itself, so PYTHONUTF8=1 is NO LONGER NEEDED and must not be carried forward as an instruction. That fix also found the old path did not only lose output but silently CORRUPT it whenever the bytes happened to be cp1252-decodable (see the record_note in docs/evidence/gates/u001-rehearsal.json). The gates recorded during U003 are unaffected: the captured bytes are unchanged, only the decode is now stated rather than assumed."
+  ],
+  "blockers": [],
+  "required_approval": "None was needed or taken. No dependency was installed or updated, no CSS was added, no route or endpoint was created, no model or dataset was touched, no cloud resource or deployment was prepared. The two parked integrator items were not touched by this task.",
+  "boundary_observations": {
+    "no_rows": "empty with reason no_dataset when nothing is ingested and no filter is applied; reason no_match when a filter or search excludes everything. Different wording.",
+    "one_row": "ready - a single patch is never mistaken for empty (explicit test).",
+    "duplicate_input_retry": "12 clicks on retry = 1 request; 6 sequential retries = 3, then the control is withdrawn. Both asserted.",
+    "missing_or_malformed_values": "null, undefined, items:{}, items:'abc', a throwing items getter, and an array containing null all resolve to a readable-response failure rather than rendering. The guard is total: it cannot throw.",
+    "unavailable_artifact": "Out of scope here - U003 presents a list response, not an artifact.",
+    "unauthorized_object": "403 and 401 both end in failed with NO retry and NO link, and issue exactly one request. No fallback to an unscoped or unauthenticated endpoint.",
+    "changed_project_model_session": "Out of scope here: scope resolution belongs to F003's ScopeContext, which this task consumes rather than reimplements.",
+    "stale_response": "A superseded query's AbortSignal is aborted in the effect cleanup and its resolution is ignored; an abort of our own making leaves the state untouched.",
+    "concurrent_revision": "Out of scope: that is review-event revision handling, not read state.",
+    "canceled_job_request": "controller.abort() on cleanup; rejectFetch returns prev unchanged for an aborted ApiError.",
+    "partial_failure": "A refresh that fails keeps the previous page, labelled stale, instead of blanking the reviewer's context.",
+    "null_plus_reason": "Absent data is never rendered as a zero or an empty list: a payload with no readable items becomes a failure with a message, and no state invents rows.",
+    "timeout_after_a_write": "Not applicable - U003 performs no writes. It reuses F004's outcome='unknown' handling rather than inventing its own."
+  },
+  "external_effects": "None. No network call beyond localhost, no telemetry, no analytics, no mail, no file outside this worktree except the gitignored scratch/ tree and the versioned docs/evidence/gates/ records.",
+  "next_integrator_action": "Review this receipt and accept or reject U003; do not start U005. The specific judgement wanted: whether AsyncStatus should be adopted by PatchReview, ModelCard and AttributionPanel, which still carry their own ad-hoc loading and error markup - §8 Step 03 deliberately left them alone, so the standardization is currently workbench-only.",
+  "self_acceptance": "NOT GIVEN - this receipt records implementation and verification only. Test success and acceptance are separate; a reviewer may still reject this for an incorrect requirement, an accessibility boundary, or a misleading claim.",
+  "timestamp_audit": {
+    "audited_at_utc": "2026-10-05T15:05:21Z",
+    "verdict": "ANCHORED for all six gates: each observed_at_utc was captured by scripts/run_gate.py from `date -u` at the moment it spawned the process, and each record is a versioned file under docs/evidence/gates/ that a reviewer can read. No timestamp here was typed by hand, rounded, or backdated.",
+    "receipt_last_modified_utc": null,
+    "classification": {
+      "ANCHORED": [
+        "u003-async-state.json",
+        "u003-build.json",
+        "u003-diff-check.json",
+        "u003-frontend-suite.json",
+        "u003-boundary-sweep.json",
+        "u003-rehearsal.json"
+      ],
+      "DERIVED": [],
+      "UNAVAILABLE": [
+        "the 39/39 red run and the boundary sweep's first two failures were diagnosed from the terminal, and only the red run survives as a versioned record (docs/evidence/gates/u003-async-state-red.json); the intermediate sweep diagnostics were console output only, so they are reported here as observed-but-not-archived rather than as anchored evidence"
+      ]
+    },
+    "rule": "A round minute is never an observation. Every gate was run behind `date -u`.",
+    "gate_records": {
+      "docs/evidence/gates/u003-async-state.json": "2026-10-05T15:03:13Z",
+      "docs/evidence/gates/u003-boundary-sweep.json": "2026-10-05T15:05:21Z",
+      "docs/evidence/gates/u003-build.json": "2026-10-05T15:03:15Z",
+      "docs/evidence/gates/u003-diff-check.json": "2026-10-05T15:03:29Z",
+      "docs/evidence/gates/u003-frontend-suite.json": "2026-10-05T15:03:23Z",
+      "docs/evidence/gates/u003-rehearsal.json": "2026-10-05T15:04:04Z"
+    }
+  }
+}

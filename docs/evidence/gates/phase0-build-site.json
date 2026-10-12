@@ -1,0 +1,25 @@
+{
+  "gate": "phase0-build-site",
+  "command": "C:/Users/enkso/.kiro/crew/workspace/osteopatch/wt/pack/.venv/Scripts/python.exe scripts/build_site.py",
+  "argv": [
+    "C:/Users/enkso/.kiro/crew/workspace/osteopatch/wt/pack/.venv/Scripts/python.exe",
+    "scripts/build_site.py"
+  ],
+  "cwd": "C:\\Users\\enkso\\.kiro\\crew\\workspace\\osteopatch\\wt\\pack",
+  "exit_code": 0,
+  "ok": true,
+  "observed_at_utc": "2026-10-06T00:55:17Z",
+  "observed_at_utc_source": "captured by `date -u +%Y-%m-%dT%H:%M:%SZ` at spawn time",
+  "timestamp_status": "CAPTURED",
+  "summary": "Built 12 allowlisted files in C:\\Users\\enkso\\.kiro\\crew\\workspace\\osteopatch\\wt\\pack\\_site; no runtime data published.",
+  "output_tail": "Built 12 allowlisted files in C:\\Users\\enkso\\.kiro\\crew\\workspace\\osteopatch\\wt\\pack\\_site; no runtime data published.",
+  "output_chars": 120,
+  "output_truncated": false,
+  "output_capture": "CAPTURED",
+  "output_bytes": 120,
+  "output_encoding": "utf-8",
+  "output_decode_lossy": false,
+  "output_undecodable": 0,
+  "output_log": null,
+  "durability": "VERSIONED"
+}

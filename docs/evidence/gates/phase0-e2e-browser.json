@@ -1,0 +1,27 @@
+{
+  "gate": "phase0-e2e-browser",
+  "command": "C:/Users/enkso/.kiro/crew/workspace/osteopatch/wt/pack/.venv/Scripts/python.exe scripts/e2e_ui.py --out scratch/phase0/e2e.json",
+  "argv": [
+    "C:/Users/enkso/.kiro/crew/workspace/osteopatch/wt/pack/.venv/Scripts/python.exe",
+    "scripts/e2e_ui.py",
+    "--out",
+    "scratch/phase0/e2e.json"
+  ],
+  "cwd": "C:\\Users\\enkso\\.kiro\\crew\\workspace\\osteopatch\\wt\\pack",
+  "exit_code": 0,
+  "ok": true,
+  "observed_at_utc": "2026-10-06T00:55:38Z",
+  "observed_at_utc_source": "captured by `date -u +%Y-%m-%dT%H:%M:%SZ` at spawn time",
+  "timestamp_status": "CAPTURED",
+  "summary": "17 passed (15.0s)",
+  "output_tail": "app.spec.ts:296:3 › whole app — model card limitations › each limitation says what would retire it and cites evidence (391ms)\n  ok 14 [chromium] › e2e\\whole-app.spec.ts:306:3 › whole app — model card limitations › the frozen G4 evaluation caveats are still shown verbatim (455ms)\n  ok 15 [chromium] › e2e\\whole-app.spec.ts:312:3 › whole app — model card limitations › the model card states the claim boundary (466ms)\n  ok 16 [chromium] › e2e\\whole-app.spec.ts:319:3 › whole app — attribution honesty › attribution is real or honestly refuses; never a fabricated heatmap (624ms)\n  ok 17 [chromium] › e2e\\whole-app.spec.ts:350:3 › whole app — export provenance › CSV export carries the disclaimer and both prediction and correction (1.2s)\n\n  17 passed (15.0s)\n==============================================================================\r\nOsteoPatch whole-app browser E2E — educational research prototype. NOT for diagnosis, treatment decisions, or predicting treatment response.\r\n==============================================================================\r\nworkspace : C:\\Users\\enkso\\AppData\\Local\\Temp\\osteopatch-e2e-2emocaud\r\ncanonical : C:\\Users\\enkso\\.kiro\\crew\\workspace\\osteopatch\\OsteoPatch_Kiro_Handoff\\runtime-artifacts\\db\\osteopatch_g6.sqlite3 (sha256 0e4524db91f7a6e2… — never written)\r\napi       : http://127.0.0.1:55666\r\nweb       : http://127.0.0.1:55667\r\n\r\nbooting G6 review API …\r\n  up: http://127.0.0.1:55666 (1144 images, 1144 predictions)\r\nbooting Vite dev server …\r\n  up: http://127.0.0.1:55667\r\nchecking the dev-server proxy reaches the API …\r\n  17 specs discovered\r\n\r\nrunning the browser journey …\r\n\r\n==============================================================================\r\nE2E PASSED — 17 specs in chromium 153.0.8010.12; the browser journey left 5 human review action(s) across 1144 exportable rows in the throwaway DB; canonical store byte-identical.\r\nevidence: scratch\\phase0\\e2e.json\r\n==============================================================================",
+  "output_chars": 4297,
+  "output_truncated": true,
+  "output_capture": "CAPTURED",
+  "output_bytes": 4449,
+  "output_encoding": "utf-8",
+  "output_decode_lossy": false,
+  "output_undecodable": 0,
+  "output_log": "docs/evidence/gates/phase0-e2e-browser.log",
+  "durability": "VERSIONED"
+}

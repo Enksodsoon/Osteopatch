@@ -1,0 +1,29 @@
+{
+  "gate": "run-gate-fix-tooling",
+  "command": "'.venv\\Scripts\\python.exe' -m unittest discover -s tests/tooling",
+  "argv": [
+    ".venv\\Scripts\\python.exe",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "tests/tooling"
+  ],
+  "cwd": "C:\\Users\\enkso\\.kiro\\crew\\workspace\\osteopatch\\wt\\pack",
+  "exit_code": 0,
+  "ok": true,
+  "observed_at_utc": "2026-10-05T15:33:31Z",
+  "observed_at_utc_source": "captured by `date -u +%Y-%m-%dT%H:%M:%SZ` at spawn time",
+  "timestamp_status": "CAPTURED",
+  "summary": "OK (skipped=1)",
+  "output_tail": "....................................................s....\r\n----------------------------------------------------------------------\r\nRan 57 tests in 6.791s\r\n\r\nOK (skipped=1)",
+  "output_chars": 173,
+  "output_truncated": false,
+  "output_capture": "CAPTURED",
+  "output_bytes": 173,
+  "output_encoding": "utf-8",
+  "output_decode_lossy": false,
+  "output_undecodable": 0,
+  "output_log": null,
+  "durability": "VERSIONED"
+}

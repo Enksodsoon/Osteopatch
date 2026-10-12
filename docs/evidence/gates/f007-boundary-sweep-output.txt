@@ -1,0 +1,16 @@
+SWEEP release_on_cold_thread: False
+[db] backfilled project scope on 4 pre-existing rows
+SWEEP double_release: first=True second=False
+SWEEP close_all_twice: 0/0
+SWEEP db_close_already_closed: no exception
+[db] rollback before close failed: disk I/O error
+SWEEP rollback_failure: closed=True (diagnostic printed above)
+SWEEP initialize_paths: migrate_calls=2 (expect 2: one per database)
+SWEEP db_file_replaced_under_process: applied=[] -> LIMITATION loud failure: OperationalError: no such table: source_qc
+[db] backfilled project scope on 4 pre-existing rows
+SWEEP nested_request_connection: no error (outer handle survived)
+SWEEP nested_leaves_registry: 0
+SWEEP export_empty_scope: rows=0 registry=0
+[db] backfilled project scope on 4 pre-existing rows
+SWEEP concurrent_churn: errors=[] registry=0
+SWEEP close_all_while_in_use: handle closed by shutdown: ProgrammingError

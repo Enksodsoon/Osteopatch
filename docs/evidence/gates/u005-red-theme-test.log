@@ -1,0 +1,403 @@
+
+> osteopatch-g6-frontend@0.6.0 test
+> vitest run src/test/theme.test.tsx
+
+
+[1m[7m[36m RUN [39m[27m[22m [36mv2.1.9 [39m[90mC:/Users/enkso/.kiro/crew/workspace/osteopatch/wt/pack/app/g6/frontend[39m
+
+ [31m❯[39m src/test/theme.test.tsx [2m([22m[2m36 tests[22m[2m | [22m[31m29 failed[39m[2m)[22m[90m 54[2mms[22m[39m
+[31m   [31m×[31m U005 contract - ThemePreference and the one storage key[2m > [22mstores the preference under osteopatch:theme:v1 and nothing else[90m 6[2mms[22m[31m[39m
+[31m     → Failed to load url ../theme (resolved id: ../theme). Does the file exist?[39m
+[31m   [31m×[31m U005 contract - ThemePreference and the one storage key[2m > [22moffers exactly system | light | dark[90m 1[2mms[22m[31m[39m
+[31m     → Failed to load url ../theme (resolved id: ../theme). Does the file exist?[39m
+[31m   [31m×[31m U005 contract - ThemePreference and the one storage key[2m > [22maccepts only those three literals as a preference[90m 1[2mms[22m[31m[39m
+[31m     → Failed to load url ../theme (resolved id: ../theme). Does the file exist?[39m
+[31m   [31m×[31m U005 contract - ThemePreference and the one storage key[2m > [22mpersists the bare literal and no clinical or reviewer data[90m 1[2mms[22m[31m[39m
+[31m     → Failed to load url ../theme (resolved id: ../theme). Does the file exist?[39m
+[31m   [31m×[31m U005 contract - ThemePreference and the one storage key[2m > [22mfalls back to system mode for a missing or foreign stored value[90m 1[2mms[22m[31m[39m
+[31m     → Failed to load url ../theme (resolved id: ../theme). Does the file exist?[39m
+[31m   [31m×[31m U005-AT01 - switching themes leaves image bytes and model scores unchanged[2m > [22mrenders the patch screen, then changes nothing but the theme attribute[90m 1[2mms[22m[31m[39m
+[31m     → Failed to load url ../components/ThemeControl (resolved id: ../components/ThemeControl). Does the file exist?[39m
+[31m   [31m×[31m U005-AT01 - switching themes leaves image bytes and model scores unchanged[2m > [22mkeeps the histology <img> src and its zoom transform identical across themes[90m 1[2mms[22m[31m[39m
+[31m     → Failed to load url ../components/ThemeControl (resolved id: ../components/ThemeControl). Does the file exist?[39m
+[31m   [31m×[31m U005-AT02 - blocked localStorage falls back to system mode without a crash[2m > [22mstarts in system mode when the storage accessor itself throws[90m 1[2mms[22m[31m[39m
+[31m     → Failed to load url ../theme (resolved id: ../theme). Does the file exist?[39m
+[31m   [31m×[31m U005-AT02 - blocked localStorage falls back to system mode without a crash[2m > [22mreports an unavailable store instead of throwing when a write is refused[90m 1[2mms[22m[31m[39m
+[31m     → Failed to load url ../theme (resolved id: ../theme). Does the file exist?[39m
+[31m   [31m×[31m U005-AT02 - blocked localStorage falls back to system mode without a crash[2m > [22mreads a preference from a store whose getItem throws[90m 0[2mms[22m[31m[39m
+[31m     → Failed to load url ../theme (resolved id: ../theme). Does the file exist?[39m
+[31m   [31m×[31m U005-AT02 - blocked localStorage falls back to system mode without a crash[2m > [22msays out loud that a blocked store means session-only, and still themes[90m 1[2mms[22m[31m[39m
+[31m     → Failed to load url ../theme (resolved id: ../theme). Does the file exist?[39m
+[31m   [31m×[31m U005-AT03 - system mode updates when the OS preference changes[2m > [22mfollows prefers-color-scheme while the preference is system[90m 0[2mms[22m[31m[39m
+[31m     → Failed to load url ../theme (resolved id: ../theme). Does the file exist?[39m
+[31m   [31m×[31m U005-AT03 - system mode updates when the OS preference changes[2m > [22mrepaints the live app when the OS preference changes mid-session[90m 0[2mms[22m[31m[39m
+[31m     → Failed to load url ../components/ThemeControl (resolved id: ../components/ThemeControl). Does the file exist?[39m
+[31m   [31m×[31m U005-AT03 - system mode updates when the OS preference changes[2m > [22mremoves the media listener on unmount[90m 0[2mms[22m[31m[39m
+[31m     → Failed to load url ../theme (resolved id: ../theme). Does the file exist?[39m
+[31m   [31m×[31m U005-AT03 - system mode updates when the OS preference changes[2m > [22man explicit choice is not overridden when the OS flips[90m 0[2mms[22m[31m[39m
+[31m     → Failed to load url ../theme (resolved id: ../theme). Does the file exist?[39m
+[31m   [31m×[31m U005-AT03 - system mode updates when the OS preference changes[2m > [22msurvives a browser with no prefers-color-scheme query at all[90m 0[2mms[22m[31m[39m
+[31m     → Failed to load url ../theme (resolved id: ../theme). Does the file exist?[39m
+[31m   [31m×[31m U005-AT04 - explicit dark mode survives refresh[2m > [22mre-applies a stored dark choice on a cold start[90m 0[2mms[22m[31m[39m
+[31m     → Failed to load url ../theme (resolved id: ../theme). Does the file exist?[39m
+[31m   [31m×[31m U005-AT04 - explicit dark mode survives refresh[2m > [22mround-trips the bare literal through storage[90m 0[2mms[22m[31m[39m
+[31m     → Failed to load url ../theme (resolved id: ../theme). Does the file exist?[39m
+[31m   [31m×[31m U005-AT04 - explicit dark mode survives refresh[2m > [22mcomes back dark after the control is unmounted and mounted again[90m 0[2mms[22m[31m[39m
+[31m     → Failed to load url ../components/ThemeControl (resolved id: ../components/ThemeControl). Does the file exist?[39m
+[31m   [31m×[31m U005-AT05 - all status labels remain readable and not color-only[2m > [22mkeeps every text pair legible in the dark palette (4.5:1)[90m 7[2mms[22m[31m[39m
+[31m     → expected [ …(22) ] to deeply equal [][39m
+[31m   [31m×[31m U005-AT05 - all status labels remain readable and not color-only[2m > [22mkeeps focus rings, class fills and legend dots at or above the 3:1 floor[90m 1[2mms[22m[31m[39m
+[31m     → expected [ …(8) ] to deeply equal [][39m
+[31m   [31m×[31m U005-AT05 - all status labels remain readable and not color-only[2m > [22mdoes not make the low-contrast light pairs worse[90m 1[2mms[22m[31m[39m
+[31m     → expected [ …(5) ] to deeply equal [][39m
+[31m   [31m×[31m U005-AT05 - all status labels remain readable and not color-only[2m > [22mkeeps the three canonical classes labelled and shape-marked, never colour-only[90m 19[2mms[22m[31m[39m
+[31m     → expected [] to deeply equal [ '--class-nec', '--class-nt', …(1) ][39m
+[31m   [31m×[31m U005-AT05 - all status labels remain readable and not color-only[2m > [22mkeeps every review status a text label with a readable colour in both themes[90m 1[2mms[22m[31m[39m
+[31m     → no dark override for .card-status: expected undefined to be defined[39m
+[31m   [31m×[31m U005 dark theme - the stylesheet a reviewer can audit[2m > [22mkeeps the light :root block first so first-occurrence parsing still means light[90m 0[2mms[22m[31m[39m
+[31m     → expected 637 to be less than -1[39m
+[31m   [31m×[31m U005 dark theme - the stylesheet a reviewer can audit[2m > [22mtells the browser which colour scheme is active in each theme[90m 1[2mms[22m[31m[39m
+[31m     → expected '\n  /* ---- surfaces ----------------…' to match /color-scheme:\s*light/[39m
+[31m   [31m×[31m U005 dark theme - the stylesheet a reviewer can audit[2m > [22mkeeps the earth-tone editorial direction in dark[90m 0[2mms[22m[31m[39m
+[31m     → explicit accent must be hex: expected null not to be null[39m
+[31m   [31m×[31m U005 dark theme - the stylesheet a reviewer can audit[2m > [22mre-points every literal background that would stay light in dark[90m 1[2mms[22m[31m[39m
+[31m     → expected [ '.subset-banner', …(27) ] to deeply equal [][39m
+[31m   [31m×[31m U005 dark theme - the stylesheet a reviewer can audit[2m > [22mkeeps form controls, charts, tables and overlays readable in dark[90m 0[2mms[22m[31m[39m
+[31m     → dark mode must re-point input/select/textarea: expected undefined to be defined[39m
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m29 failed[39m[22m[2m | [22m[1m[32m7 passed[39m[22m[90m (36)[39m
+[2m   Start at [22m 22:49:58
+[2m   Duration [22m 1.08s[2m (transform 128ms, setup 65ms, collect 292ms, tests 54ms, environment 363ms, prepare 94ms)[22m
+
+[31m⎯⎯⎯⎯⎯⎯[1m[7m Failed Tests 29 [27m[22m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/test/theme.test.tsx[2m > [22mU005 contract - ThemePreference and the one storage key[2m > [22mstores the preference under osteopatch:theme:v1 and nothing else
+[31m[1m[7m FAIL [27m[22m[39m src/test/theme.test.tsx[2m > [22mU005 contract - ThemePreference and the one storage key[2m > [22moffers exactly system | light | dark
+[31m[1m[7m FAIL [27m[22m[39m src/test/theme.test.tsx[2m > [22mU005 contract - ThemePreference and the one storage key[2m > [22maccepts only those three literals as a preference
+[31m[1m[7m FAIL [27m[22m[39m src/test/theme.test.tsx[2m > [22mU005 contract - ThemePreference and the one storage key[2m > [22mpersists the bare literal and no clinical or reviewer data
+[31m[1m[7m FAIL [27m[22m[39m src/test/theme.test.tsx[2m > [22mU005 contract - ThemePreference and the one storage key[2m > [22mfalls back to system mode for a missing or foreign stored value
+[31m[1m[7m FAIL [27m[22m[39m src/test/theme.test.tsx[2m > [22mU005-AT02 - blocked localStorage falls back to system mode without a crash[2m > [22mstarts in system mode when the storage accessor itself throws
+[31m[1m[7m FAIL [27m[22m[39m src/test/theme.test.tsx[2m > [22mU005-AT02 - blocked localStorage falls back to system mode without a crash[2m > [22mreports an unavailable store instead of throwing when a write is refused
+[31m[1m[7m FAIL [27m[22m[39m src/test/theme.test.tsx[2m > [22mU005-AT02 - blocked localStorage falls back to system mode without a crash[2m > [22mreads a preference from a store whose getItem throws
+[31m[1m[7m FAIL [27m[22m[39m src/test/theme.test.tsx[2m > [22mU005-AT02 - blocked localStorage falls back to system mode without a crash[2m > [22msays out loud that a blocked store means session-only, and still themes
+[31m[1m[7m FAIL [27m[22m[39m src/test/theme.test.tsx[2m > [22mU005-AT03 - system mode updates when the OS preference changes[2m > [22mfollows prefers-color-scheme while the preference is system
+[31m[1m[7m FAIL [27m[22m[39m src/test/theme.test.tsx[2m > [22mU005-AT03 - system mode updates when the OS preference changes[2m > [22mremoves the media listener on unmount
+[31m[1m[7m FAIL [27m[22m[39m src/test/theme.test.tsx[2m > [22mU005-AT03 - system mode updates when the OS preference changes[2m > [22man explicit choice is not overridden when the OS flips
+[31m[1m[7m FAIL [27m[22m[39m src/test/theme.test.tsx[2m > [22mU005-AT03 - system mode updates when the OS preference changes[2m > [22msurvives a browser with no prefers-color-scheme query at all
+[31m[1m[7m FAIL [27m[22m[39m src/test/theme.test.tsx[2m > [22mU005-AT04 - explicit dark mode survives refresh[2m > [22mre-applies a stored dark choice on a cold start
+[31m[1m[7m FAIL [27m[22m[39m src/test/theme.test.tsx[2m > [22mU005-AT04 - explicit dark mode survives refresh[2m > [22mround-trips the bare literal through storage
+[31m[1mError[22m: Failed to load url ../theme (resolved id: ../theme). Does the file exist?[39m
+[90m [2m❯[22m loadAndTransform node_modules/vitest/node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:[2m51969:17[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/29]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/test/theme.test.tsx[2m > [22mU005-AT01 - switching themes leaves image bytes and model scores unchanged[2m > [22mrenders the patch screen, then changes nothing but the theme attribute
+[31m[1m[7m FAIL [27m[22m[39m src/test/theme.test.tsx[2m > [22mU005-AT01 - switching themes leaves image bytes and model scores unchanged[2m > [22mkeeps the histology <img> src and its zoom transform identical across themes
+[31m[1m[7m FAIL [27m[22m[39m src/test/theme.test.tsx[2m > [22mU005-AT03 - system mode updates when the OS preference changes[2m > [22mrepaints the live app when the OS preference changes mid-session
+[31m[1m[7m FAIL [27m[22m[39m src/test/theme.test.tsx[2m > [22mU005-AT04 - explicit dark mode survives refresh[2m > [22mcomes back dark after the control is unmounted and mounted again
+[31m[1mError[22m: Failed to load url ../components/ThemeControl (resolved id: ../components/ThemeControl). Does the file exist?[39m
+[90m [2m❯[22m loadAndTransform node_modules/vitest/node_modules/vite/dist/node/chunks/dep-BK3b2jBa.js:[2m51969:17[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/29]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/test/theme.test.tsx[2m > [22mU005-AT05 - all status labels remain readable and not color-only[2m > [22mkeeps every text pair legible in the dark palette (4.5:1)
+[31m[1mAssertionError[22m: expected [ …(22) ] to deeply equal [][39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- Array [][39m
+[31m+ Array [[39m
+[31m+   "--text on --canvas: not declared as an opaque hex (floor 4.5:1)",[39m
+[31m+   "--text on --surface: not declared as an opaque hex (floor 4.5:1)",[39m
+[31m+   "--text on --surface-strong: not declared as an opaque hex (floor 4.5:1)",[39m
+[31m+   "--text on --surface-sunken: not declared as an opaque hex (floor 4.5:1)",[39m
+[31m+   "--text-muted on --canvas: not declared as an opaque hex (floor 4.5:1)",[39m
+[31m+   "--text-muted on --surface: not declared as an opaque hex (floor 4.5:1)",[39m
+[31m+   "--text-muted on --surface-strong: not declared as an opaque hex (floor 4.5:1)",[39m
+[31m+   "--text-muted on --surface-sunken: not declared as an opaque hex (floor 4.5:1)",[39m
+[31m+   "--accent on --surface: not declared as an opaque hex (floor 4.5:1)",[39m
+[31m+   "--accent-deep on --surface: not declared as an opaque hex (floor 4.5:1)",[39m
+[31m+   "--accent-deep on --accent-soft: not declared as an opaque hex (floor 4.5:1)",[39m
+[31m+   "--on-accent on --accent: not declared as an opaque hex (floor 4.5:1)",[39m
+[31m+   "--warning on --warning-surface: not declared as an opaque hex (floor 4.5:1)",[39m
+[31m+   "--warning on --surface-strong: not declared as an opaque hex (floor 4.5:1)",[39m
+[31m+   "--error on --error-surface: not declared as an opaque hex (floor 4.5:1)",[39m
+[31m+   "--error on --surface-strong: not declared as an opaque hex (floor 4.5:1)",[39m
+[31m+   "--class-nt on --surface: not declared as an opaque hex (floor 4.5:1)",[39m
+[31m+   "--class-vt on --surface: not declared as an opaque hex (floor 4.5:1)",[39m
+[31m+   "--class-nec on --surface: not declared as an opaque hex (floor 4.5:1)",[39m
+[31m+   "--class-nt on --surface-strong: not declared as an opaque hex (floor 4.5:1)",[39m
+[31m+   "--class-vt on --surface-strong: not declared as an opaque hex (floor 4.5:1)",[39m
+[31m+   "--class-nec on --surface-strong: not declared as an opaque hex (floor 4.5:1)",[39m
+[31m+ ][39m
+
+[36m [2m❯[22m src/test/theme.test.tsx:[2m630:51[22m[39m
+    [90m628| [39m[34mdescribe[39m([32m"U005-AT05 - all status labels remain readable and not color-[39m…
+    [90m629| [39m  [34mit[39m([32m"keeps every text pair legible in the dark palette (4.5:1)"[39m[33m,[39m () [33m=[39m…
+    [90m630| [39m    [34mexpect[39m([34mbelowFloor[39m(darkVars[33m,[39m [33mTEXT_PAIRS[39m[33m,[39m [34m4.5[39m))[33m.[39m[34mtoEqual[39m([])[33m;[39m
+    [90m   | [39m                                                  [31m^[39m
+    [90m631| [39m  })[33m;[39m
+    [90m632| [39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/29]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/test/theme.test.tsx[2m > [22mU005-AT05 - all status labels remain readable and not color-only[2m > [22mkeeps focus rings, class fills and legend dots at or above the 3:1 floor
+[31m[1mAssertionError[22m: expected [ …(8) ] to deeply equal [][39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- Array [][39m
+[31m+ Array [[39m
+[31m+   "--focus on --canvas: not declared as an opaque hex (floor 3:1)",[39m
+[31m+   "--focus on --surface: not declared as an opaque hex (floor 3:1)",[39m
+[31m+   "--focus on --surface-strong: not declared as an opaque hex (floor 3:1)",[39m
+[31m+   "--focus on --surface-sunken: not declared as an opaque hex (floor 3:1)",[39m
+[31m+   "--class-nt on --surface-sunken: not declared as an opaque hex (floor 3:1)",[39m
+[31m+   "--class-vt on --surface-sunken: not declared as an opaque hex (floor 3:1)",[39m
+[31m+   "--class-nec on --surface-sunken: not declared as an opaque hex (floor 3:1)",[39m
+[31m+   "--border-strong on --surface: not declared as an opaque hex (floor 3:1)",[39m
+[31m+ ][39m
+
+[36m [2m❯[22m src/test/theme.test.tsx:[2m634:52[22m[39m
+    [90m632| [39m
+    [90m633| [39m  [34mit[39m([32m"keeps focus rings, class fills and legend dots at or above the 3[39m…
+    [90m634| [39m    [34mexpect[39m([34mbelowFloor[39m(darkVars[33m,[39m [33mGRAPHIC_PAIRS[39m[33m,[39m [34m3[39m))[33m.[39m[34mtoEqual[39m([])[33m;[39m
+    [90m   | [39m                                                   [31m^[39m
+    [90m635| [39m  })[33m;[39m
+    [90m636| [39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/29]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/test/theme.test.tsx[2m > [22mU005-AT05 - all status labels remain readable and not color-only[2m > [22mdoes not make the low-contrast light pairs worse
+[31m[1mAssertionError[22m: expected [ …(5) ] to deeply equal [][39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- Array [][39m
+[31m+ Array [[39m
+[31m+   "--text-muted on --canvas: light 4.41:1 -> dark not declared as an opaque hex",[39m
+[31m+   "--text-muted on --surface-sunken: light 4.19:1 -> dark not declared as an opaque hex",[39m
+[31m+   "--class-nt on --surface: light 5.59:1 -> dark not declared as an opaque hex",[39m
+[31m+   "--class-vt on --surface: light 5.73:1 -> dark not declared as an opaque hex",[39m
+[31m+   "--class-nec on --surface: light 5.62:1 -> dark not declared as an opaque hex",[39m
+[31m+ ][39m
+
+[36m [2m❯[22m src/test/theme.test.tsx:[2m651:19[22m[39m
+    [90m649| [39m      [33m.[39m[34mfilter[39m(([[33m,[39m l[33m,[39m d]) [33m=>[39m [33m![39m(d [33m>=[39m l))
+    [90m650| [39m      [33m.[39m[34mmap[39m(([p[33m,[39m l[33m,[39m d]) [33m=>[39m [32m`[39m[36m${[39mp[[34m0[39m][36m}[39m[32m on [39m[36m${[39mp[[34m1[39m][36m}[39m[32m: light [39m[36m${[39m[34mfmtRatio[39m(l)[36m}[39m[32m ->[39m…
+    [90m651| [39m    [34mexpect[39m(worse)[33m.[39m[34mtoEqual[39m([])[33m;[39m
+    [90m   | [39m                  [31m^[39m
+    [90m652| [39m  })[33m;[39m
+    [90m653| [39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/29]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/test/theme.test.tsx[2m > [22mU005-AT05 - all status labels remain readable and not color-only[2m > [22mkeeps the three canonical classes labelled and shape-marked, never colour-only
+[31m[1mAssertionError[22m: expected [] to deeply equal [ '--class-nec', '--class-nt', …(1) ][39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- Array [[39m
+[32m-   "--class-nec",[39m
+[32m-   "--class-nt",[39m
+[32m-   "--class-vt",[39m
+[32m- ][39m
+[31m+ Array [][39m
+
+[36m [2m❯[22m src/test/theme.test.tsx:[2m665:23[22m[39m
+    [90m663| [39m    [35mfor[39m ([35mconst[39m vars [35mof[39m [darkVars[33m,[39m systemDarkVars]) {
+    [90m664| [39m      [35mconst[39m accents [33m=[39m [33mObject[39m[33m.[39m[34mkeys[39m(vars)[33m.[39m[34mfilter[39m((k) [33m=>[39m k[33m.[39m[34mstartsWith[39m([32m"--[39m…
+    [90m665| [39m      [34mexpect[39m(accents)[33m.[39m[34mtoEqual[39m([[32m"--class-nec"[39m[33m,[39m [32m"--class-nt"[39m[33m,[39m [32m"--class-v[39m…
+    [90m   | [39m                      [31m^[39m
+    [90m666| [39m    }
+    [90m667| [39m  })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/29]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/test/theme.test.tsx[2m > [22mU005-AT05 - all status labels remain readable and not color-only[2m > [22mkeeps every review status a text label with a readable colour in both themes
+[31m[1mAssertionError[22m: no dark override for .card-status: expected undefined to be defined[39m
+[36m [2m❯[22m expectDarkOverride src/test/theme.test.tsx:[2m715:51[22m[39m
+    [90m713| [39m[35mfunction[39m [34mexpectDarkOverride[39m(selector[33m:[39m string)[33m:[39m [33mRule[39m {
+    [90m714| [39m  [35mconst[39m hit [33m=[39m [34mdarkOverrideFor[39m(selector)[33m;[39m
+    [90m715| [39m  [34mexpect[39m(hit[33m,[39m [32m`no dark override for [39m[36m${[39mselector[36m}[39m[32m`[39m)[33m.[39m[34mtoBeDefined[39m()[33m;[39m
+    [90m   | [39m                                                  [31m^[39m
+    [90m716| [39m  [35mreturn[39m hit [35mas[39m [33mRule[39m[33m;[39m
+    [90m717| [39m}
+[90m [2m❯[22m src/test/theme.test.tsx:[2m675:18[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/29]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/test/theme.test.tsx[2m > [22mU005 dark theme - the stylesheet a reviewer can audit[2m > [22mkeeps the light :root block first so first-occurrence parsing still means light
+[31m[1mAssertionError[22m: expected 637 to be less than -1[39m
+[36m [2m❯[22m src/test/theme.test.tsx:[2m752:42[22m[39m
+    [90m750| [39m[34mdescribe[39m([32m"U005 dark theme - the stylesheet a reviewer can audit"[39m[33m,[39m () [33m=[39m…
+    [90m751| [39m  [34mit[39m([32m"keeps the light :root block first so first-occurrence parsing st[39m…
+    [90m752| [39m    [34mexpect[39m(tokensCss[33m.[39m[34mindexOf[39m([32m":root {"[39m))[33m.[39m[34mtoBeLessThan[39m(tokensCss[33m.[39m[34mindexO[39m…
+    [90m   | [39m                                         [31m^[39m
+    [90m753| [39m    [34mexpect[39m(tokensCss[33m.[39m[34mindexOf[39m([33mDARK_SELECTOR[39m))[33m.[39m[34mtoBeLessThan[39m(tokensCss[33m.[39m[34min[39m…
+    [90m754| [39m  })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/29]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/test/theme.test.tsx[2m > [22mU005 dark theme - the stylesheet a reviewer can audit[2m > [22mtells the browser which colour scheme is active in each theme
+[31m[1mAssertionError[22m: expected '\n  /* ---- surfaces ----------------…' to match /color-scheme:\s*light/[39m
+
+[32m- Expected:[39m 
+/color-scheme:\s*light/
+
+[31m+ Received:[39m 
+"
+  /* ---- surfaces -------------------------------------------------- */
+  --canvas: #f2eee8;          /* app background, warm paper */
+  --surface: #fffdf9;         /* cards, panels, sheets */
+  --surface-strong: #ffffff;  /* raised surfaces, inputs */
+  --surface-sunken: #eee8e1;  /* wells, skeletons, table stripes */
+
+  /* ---- text ------------------------------------------------------ */
+  --text: #26221f;            /* 15.53:1 on --surface */
+  --text-muted: #746d66;      /*  5.01:1 on --surface */
+  --text-inverse: #fffdf9;
+
+  /* ---- lines ----------------------------------------------------- */
+  --border: #ddd5cc;
+  --border-strong: #c8beb3;
+
+  /* ---- accents --------------------------------------------------- */
+  --accent: #8b3f27;          /* warm oxide, the editorial signature */
+  --accent-deep: #672b1a;
+  --accent-soft: #f4e6df;
+
+  /* Keyboard focus ring. The 3px solid keeps the 3:1 non-text floor on every
+   * surface it can land on (9.10:1 canvas / 10.35:1 surface / 10.51:1 strong)
+   * while staying in the same oxide family as --accent. */
+  --focus: #6b2c17;
+
+  /* ---- status ---------------------------------------------------- */
+  --warning: #78551c;             /* 6.64:1 on --surface */
+  --warning-surface: #fbf3df;
+  --warning-border: #eadcb8;
+  --error: #b3261e;               /* 6.43:1 on --surface */
+  --error-surface: #fdf3f2;
+
+  /* ---- canonical class accents ----------------------------------- */
+  /* Paired with a shape marker and a text label; never colour-only.
+   * NOTE: in grayscale these measure 34 / 33 / 34 — interchangeable by
+   * luminance. That is expected: hue is the *redundant* channel here, and the
+   * shape marker (circle / square / triangle) plus the literal class name are
+   * what actually carry the distinction. Do not add a fourth value. */
+  --class-nt: #476f5d;    /* NON_TUMOR     */
+  --class-vt: #a34b31;    /* VIABLE_TUMOR  */
+  --class-nec: #725d8f;   /* NECROSIS      */
+
+  /* ---- spacing scale (step 02) ----------------------------------- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+
+  /* ---- radii, elevation ------------------------------------------ */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --shadow-sm: 0 1px 2px rgba(44, 33, 26, .05), 0 6px 18px rgba(44, 33, 26, .04);
+  --shadow-md: 0 12px 32px rgba(44, 33, 26, .09);
+
+  /* ---- type scale ------------------------------------------------- */
+  /* Percentage, not px: a px-locked root font-size stops rem-based layout from
+   * responding to browser zoom, which breaks U002-AT01 at 200%. */
+  --font-size-base: 100%;
+  --text-body: 14px;   /* contract minimum for body copy */
+  --text-label: 12px;  /* contract minimum for supporting labels */
+  --font-ui: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+"
+
+[36m [2m❯[22m src/test/theme.test.tsx:[2m776:43[22m[39m
+    [90m774| [39m    [90m// UA-drawn widgets (scrollbars, checkbox, range track, select pop[39m…
+    [90m775| [39m    [90m// color-scheme; without it they stay light inside a dark page.[39m
+    [90m776| [39m    [34mexpect[39m([34mblockBody[39m(tokensCss[33m,[39m [32m":root"[39m))[33m.[39m[34mtoMatch[39m([36m/color-scheme:\s*lig[39m…
+    [90m   | [39m                                          [31m^[39m
+    [90m777| [39m    [34mexpect[39m([34mblockBody[39m(tokensCss[33m,[39m [33mDARK_SELECTOR[39m))[33m.[39m[34mtoMatch[39m([36m/color-scheme:[39m…
+    [90m778| [39m    [34mexpect[39m([34mblockBody[39m(tokensCss[33m,[39m [33mSYSTEM_DARK_SELECTOR[39m))[33m.[39m[34mtoMatch[39m([36m/color-[39m…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/29]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/test/theme.test.tsx[2m > [22mU005 dark theme - the stylesheet a reviewer can audit[2m > [22mkeeps the earth-tone editorial direction in dark
+[31m[1mAssertionError[22m: explicit accent must be hex: expected null not to be null[39m
+[36m [2m❯[22m src/test/theme.test.tsx:[2m784:56[22m[39m
+    [90m782| [39m    [35mfor[39m ([35mconst[39m [name[33m,[39m vars] [35mof[39m [[[32m"explicit"[39m[33m,[39m darkVars][33m,[39m [[32m"system"[39m[33m,[39m sys…
+    [90m783| [39m      [35mconst[39m accent [33m=[39m [34mhexOf[39m(vars[[32m"--accent"[39m] [33m??[39m [32m""[39m)[33m;[39m
+    [90m784| [39m      [34mexpect[39m(accent[33m,[39m [32m`[39m[36m${[39mname[36m}[39m[32m accent must be hex`[39m)[33m.[39mnot[33m.[39m[34mtoBeNull[39m()[33m;[39m
+    [90m   | [39m                                                       [31m^[39m
+    [90m785| [39m      [35mconst[39m r [33m=[39m [34mparseInt[39m((accent [35mas[39m string)[33m.[39m[34mslice[39m([34m1[39m[33m,[39m [34m3[39m)[33m,[39m [34m16[39m)[33m;[39m
+    [90m786| [39m      [35mconst[39m b [33m=[39m [34mparseInt[39m((accent [35mas[39m string)[33m.[39m[34mslice[39m([34m5[39m[33m,[39m [34m7[39m)[33m,[39m [34m16[39m)[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/29]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/test/theme.test.tsx[2m > [22mU005 dark theme - the stylesheet a reviewer can audit[2m > [22mre-points every literal background that would stay light in dark
+[31m[1mAssertionError[22m: expected [ '.subset-banner', …(27) ] to deeply equal [][39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- Array [][39m
+[31m+ Array [[39m
+[31m+   ".subset-banner",[39m
+[31m+   ".card-thumb",[39m
+[31m+   ".card-status",[39m
+[31m+   ".badge-uncal",[39m
+[31m+   ".badge-elig",[39m
+[31m+   ".badge-inelig",[39m
+[31m+   ".pr-queue li:hover",[39m
+[31m+   ".pr-queue li.active",[39m
+[31m+   ".scorebar-track",[39m
+[31m+   ".pr-priority",[39m
+[31m+   ".evidence-missing",[39m
+[31m+   ".lim-item",[39m
+[31m+   ".app-header",[39m
+[31m+   ".app-nav",[39m
+[31m+   ".system-status-dot",[39m
+[31m+   ".status-live .system-status-dot",[39m
+[31m+   ".status-offline .system-status-dot",[39m
+[31m+   ".app-export .btn-link:hover",[39m
+[31m+   ".page-loading",[39m
+[31m+   ".gallery-skeleton",[39m
+[31m+   ".startup-error",[39m
+[31m+   ".inline-error",[39m
+[31m+   ".workbench-toolbar",[39m
+[31m+   ".chip",[39m
+[31m+   ".empty-state",[39m
+[31m+   ".pr-queue li button:hover",[39m
+[31m+   ".scorebars",[39m
+[31m+   ".lim-item.lim-blocking",[39m
+[31m+ ][39m
+
+[36m [2m❯[22m src/test/theme.test.tsx:[2m797:21[22m[39m
+    [90m795| [39m      [35mif[39m ([33m![39m[34mdarkOverrideFor[39m(selector)) missing[33m.[39m[34mpush[39m(selector)[33m;[39m
+    [90m796| [39m    }
+    [90m797| [39m    [34mexpect[39m(missing)[33m.[39m[34mtoEqual[39m([])[33m;[39m
+    [90m   | [39m                    [31m^[39m
+    [90m798| [39m  })[33m;[39m
+    [90m799| [39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/29]⎯[22m[39m
+
+[31m[1m[7m FAIL [27m[22m[39m src/test/theme.test.tsx[2m > [22mU005 dark theme - the stylesheet a reviewer can audit[2m > [22mkeeps form controls, charts, tables and overlays readable in dark
+[31m[1mAssertionError[22m: dark mode must re-point input/select/textarea: expected undefined to be defined[39m
+[36m [2m❯[22m src/test/theme.test.tsx:[2m811:67[22m[39m
+    [90m809| [39m    [90m// the inherited text colour has to be replaced, not just the page[39m…
+    [90m810| [39m    [35mconst[39m form [33m=[39m [34mdarkOverrideRules[39m()[33m.[39m[34mfind[39m((r) [33m=>[39m [36m/(^|[\s,])input[\s,{:[39m…
+    [90m811| [39m    [34mexpect[39m(form[33m,[39m [32m"dark mode must re-point input/select/textarea"[39m)[33m.[39m[34mtoBe[39m…
+    [90m   | [39m                                                                  [31m^[39m
+    [90m812| [39m    [34mexpect[39m(form[33m?.[39mbody)[33m.[39m[34mtoMatch[39m([36m/var\(--surface-strong\)|var\(--surface[39m…
+    [90m813| [39m    [35mfor[39m ([35mconst[39m selector [35mof[39m [[32m".scorebars"[39m[33m,[39m [32m".scorebar-track"[39m[33m,[39m [32m".lim-ite[39m…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/29]⎯[22m[39m
+

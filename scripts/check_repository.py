@@ -70,6 +70,156 @@ def check_tracked(files: list[str]) -> list[str]:
     return errors
 
 
+EVIDENCE_DIR = "docs/task-evidence"
+# A citation is a repo-relative path to a data artifact a reviewer must be able to open.
+# What a receipt names in order to *run* or merely *locate* something is not evidence:
+# programs, databases, globs, bare directories and generated/vendor trees.
+_CITATION = re.compile(r"[A-Za-z0-9._-]+(?:/[A-Za-z0-9._*+-]+)+/?")
+_NOT_ARTIFACT = frozenset({
+    ".py", ".sh", ".bash", ".ts", ".tsx", ".js", ".mjs", ".cjs", ".exe", ".cmd", ".ps1",
+    ".sqlite", ".sqlite3", ".db",
+})
+_GENERATED = frozenset({".venv", "node_modules", "_site", "runtime-artifacts", "__pycache__"})
+# A `command` records what ran, faithfully and as it ran. Its paths are arguments to a
+# process, not pointers a reviewer can follow, so they are never citations.
+_INVOCATION_FIELDS = frozenset({"command", "argv", "cwd"})
+
+
+def _is_citation(token: str, roots: set[str] | None = None) -> bool:
+    if not token or "*" in token or ".." in token or token.startswith(("/", ".")):
+        return False
+    parts = token.rstrip("/").split("/")
+    if not re.search(r"\.[A-Za-z0-9]+$", parts[-1]):
+        return False  # a directory, or prose that merely ends in a full stop
+    if roots is not None and parts[0] not in roots:
+        return False  # a URL, a git ref or an expression - not a path in this repository
+    return not (_GENERATED & set(parts)
+                or PurePosixPath(token).suffix.lower() in _NOT_ARTIFACT)
+
+
+def artifact_citations(node: object, roots: set[str] | None = None) -> set[str]:
+    """Every artifact path named anywhere in a receipt, in prose or in a field."""
+    found: set[str] = set()
+    if isinstance(node, str):
+        found.update(t for t in _CITATION.findall(node) if _is_citation(t, roots))
+    elif isinstance(node, dict):
+        for key, value in node.items():
+            if key not in _INVOCATION_FIELDS:
+                found |= artifact_citations(value, roots)
+    elif isinstance(node, list):
+        for value in node:
+            found |= artifact_citations(value, roots)
+    return found
+
+
+def cited_records(node: object) -> set[str]:
+    """Gate records a receipt points at, by field name - the one unambiguous pointer."""
+    found: set[str] = set()
+    if isinstance(node, dict):
+        for key, value in node.items():
+            if key == "gate_record" and isinstance(value, str):
+                found.add(value)
+            found |= cited_records(value)
+    elif isinstance(node, list):
+        for value in node:
+            found |= cited_records(value)
+    return found
+
+
+def _load(path: Path) -> object | None:
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+
+
+def evidence_verdict(root: Path, rel: str, ignored: set[str], tracked: set[str]) -> str:
+    """Classify one citation.
+
+    `untracked` is accepted on purpose: tracked-ness is a commit-time property, and the
+    failure this check prevents is a reviewer being unable to *read* the evidence, not its
+    being uncommitted. A git-ignored path is rejected either way - it vanishes on the next
+    clean checkout even though it exists in this working tree.
+    """
+    if rel in ignored:
+        return "git-ignored"
+    if not (root / rel).is_file():
+        return "missing"
+    return "tracked" if rel in tracked else "untracked"
+
+
+def git_ignored(root: Path, paths: set[str]) -> set[str]:
+    """Which of `paths` git would ignore, asked only about the paths at hand.
+
+    Fails closed: if git cannot answer, every citation is reported rather than trusted.
+    """
+    if not paths:
+        return set()
+    result = subprocess.run(
+        ["git", "-C", str(root), "check-ignore", "-z", "--stdin"],
+        input=("\0".join(sorted(paths)) + "\0").encode(), check=False, capture_output=True)
+    if result.returncode not in (0, 1):
+        return set(paths)
+    return {p for p in result.stdout.decode("utf-8").split("\0") if p}
+
+
+def top_level(root: Path) -> set[str]:
+    """Top-level names; a repo-relative citation always starts with one of these."""
+    return {p.name for p in root.iterdir()}
+
+
+def receipt_citations(root: Path) -> set[str]:
+    """Every artifact the receipts cite, following each cited record one level down."""
+    found: set[str] = set()
+    roots = top_level(root)
+    for receipt in sorted((root / EVIDENCE_DIR).glob("*.json")):
+        data = _load(receipt)
+        if data is None:
+            continue
+        found |= artifact_citations(data, roots)
+        for record in cited_records(data):
+            nested = _load(root / record)
+            if nested is not None:
+                found |= artifact_citations(nested, roots)
+    return found
+
+
+def check_receipt_evidence(root: Path, ignored: set[str] | None = None,
+                           tracked: set[str] | None = None) -> list[str]:
+    """Every artifact a receipt cites must survive a clean checkout.
+
+    Unreadable evidence is the failure mode: a receipt that points a reviewer at a
+    git-ignored or absent file passes review while proving nothing. `ignored` and
+    `tracked` are injectable so the classification can be tested without a git repo.
+    """
+    if ignored is None:
+        ignored = git_ignored(root, receipt_citations(root))
+    tracked = tracked or set()
+    roots = top_level(root)
+    errors: list[str] = []
+    for receipt in sorted((root / EVIDENCE_DIR).glob("*.json")):
+        rel = receipt.relative_to(root).as_posix()
+        data = _load(receipt)
+        if data is None:
+            errors.append(f"{rel}: receipt is not readable JSON; durability is UNVERIFIED")
+            continue
+        citations = artifact_citations(data, roots)
+        for record in cited_records(data):
+            if evidence_verdict(root, record, ignored, tracked) in {"missing", "git-ignored"}:
+                continue  # already reported as a citation in its own right
+            nested = _load(root / record)
+            if nested is None:
+                errors.append(f"{rel}: cited gate record is not readable JSON: {record}")
+            else:
+                citations |= artifact_citations(nested, roots)
+        for citation in sorted(citations):
+            verdict = evidence_verdict(root, citation, ignored, tracked)
+            if verdict in {"missing", "git-ignored"}:
+                errors.append(
+                    f"{rel}: cited evidence is unreadable to a reviewer ({verdict}): {citation}")
+    return errors
+
+
 def check(root: Path = ROOT) -> list[str]:
     root = root.resolve()
     errors = [f"Required file is missing: {p}" for p in REQUIRED if not (root / p).is_file()]
@@ -94,10 +244,13 @@ def check(root: Path = ROOT) -> list[str]:
             if not target.is_relative_to(root) or not target.exists():
                 errors.append(f"{relative}: missing or escaping document link: {link}")
     result = subprocess.run(["git", "-C", str(root), "ls-files", "-z"], check=False, capture_output=True)
+    tracked: set[str] = set()
     if result.returncode:
         errors.append("git ls-files failed; cannot verify tracked-artifact policy")
     else:
-        errors.extend(check_tracked([p for p in result.stdout.decode("utf-8").split("\0") if p]))
+        tracked = {p for p in result.stdout.decode("utf-8").split("\0") if p}
+        errors.extend(check_tracked(sorted(tracked)))
+    errors.extend(check_receipt_evidence(root, tracked=tracked))
     makefile = root / "Makefile"
     if makefile.exists() and ".venv/Scripts/python.exe" in makefile.read_text(encoding="utf-8"):
         errors.append("Makefile: use portable locked uv commands, not a Windows-only Python path")

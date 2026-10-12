@@ -1,0 +1,28 @@
+{
+  "gate": "phase0-enterprise-backend",
+  "command": "'.venv\\Scripts\\python.exe' -m pytest app/g7-enterprise/backend/tests -q",
+  "argv": [
+    ".venv\\Scripts\\python.exe",
+    "-m",
+    "pytest",
+    "app/g7-enterprise/backend/tests",
+    "-q"
+  ],
+  "cwd": "C:\\Users\\enkso\\.kiro\\crew\\workspace\\osteopatch\\wt\\pack",
+  "exit_code": 0,
+  "ok": true,
+  "observed_at_utc": "2026-10-06T00:53:09Z",
+  "observed_at_utc_source": "captured by `date -u +%Y-%m-%dT%H:%M:%SZ` at spawn time",
+  "timestamp_status": "CAPTURED",
+  "summary": "28 passed, 1 skipped, 1 warning in 1.59s",
+  "output_tail": "............................                                             [100%]\r\n============================== warnings summary ===============================\r\n.venv\\Lib\\site-packages\\starlette\\testclient.py:40\r\n  C:\\Users\\enkso\\.kiro\\crew\\workspace\\osteopatch\\wt\\pack\\.venv\\Lib\\site-packages\\starlette\\testclient.py:40: DeprecationWarning: The anyio.abc.BlockingPortal alias is deprecated, use anyio.from_thread.BlockingPortal instead.\r\n    _PortalFactoryType = typing.Callable[[], typing.ContextManager[anyio.abc.BlockingPortal]]\r\n\r\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\r\n28 passed, 1 skipped, 1 warning in 1.59s",
+  "output_chars": 652,
+  "output_truncated": false,
+  "output_capture": "CAPTURED",
+  "output_bytes": 652,
+  "output_encoding": "utf-8",
+  "output_decode_lossy": false,
+  "output_undecodable": 0,
+  "output_log": null,
+  "durability": "VERSIONED"
+}

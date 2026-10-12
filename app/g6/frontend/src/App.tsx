@@ -1,23 +1,29 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { exportUrl, getHealth, getMeta } from "./api";
 import type { Health, Meta } from "./types";
 import { t } from "./strings";
 import { Disclaimer } from "./components/Shared";
+import { ThemeControl } from "./components/ThemeControl";
 import { Workbench } from "./components/Workbench";
 import { PatchReview } from "./components/PatchReview";
 import { Attribution, ModelCard } from "./components/ModelCard";
-
-type View =
-  | { name: "workbench" }
-  | { name: "patch"; imageId: string }
-  | { name: "model-card" }
-  | { name: "attribution" };
+import {
+  DEFAULT_CONTEXT,
+  NAV_ITEMS,
+  currentRoute,
+  serializeRoute,
+  subscribeToRouteChange,
+  type QueueContext,
+  type Route,
+} from "./navigation";
 
 export default function App() {
   const [meta, setMeta] = useState<Meta | null>(null);
   const [health, setHealth] = useState<Health | null>(null);
   const [startupError, setStartupError] = useState(false);
-  const [view, setView] = useState<View>({ name: "workbench" });
+  // U001: the location is the source of truth, so a deep link survives a refresh.
+  const [route, setRoute] = useState<Route>(currentRoute);
+  const mainRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -40,15 +46,43 @@ export default function App() {
     };
   }, []);
 
-  const reviewerView = view.name === "workbench" || view.name === "patch";
+  // One listener for Back/Forward and for hand-edited hashes, removed on unmount.
+  useEffect(() => subscribeToRouteChange(() => setRoute(currentRoute())), []);
+
+  /** Navigate. `replace` keeps a history step out of the way for context-only edits. */
+  const go = (next: Route, options?: { replace?: boolean }) => {
+    const hash = serializeRoute(next);
+    if (options?.replace) {
+      window.history.replaceState(null, "", hash);
+      setRoute(next);
+      return;
+    }
+    if (window.location.hash === hash) {
+      setRoute(next);
+      return;
+    }
+    window.location.hash = hash; // fires hashchange; the listener applies the route
+  };
+
+  const reviewerView = route.name === "workbench" || route.name === "patch";
+  const context: QueueContext =
+    route.name === "workbench" || route.name === "patch" ? route.context : DEFAULT_CONTEXT;
 
   return (
     <div className="app">
+      <button
+        type="button"
+        className="btn-link skip-link"
+        onClick={() => mainRef.current?.focus()}
+      >
+        Skip to content
+      </button>
+
       <header className="app-header">
         <button
           className="brand-home"
           type="button"
-          onClick={() => setView({ name: "workbench" })}
+          onClick={() => go({ name: "workbench", context: DEFAULT_CONTEXT })}
           aria-label="Open review workbench"
         >
           <span className="brand-mark" aria-hidden="true">OP</span>
@@ -60,24 +94,26 @@ export default function App() {
         </button>
 
         <nav className="app-nav" aria-label="Primary">
-          <button
-            className={reviewerView ? "active" : ""}
-            onClick={() => setView({ name: "workbench" })}
-          >
-            {t("nav.workbench")}
-          </button>
-          <button
-            className={view.name === "model-card" ? "active" : ""}
-            onClick={() => setView({ name: "model-card" })}
-          >
-            {t("nav.modelCard")}
-          </button>
-          <button
-            className={view.name === "attribution" ? "active" : ""}
-            onClick={() => setView({ name: "attribution" })}
-          >
-            {t("nav.attribution")}
-          </button>
+          {NAV_ITEMS.map((item) => {
+            const active = route.name === item.name ||
+              (item.name === "workbench" && route.name === "patch");
+            return (
+              <button
+                key={item.name}
+                className={active ? "active" : ""}
+                aria-current={active ? "page" : undefined}
+                onClick={() =>
+                  go(
+                    item.name === "workbench"
+                      ? { name: "workbench", context: DEFAULT_CONTEXT }
+                      : { name: item.name },
+                  )
+                }
+              >
+                {item.label}
+              </button>
+            );
+          })}
         </nav>
 
         <div className="app-header-actions">
@@ -88,6 +124,7 @@ export default function App() {
             <span className="system-status-dot" aria-hidden="true" />
             {health ? t("app.apiLive") : t("app.apiOffline")}
           </span>
+          <ThemeControl />
           <div className="app-export" aria-label={t("export.title")}>
             <a className="btn-link" href={exportUrl("csv")} data-testid="export-csv">
               {t("export.csv")}
@@ -108,7 +145,7 @@ export default function App() {
         </div>
       )}
 
-      <main className="app-main">
+      <main className="app-main" id="main-content" tabIndex={-1} ref={mainRef}>
         {startupError && reviewerView && (
           <section className="startup-error" role="alert">
             <span className="startup-error-mark" aria-hidden="true">!</span>
@@ -121,19 +158,37 @@ export default function App() {
 
         {!meta && !startupError && reviewerView && <div className="page-loading">Loading review workspace…</div>}
 
-        {meta && view.name === "workbench" && (
-          <Workbench onOpen={(imageId) => setView({ name: "patch", imageId })} />
-        )}
-        {meta && view.name === "patch" && (
-          <PatchReview
-            imageId={view.imageId}
-            meta={meta}
-            onBack={() => setView({ name: "workbench" })}
-            onNavigate={(imageId) => setView({ name: "patch", imageId })}
+        {meta && route.name === "workbench" && (
+          <Workbench
+            context={context}
+            onContextChange={(next) => go({ name: "workbench", context: next }, { replace: true })}
+            onOpen={(imageId) => go({ name: "patch", imageId, context })}
           />
         )}
-        {view.name === "model-card" && <ModelCard />}
-        {view.name === "attribution" && <Attribution />}
+        {meta && route.name === "patch" && (
+          <PatchReview
+            imageId={route.imageId}
+            meta={meta}
+            onBack={() => go({ name: "workbench", context })}
+            onNavigate={(imageId) => go({ name: "patch", imageId, context })}
+          />
+        )}
+        {route.name === "model-card" && <ModelCard />}
+        {route.name === "attribution" && <Attribution />}
+        {route.name === "not-available" && (
+          <section className="startup-error" role="status" data-testid="route-unavailable">
+            <span className="startup-error-mark" aria-hidden="true">i</span>
+            <div>
+              <strong>Not available in this build</strong>
+              <p>
+                {route.declared
+                  ? "This destination is part of the roadmap but is not implemented yet."
+                  : "That address does not match any screen in this app."}{" "}
+                Use the navigation above to continue.
+              </p>
+            </div>
+          </section>
+        )}
       </main>
     </div>
   );

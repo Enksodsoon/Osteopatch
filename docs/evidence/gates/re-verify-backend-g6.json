@@ -1,0 +1,28 @@
+{
+  "gate": "backend-g6",
+  "command": "python -m pytest app/g6/backend/tests -q",
+  "argv": [
+    "python",
+    "-m",
+    "pytest",
+    "app/g6/backend/tests",
+    "-q"
+  ],
+  "cwd": "C:\\Users\\enkso\\.kiro\\crew\\workspace\\osteopatch\\wt\\pack",
+  "exit_code": 2,
+  "ok": false,
+  "observed_at_utc": "2026-10-05T16:31:53Z",
+  "observed_at_utc_source": "captured by `date -u +%Y-%m-%dT%H:%M:%SZ` at spawn time",
+  "timestamp_status": "CAPTURED",
+  "summary": "1 skipped, 2 errors in 0.48s",
+  "output_tail": "ERROR collecting app/g6/backend/tests/test_connection_concurrency.py _____\r\nImportError while importing test module 'C:\\Users\\enkso\\.kiro\\crew\\workspace\\osteopatch\\wt\\pack\\app\\g6\\backend\\tests\\test_connection_concurrency.py'.\r\nHint: make sure your test modules/packages have valid Python names.\r\nTraceback:\r\nC:\\Users\\enkso\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\importlib\\__init__.py:90: in import_module\r\n    return _bootstrap._gcd_import(name[level:], package, level)\r\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\napp\\g6\\backend\\tests\\test_connection_concurrency.py:7: in <module>\r\n    from osteopatch import app as app_module\r\napp\\g6\\backend\\osteopatch\\app.py:16: in <module>\r\n    from fastapi import FastAPI, Query, Request, Response\r\nE   ModuleNotFoundError: No module named 'fastapi'\r\n_____ ERROR collecting app/g6/backend/tests/test_connection_lifecycle.py ______\r\nImportError while importing test module 'C:\\Users\\enkso\\.kiro\\crew\\workspace\\osteopatch\\wt\\pack\\app\\g6\\backend\\tests\\test_connection_lifecycle.py'.\r\nHint: make sure your test modules/packages have valid Python names.\r\nTraceback:\r\nC:\\Users\\enkso\\AppData\\Local\\Programs\\Python\\Python312\\Lib\\importlib\\__init__.py:90: in import_module\r\n    return _bootstrap._gcd_import(name[level:], package, level)\r\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\napp\\g6\\backend\\tests\\test_connection_lifecycle.py:30: in <module>\r\n    from osteopatch import app as app_module  # noqa: E402\r\n    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\napp\\g6\\backend\\osteopatch\\app.py:16: in <module>\r\n    from fastapi import FastAPI, Query, Request, Response\r\nE   ModuleNotFoundError: No module named 'fastapi'\r\n=========================== short test summary info ===========================\r\nERROR app/g6/backend/tests/test_connection_concurrency.py\r\nERROR app/g6/backend/tests/test_connection_lifecycle.py\r\n!!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!\r\n1 skipped, 2 errors in 0.48s",
+  "output_chars": 2090,
+  "output_truncated": true,
+  "output_capture": "CAPTURED",
+  "output_bytes": 2090,
+  "output_encoding": "utf-8",
+  "output_decode_lossy": false,
+  "output_undecodable": 0,
+  "output_log": "docs/evidence/gates/re-verify-backend-g6.log",
+  "durability": "VERSIONED"
+}

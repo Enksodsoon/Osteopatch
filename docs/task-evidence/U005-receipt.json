@@ -1,0 +1,86 @@
+{
+  "task_id": "U005",
+  "task_title": "Add light and dark themes with safe local preferences",
+  "status": "PARTIAL",
+  "status_reason": "Implementation, unit tests and build are green, but the browser rehearsal recorded by the previous session exited 1 with four failures. Three are triaged below; two remain unverified root causes. Recording IMPLEMENTED_VERIFIED would require calling a red rehearsal green.",
+  "phase0_context": "U005 code was already present in the working tree with no receipt, while docs/task-evidence/STATUS.md asserted 'U005 is NOT started'. That row was wrong. The implementation, its tests, and four gate records already existed; the receipt did not.",
+
+  "baseline_sha": "626aaadc9e4282b470b74fe94893a412cf7d127a",
+  "baseline_sha_note": "feat/prompt-pack-run HEAD. Nothing from U005 is committed; the code is uncommitted working-tree state, so this receipt describes uncommitted work and names no candidate_sha.",
+  "candidate_sha": null,
+  "candidate_sha_note": "No commit was made. Phase 0 was explicitly instructed not to commit.",
+
+  "branch": "feat/prompt-pack-run",
+  "worktree": "C:/Users/enkso/.kiro/crew/workspace/osteopatch/wt/pack",
+
+  "changed_files": [
+    {"path": "app/g6/frontend/src/theme.ts", "state": "pre-existing untracked", "why": "U005 interface: ThemePreference, osteopatch:theme:v1 storage, subscribeToSystemTheme, useTheme, applyStoredPreference"},
+    {"path": "app/g6/frontend/src/components/ThemeControl.tsx", "state": "pre-existing untracked", "why": "U005 WAI-ARIA radiogroup, roving tabindex, storage-blocked note"},
+    {"path": "app/g6/frontend/src/styles/tokens.css", "state": "pre-existing untracked", "why": "light/dark token blocks, [data-theme=dark] and prefers-color-scheme fallbacks"},
+    {"path": "app/g6/frontend/src/main.tsx", "state": "modified", "why": "U005 wiring: applyStoredPreference() before render"},
+    {"path": "app/g6/frontend/src/App.tsx", "state": "modified", "why": "U005 wiring: renders <ThemeControl />"},
+    {"path": "app/g6/frontend/src/test/theme.test.tsx", "state": "pre-existing untracked, MODIFIED IN PHASE 0", "why": "act() wrapping fix in installMatchMedia so OS-preference updates are flushed by the test rather than by the next tick"}
+  ],
+
+  "tests": [
+    {"command": "node_modules\\.bin\\vitest.cmd run src/test/theme.test.tsx", "cwd": "app/g6/frontend", "exit_code": 0, "outcome": "PASS", "observed_at_utc": "2026-10-06T01:02:07Z", "summary": "36 passed", "note": "run directly in Phase 0 after the act() fix"},
+    {"command": "node_modules\\.bin\\vitest.cmd run", "cwd": "app/g6/frontend", "exit_code": 0, "outcome": "PASS", "observed_at_utc": "2026-10-06T01:02:29Z", "summary": "174 passed (174)", "evidence_path": "docs/evidence/gates/phase0-frontend-g6-after-fix.json"},
+    {"command": "node_modules\\.bin\\tsc.cmd -b", "cwd": "app/g6/frontend", "exit_code": 0, "outcome": "PASS", "observed_at_utc": "2026-10-06T00:55:01Z", "summary": "no TypeScript errors", "evidence_path": "docs/evidence/gates/phase0-build-g6-tsc.json"},
+    {"command": "node_modules\\.bin\\vite.cmd build", "cwd": "app/g6/frontend", "exit_code": 0, "outcome": "PASS", "observed_at_utc": "2026-10-06T00:55:04Z", "summary": "built", "evidence_path": "docs/evidence/gates/phase0-build-g6-vite.json"}
+  ],
+  "prior_session_gates": [
+    {"gate": "u005-red-theme-test", "exit_code": 1, "observed_at_utc": "2026-10-05T15:49:57Z", "meaning": "red first: the theme suite failed before implementation, as GLOBAL_TASK_RULES requires"},
+    {"gate": "u005-frontend-suite", "exit_code": 0, "observed_at_utc": "2026-10-05T15:53:21Z", "summary": "174 passed (174)", "note": "identical count to the Phase 0 re-run"},
+    {"gate": "u005-frontend-build", "exit_code": 0, "observed_at_utc": "2026-10-05T15:54:01Z"},
+    {"gate": "u005-boundary-sweep", "exit_code": 0, "observed_at_utc": "2026-10-05T15:55:36Z", "summary": "SWEEP OK"},
+    {"gate": "u005-rehearsal", "exit_code": 1, "observed_at_utc": "2026-10-05T16:02:25Z", "summary": "REHEARSAL FAILURES: 4", "meaning": "this is why no receipt was written"}
+  ],
+
+  "acceptance_tests": [
+    {"id": "U005-AT01", "assertion": "Switching themes leaves image bytes and model scores unchanged.", "result": "PASS", "evidence": "Unit: src/test/theme.test.tsx. Independent real-browser re-verification in Phase 0: identical img src list, identical decoded dimensions on the decoded-in-both intersection, identical score text, identical class labels, with html[data-theme] genuinely changing. docs/evidence/gates/u005-browser-sweep.json"},
+    {"id": "U005-AT02", "assertion": "Blocked localStorage falls back to system mode without a crash.", "result": "PASS", "evidence": "Real browser with localStorage.setItem throwing: page loads, follows the OS, renders the gallery, zero pageerror events, and choosing a theme does not crash. Prior rehearsal also passed this: 'http 200, 60 cards, theme light' and 'no page error from the blocked store'."},
+    {"id": "U005-AT03", "assertion": "System mode updates when the OS preference changes.", "result": "PASS", "evidence": "emulateMedia light -> data-theme=light with no stored preference; -> dark -> data-theme=dark; -> light -> data-theme=light. docs/evidence/gates/u005-browser-sweep.json"},
+    {"id": "U005-AT04", "assertion": "Explicit dark mode survives refresh.", "result": "PASS", "evidence": "Set Dark while OS is light; localStorage=osteopatch:theme:v1 is 'dark'; reload leaves data-theme=dark and the Dark radio aria-checked=true. Prior rehearsal agreed."},
+    {"id": "U005-AT05", "assertion": "All status labels remain readable and not color-only.", "result": "FAIL", "evidence": "docs/evidence/gates/u005-rehearsal.log line 29: 'review status label: 1:1 < 4.5:1 (rgb(181,170,159) on rgb(181,170,159))' plus three elements that returned undefined (harness selector misses). The Phase 0 sweep asserted body-level contrast >= 4.5 and text presence, which is WEAKER than the per-element check, so it does not contradict this failure. NOT FIXED."}
+  ],
+
+  "rehearsal_failures": [
+    {"n": 1, "check": "AT05 every status label clears 4.5:1", "observed": "review status label 1:1 (rgb(181,170,159) on rgb(181,170,159)); qc badge / select control / subset banner returned undefined", "triage": "UNRESOLVED. --text-muted is #b5aa9f and is documented in tokens.css as 7.26:1 on --surface, and it is defined in BOTH the light block (line 134) and the dark block (line 176). A measured 1:1 therefore implies the measured element's background resolved to the same colour, not that the token itself is wrong. Which selector the rehearsal used was not recoverable from the record, so the offending rule is not yet identified. A 1:1 text label is invisible and is the most serious of the four."},
+    {"n": 2, "check": "no console errors during the switch", "observed": "Failed to load resource: 503 (Service Unavailable)", "triage": "UNRESOLVED AND REPRODUCED INDEPENDENTLY. Phase 0 saw the same 503s in the shared preview tab while my isolated Playwright sweep ran 5/5 against the same stack. All recent thumbnail requests returned 200 and the API log contains no 5xx. Suspected: a single-worker uvicorn saturating under two concurrent browser clients, i.e. harness/dev-server capacity rather than U005. Not confirmed, therefore not dismissed."},
+    {"n": 3, "check": "one live subscription per mounted control, none left dangling", "observed": "{\"add\":2,\"remove\":1}", "triage": "MISCALIBRATED CHECK, NOT A LEAK. app/g6/frontend/src/main.tsx renders <StrictMode>, so React 18 mounts, unmounts and remounts in development. addEventListener runs twice and removeEventListener once, leaving exactly one live listener on a mounted control — which is the intended steady state. The rehearsal asserted add===remove without accounting for StrictMode."},
+    {"n": 4, "check": "AT04 no frame painted the light canvas before the stored dark theme was applied", "observed": "frames without data-theme: 2, backgrounds seen: [\"rgba(0,0,0,0)\"]", "triage": "UNRESOLVED, LIKELY HARNESS. main.tsx calls applyStoredPreference() before createRoot().render, which is the correct anti-FOUC mechanism. The two observed frames both report data-theme=null AND background rgba(0,0,0,0) — fully transparent, i.e. nothing painted yet — rather than a light canvas. The recording appears to start before the pre-render call takes effect. Not proven."}
+  ],
+
+  "data_mode": "real_authorized_data",
+  "data_mode_detail": "Verified read-only artifact source; 1144 images and 1144 predictions, model bundle sha256 01727fb832f9d5518bbe2e33b901e7041020929c94b89cdb7a5e5195b544df63, recovered head g4-behavioral-recovery-r1.",
+
+  "canonical_data_unchanged": true,
+  "canonical_data_unchanged_detail": "sha256 0e4524db91f7a6e22dfbdc3395cf0fce6b7bf1b5628ac4cd1198be291d01ac40 measured before the Phase 0 gate suite, after the write-bearing smoke and browser E2E gates, and again after every U005 check. Identical at all three points. The seeded throwaway copy was also byte-identical, because both runners isolate their own workspace.",
+
+  "phase0_changes_made": [
+    {"path": "app/g6/frontend/src/test/theme.test.tsx", "change": "wrapped the installMatchMedia setDark listener notification in act() and imported act", "reason": "Every U005-AT03 test printed 'An update to ThemeControl inside a test was not wrapped in act(...)'. The update was being flushed by whatever ticked next rather than by the test. Fixed at the helper so every call site is covered. No assertion was weakened and no test was skipped; the count stayed at 36.", "verified": "36 passed after the change; zero ThemeControl act warnings remain. The 4 residual act warnings originate at PatchReview.tsx:18 and are pre-existing and outside U005's boundary, so they were left alone."}
+  ],
+
+  "limitations": [
+    "Two of the four rehearsal failures (AT05 contrast, and the pre-render frame count) were not root-caused in Phase 0. U005 cannot be called IMPLEMENTED_VERIFIED until they are.",
+    "The 503 was observed twice and explained plausibly but not confirmed.",
+    "torch is absent from the serve venv, so real Grad-CAM remains unverified. That is unrelated to U005 but unchanged.",
+    "npm's script runner could not be spawned from run_gate.py on this host using a relative or bare 'npm.cmd'; the working form is an absolute path ('C:/Program Files/nodejs/npm.cmd'), which is what the prior session's records used. Phase 0 therefore invoked vitest/tsc/vite directly, which runs the same code but is a different command line from the Makefile's."
+  ],
+
+  "blockers": [],
+  "required_approval": null,
+
+  "external_effects": "None. No push, no merge, no deployment, no cloud mutation, USD 0. Phase 0 was instructed not to commit.",
+
+  "self_acceptance": "NOT self-accepted. Two acceptance checks are unresolved and one rehearsal failure is a genuine 1:1 contrast defect. The integrator decides whether to repair U005 or accept it as PARTIAL.",
+
+  "next_integrator_action": "Repair rehearsal failure 1 first: identify which rule gives the review status label a 1:1 foreground/background in dark mode and fix the cause rather than the token's documented value. Then re-run the rehearsal and only then change this receipt's status. Failures 3 and 4 need the rehearsal's own assertions corrected for StrictMode and for pre-first-paint frames respectively; failure 2 needs the 503 traced to a request in the API log.",
+
+  "evidence_path": "docs/task-evidence/U005-receipt.json, docs/evidence/gates/u005-browser-sweep.json, docs/evidence/gates/u005-rehearsal.json, docs/evidence/gates/u005-rehearsal.log, docs/evidence/phase0-baseline.md",
+
+  "timestamp_audit": {
+    "rule": "Every observed_at_utc above is ANCHORED to a runner-written gate record, except the ones marked inline in tests[] which come from the Phase 0 run whose records are the cited gate files.",
+    "phase0_capture": "All Phase 0 gate records were produced by scripts/run_gate.py, which stamps at spawn time with date -u and mirrors the gate's real exit code. No timestamp here is a round minute."
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "gate": "durability-tooling",
+  "command": "'.venv\\Scripts\\python.exe' -m unittest discover -s tests/tooling",
+  "argv": [
+    ".venv\\Scripts\\python.exe",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "tests/tooling"
+  ],
+  "cwd": "C:\\Users\\enkso\\.kiro\\crew\\workspace\\osteopatch\\wt\\pack",
+  "exit_code": 0,
+  "ok": true,
+  "observed_at_utc": "2026-10-05T14:04:38Z",
+  "observed_at_utc_source": "captured by `date -u +%Y-%m-%dT%H:%M:%SZ` at spawn time",
+  "timestamp_status": "CAPTURED",
+  "summary": "OK (skipped=1)",
+  "output_tail": ".........................................s....\n----------------------------------------------------------------------\nRan 46 tests in 5.308s\n\nOK (skipped=1)",
+  "output_chars": 157,
+  "output_truncated": false,
+  "output_log": null,
+  "durability": "VERSIONED"
+}

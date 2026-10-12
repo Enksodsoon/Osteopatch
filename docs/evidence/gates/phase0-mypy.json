@@ -1,0 +1,26 @@
+{
+  "gate": "phase0-mypy",
+  "command": "'.venv\\Scripts\\python.exe' -m mypy",
+  "argv": [
+    ".venv\\Scripts\\python.exe",
+    "-m",
+    "mypy"
+  ],
+  "cwd": "C:\\Users\\enkso\\.kiro\\crew\\workspace\\osteopatch\\wt\\pack",
+  "exit_code": 0,
+  "ok": true,
+  "observed_at_utc": "2026-10-06T00:53:19Z",
+  "observed_at_utc_source": "captured by `date -u +%Y-%m-%dT%H:%M:%SZ` at spawn time",
+  "timestamp_status": "CAPTURED",
+  "summary": "Success: no issues found in 20 source files",
+  "output_tail": "Success: no issues found in 20 source files",
+  "output_chars": 45,
+  "output_truncated": false,
+  "output_capture": "CAPTURED",
+  "output_bytes": 45,
+  "output_encoding": "utf-8",
+  "output_decode_lossy": false,
+  "output_undecodable": 0,
+  "output_log": null,
+  "durability": "VERSIONED"
+}

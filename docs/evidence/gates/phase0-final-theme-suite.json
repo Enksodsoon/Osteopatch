@@ -1,0 +1,26 @@
+{
+  "gate": "phase0-final-theme-suite",
+  "command": "'node_modules\\.bin\\vitest.cmd' run src/test/theme.test.tsx",
+  "argv": [
+    "node_modules\\.bin\\vitest.cmd",
+    "run",
+    "src/test/theme.test.tsx"
+  ],
+  "cwd": "C:\\Users\\enkso\\.kiro\\crew\\workspace\\osteopatch\\wt\\pack\\app\\g6\\frontend",
+  "exit_code": 0,
+  "ok": true,
+  "observed_at_utc": "2026-10-06T01:06:08Z",
+  "observed_at_utc_source": "captured by `date -u +%Y-%m-%dT%H:%M:%SZ` at spawn time",
+  "timestamp_status": "CAPTURED",
+  "summary": "\u001b[2m      Tests \u001b[22m \u001b[1m\u001b[32m36 passed\u001b[39m\u001b[22m\u001b[90m (36)\u001b[39m",
+  "output_tail": "vior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act\n    at PatchReview (C:\\Users\\enkso\\.kiro\\crew\\workspace\\osteopatch\\wt\\pack\\app\\g6\\frontend\\src\\components\\PatchReview.tsx:18:3)\nWarning: An update to PatchReview inside a test was not wrapped in act(...).\n\nWhen testing, code that causes React state updates should be wrapped into act(...):\n\nact(() => {\n  /* fire events that update state */\n});\n/* assert on the output */\n\nThis ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act\n    at PatchReview (C:\\Users\\enkso\\.kiro\\crew\\workspace\\osteopatch\\wt\\pack\\app\\g6\\frontend\\src\\components\\PatchReview.tsx:18:3)\n\n\u001b[90mstderr\u001b[2m | src/test/theme.test.tsx\u001b[2m > \u001b[22m\u001b[2mU005-AT01 - switching themes leaves image bytes and model scores unchanged\u001b[2m > \u001b[22m\u001b[2mkeeps the histology <img> src and its zoom transform identical across themes\n\u001b[22m\u001b[39mWarning: An update to PatchReview inside a test was not wrapped in act(...).\n\nWhen testing, code that causes React state updates should be wrapped into act(...):\n\nact(() => {\n  /* fire events that update state */\n});\n/* assert on the output */\n\nThis ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act\n    at PatchReview (C:\\Users\\enkso\\.kiro\\crew\\workspace\\osteopatch\\wt\\pack\\app\\g6\\frontend\\src\\components\\PatchReview.tsx:18:3)\nWarning: An update to PatchReview inside a test was not wrapped in act(...).\n\nWhen testing, code that causes React state updates should be wrapped into act(...):\n\nact(() => {\n  /* fire events that update state */\n});\n/* assert on the output */\n\nThis ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act\n    at PatchReview (C:\\Users\\enkso\\.kiro\\crew\\workspace\\osteopatch\\wt\\pack\\app\\g6\\frontend\\src\\components\\PatchReview.tsx:18:3)",
+  "output_chars": 3041,
+  "output_truncated": true,
+  "output_capture": "CAPTURED",
+  "output_bytes": 3043,
+  "output_encoding": "utf-8",
+  "output_decode_lossy": false,
+  "output_undecodable": 0,
+  "output_log": "docs/evidence/gates/phase0-final-theme-suite.log",
+  "durability": "VERSIONED"
+}

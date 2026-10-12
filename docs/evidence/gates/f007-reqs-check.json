@@ -1,0 +1,21 @@
+{
+  "gate": "f007-reqs-check",
+  "command": "'.venv\\Scripts\\python.exe' scripts/sync_requirements.py --check",
+  "argv": [
+    ".venv\\Scripts\\python.exe",
+    "scripts/sync_requirements.py",
+    "--check"
+  ],
+  "cwd": "C:\\Users\\enkso\\.kiro\\crew\\workspace\\osteopatch\\wt\\pack",
+  "exit_code": 0,
+  "ok": true,
+  "observed_at_utc": "2026-10-05T13:30:09Z",
+  "observed_at_utc_source": "captured by `date -u +%Y-%m-%dT%H:%M:%SZ` at spawn time",
+  "timestamp_status": "CAPTURED",
+  "summary": "requirements shims are current",
+  "output_tail": "requirements shims are current",
+  "output_chars": 31,
+  "output_truncated": false,
+  "output_log": null,
+  "durability": "VERSIONED"
+}

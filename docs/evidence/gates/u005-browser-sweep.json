@@ -1,0 +1,28 @@
+{
+  "gate": "u005-browser-sweep",
+  "command": "node node_modules/@playwright/test/cli.js test e2e/u005-verify.spec.ts --reporter=list",
+  "argv": [
+    "node",
+    "node_modules/@playwright/test/cli.js",
+    "test",
+    "e2e/u005-verify.spec.ts",
+    "--reporter=list"
+  ],
+  "cwd": "C:\\Users\\enkso\\.kiro\\crew\\workspace\\osteopatch\\wt\\pack\\app\\g6\\frontend",
+  "exit_code": 0,
+  "ok": true,
+  "observed_at_utc": "2026-10-06T01:02:48Z",
+  "observed_at_utc_source": "captured by `date -u +%Y-%m-%dT%H:%M:%SZ` at spawn time",
+  "timestamp_status": "CAPTURED",
+  "summary": "5 passed (9.1s)",
+  "output_tail": "Running 5 tests using 1 worker\n\n  ok 1 [chromium] › e2e\\u005-verify.spec.ts:77:3 › U005 acceptance, in a real browser › AT01 — switching theme leaves image bytes and model scores unchanged (1.9s)\n  ok 2 [chromium] › e2e\\u005-verify.spec.ts:100:3 › U005 acceptance, in a real browser › AT02 — blocked localStorage falls back to system preference without a crash (1.7s)\n  ok 3 [chromium] › e2e\\u005-verify.spec.ts:137:3 › U005 acceptance, in a real browser › AT03 — system mode follows an OS preference change mid-session (1.4s)\n  ok 4 [chromium] › e2e\\u005-verify.spec.ts:153:3 › U005 acceptance, in a real browser › AT04 — an explicit dark choice survives a refresh (1.9s)\n  ok 5 [chromium] › e2e\\u005-verify.spec.ts:174:3 › U005 acceptance, in a real browser › AT05 — status and class labels are readable text, never colour alone (1.6s)\n\n  5 passed (9.1s)",
+  "output_chars": 858,
+  "output_truncated": false,
+  "output_capture": "CAPTURED",
+  "output_bytes": 898,
+  "output_encoding": "utf-8",
+  "output_decode_lossy": false,
+  "output_undecodable": 0,
+  "output_log": null,
+  "durability": "VERSIONED"
+}

@@ -1,0 +1,25 @@
+{
+  "gate": "phase0-build-g6",
+  "command": "./node_modules/.bin/tsc.cmd -b",
+  "argv": [
+    "./node_modules/.bin/tsc.cmd",
+    "-b"
+  ],
+  "cwd": "C:\\Users\\enkso\\.kiro\\crew\\workspace\\osteopatch\\wt\\pack\\app\\g6\\frontend",
+  "exit_code": 1,
+  "ok": false,
+  "observed_at_utc": "2026-10-06T00:54:41Z",
+  "observed_at_utc_source": "captured by `date -u +%Y-%m-%dT%H:%M:%SZ` at spawn time",
+  "timestamp_status": "CAPTURED",
+  "summary": "operable program or batch file.",
+  "output_tail": "'.' is not recognized as an internal or external command,\r\noperable program or batch file.",
+  "output_chars": 92,
+  "output_truncated": false,
+  "output_capture": "CAPTURED",
+  "output_bytes": 92,
+  "output_encoding": "utf-8",
+  "output_decode_lossy": false,
+  "output_undecodable": 0,
+  "output_log": null,
+  "durability": "VERSIONED"
+}

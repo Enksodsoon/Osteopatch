@@ -1,0 +1,26 @@
+{
+  "gate": "phase0-diff-check",
+  "command": "git diff --check",
+  "argv": [
+    "git",
+    "diff",
+    "--check"
+  ],
+  "cwd": "C:\\Users\\enkso\\.kiro\\crew\\workspace\\osteopatch\\wt\\pack",
+  "exit_code": 0,
+  "ok": true,
+  "observed_at_utc": "2026-10-06T00:55:11Z",
+  "observed_at_utc_source": "captured by `date -u +%Y-%m-%dT%H:%M:%SZ` at spawn time",
+  "timestamp_status": "CAPTURED",
+  "summary": "(no output)",
+  "output_tail": "",
+  "output_chars": 0,
+  "output_truncated": false,
+  "output_capture": "EMPTY",
+  "output_bytes": 0,
+  "output_encoding": "none",
+  "output_decode_lossy": false,
+  "output_undecodable": 0,
+  "output_log": null,
+  "durability": "VERSIONED"
+}

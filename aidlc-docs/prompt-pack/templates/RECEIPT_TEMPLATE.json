@@ -1,0 +1,22 @@
+{
+  "task_id": "ASSIGNED_TASK_ID",
+  "status": "PLANNED",
+  "acceptance_status": "NOT_REVIEWED",
+  "baseline_sha": null,
+  "candidate_sha": null,
+  "diff_sha256": null,
+  "changed_files": [],
+  "dependency_receipts": [],
+  "produced_interfaces": [],
+  "tests": [],
+  "acceptance_tests": [],
+  "data_mode": null,
+  "scope": null,
+  "canonical_data_unchanged": {
+    "status": "NOT_CHECKED",
+    "evidence": null
+  },
+  "limitations": [],
+  "blockers": [],
+  "next_integrator_action": null
+}

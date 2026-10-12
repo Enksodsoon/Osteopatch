@@ -1,0 +1,282 @@
+{
+  "task_id": "U002",
+  "task_title": "Consolidate the editorial design tokens without redesigning behavior",
+  "status": "IMPLEMENTED_VERIFIED",
+  "acceptance_status": "NOT_REVIEWED — this receipt is the implementer's, not an acceptance",
+  "self_acceptance": "NOT GIVEN — this receipt records implementation and verification only. Test success and acceptance are separate; a reviewer may still reject this for an incorrect requirement, a security boundary, or a misleading scientific claim.",
+  "baseline_sha": "626aaadc9e4282b470b74fe94893a412cf7d127a",
+  "baseline_sha_note": "Inherited from the uncommitted Turn 0 baseline (origin/main). The original plan named b40bf34, which was stale by 5 commits and would have discarded F001's evidence; 626aaad was verified and adopted instead. Never reset to the pack's 57c1efc reference snapshot.",
+  "remote_main_sha": "626aaadc9e4282b470b74fe94893a412cf7d127a",
+  "candidate_sha": null,
+  "candidate_sha_note": "No commit was authorized for this turn. Resolve the head with: git -C ../wt/pack rev-parse feat/prompt-pack-run",
+  "diff_sha256": "84b2e8e2e88aab33242e153d6b2bd4165aa68946b97eeffd18f3afd661bec5ce",
+  "diff_sha256_covers": "Uncommitted working-tree change (Turn 0 + F002 + F004 + U002 + the 2026-10-05 evidence-integrity audit); committing is not authorized. SHA-256 over every dirty path in sorted order, each fed as utf-8(path) + NUL + file bytes; a directory is the concatenation of its files in sorted order. docs/task-evidence/U002-receipt.json is excluded so the digest does not depend on its own contents. Reproduce with: python scratch/diff_digest.py docs/task-evidence/U002-receipt.json (scratch/ is gitignored). Per-path digests: .gitignore c2f176b1, aidlc-docs/prompt-pack/ 5a1c2e6f, app/g6/backend/tests/fixtures/ 75cfe981, app/g6/backend/tests/test_fixture_contract.py c77cbfc2, app/g6/frontend/src/api.ts 6136cd2c, app/g6/frontend/src/apiErrors.ts 15906818, app/g6/frontend/src/styles.css 3de80cbe, app/g6/frontend/src/styles/ cc38e5b9, app/g6/frontend/src/test/api-client.test.ts 4d8ffe73, app/g6/frontend/src/test/design-tokens.test.tsx 8c8506cf, app/local-tester.py 4507795f, docs/evidence/e2e-ui-result.json 5978dcc9, docs/task-evidence/F001-baseline.json 948c95ec, docs/task-evidence/F001-baseline.md fe41494d, docs/task-evidence/F001-receipt.json f266ff31, docs/task-evidence/F002-receipt.json 0ecded66, docs/task-evidence/F002.md ac9f998d, docs/task-evidence/F004-receipt.json ce4ff45d, docs/task-evidence/F004.md 068fa440, docs/task-evidence/STATUS.md 3367ecfa, docs/task-evidence/TURN0-setup-baseline.md d59d45bd, docs/task-evidence/TURN0-setup-receipt.json 6f41dcc5, docs/task-evidence/U002.md 96c69c32, scripts/e2e_ui.py 9d22f1b8, scripts/task_env.sh b73ed394, scripts/verify_prompt_pack.py 3eab9d44. RECOMPUTED after the LAST edit of the audit: F001-baseline.md gained a timestamp-audit banner covering its 'Observed (UTC)' column, which the first pass of the audit had missed because it only scanned the JSON receipts.",
+  "branch": "feat/prompt-pack-run",
+  "worktree": "C:/Users/enkso/.kiro/crew/workspace/osteopatch/wt/pack",
+  "isolation": "dedicated git worktree; one writer; nothing committed, nothing pushed",
+  "scope": "Stylesheets and one test file only. Exactly the three task-owned paths were changed; no component, type, router, or shared-integration file was touched, so no integration hook was needed. No data was read or written: the browser sweep drove the live app read-only (gallery + patch view), and the one write-bearing gate (scripts/e2e_ui.py) wrote 5 review actions into the throwaway database. Canonical store untouched.",
+  "product_code_changed": false,
+  "product_files_modified": [],
+  "changed_files": [
+    {
+      "path": "app/g6/frontend/src/styles/tokens.css",
+      "why": "task-owned deliverable — the single source of truth: canvas/surface/text/muted-text/border/accent/focus/warning/error plus the three canonical class accents, the 4/8/12/16/24/32 spacing scale, radii, elevation and type scale. Every colour is a literal opaque hex so WCAG contrast is computable from the file; a translucent token is what let the old 1.42:1 focus ring ship unnoticed.",
+      "task_owned": true
+    },
+    {
+      "path": "app/g6/frontend/src/styles.css",
+      "why": "task-owned deliverable — imports tokens.css first, deletes BOTH duplicated :root blocks (the second silently overwrote 11 properties, leaving 13 dead declarations that read like the real theme), renames 12 legacy custom properties to the semantic contract, folds the hardcoded #b3261e error and warning literals into tokens, drops the stale cool-gray var(--border, #d8dee4) fallback, replaces the 1.42:1 translucent focus ring with var(--focus), adds the missing prefers-reduced-motion block, and moves the legacy layer's padding/gaps onto the spacing scale. 89 -> 63 hex literals; 26 values consolidated.",
+      "task_owned": true
+    },
+    {
+      "path": "app/g6/frontend/src/test/design-tokens.test.tsx",
+      "why": "task-owned deliverable — 28 acceptance tests mapping 1:1 onto U002-AT01..AT05, plus contract tests for the token set, the spacing scale, and the no-fourth-class invariant.",
+      "task_owned": true
+    },
+    {
+      "path": "docs/task-evidence/U002.md",
+      "why": "task-owned evidence document in the shape of F001/F002/F004.",
+      "task_owned": true
+    },
+    {
+      "path": "docs/task-evidence/U002-receipt.json",
+      "why": "task-owned machine-readable receipt.",
+      "task_owned": true
+    }
+  ],
+  "produced_endpoints": [],
+  "produced_interfaces": [
+    "--canvas, --surface, --surface-strong, --surface-sunken, --text, --text-muted, --text-inverse, --border, --border-strong, --accent, --accent-deep, --accent-soft, --focus, --warning, --warning-surface, --warning-border, --error, --error-surface (all custom properties)",
+    "--class-nt / --class-vt / --class-nec (the three canonical classes, and only those three)",
+    "--space-1..--space-6 = 4/8/12/16/24/32px",
+    "--radius-sm/md/lg, --shadow-sm/md, --font-size-base, --text-body, --text-label, --font-ui, --font-mono",
+    "@media (prefers-reduced-motion: reduce) — animation/transition/scroll-behavior neutralised, .card:hover transform removed, shimmer replaced by a flat fill"
+  ],
+  "produced_types": [],
+  "dependency_receipts_inspected": [
+    "docs/task-evidence/F001-receipt.json — U002's named prerequisite. Present, status IMPLEMENTED_VERIFIED, self_acceptance NOT_REVIEWED. It is required to exist, not to be accepted; the unmet acceptance is carried forward here rather than treated as a blocker.",
+    "docs/task-evidence/F002-receipt.json — inspected; unrelated to U002's surface.",
+    "docs/task-evidence/F004-receipt.json — inspected; its dirty_paths key shape was matched exactly."
+  ],
+  "tests": [
+    {
+      "command": "npm --prefix app/g6/frontend test -- src/test/design-tokens.test.tsx",
+      "cwd": "wt/pack",
+      "exit_code": 1,
+      "passed": 0,
+      "failed": 0,
+      "note": "PRE-IMPLEMENTATION. The suite could not collect: ENOENT app/g6/frontend/src/styles/tokens.css. Environment proven sound in the same step — src/test/ui.test.tsx exited 0 with 29/29 — so this is missing behaviour, not a broken environment.",
+      "observed_at_utc": "UNAVAILABLE",
+      "observed_at_utc_source": "UNAVAILABLE — no runner-timestamped artifact and no `date -u` capture existed for this gate. The previously written value was a round minute with nothing behind it and is retained only as a record of what was claimed. Not backdated.",
+      "previously_claimed_observed_at_utc": "2026-10-05T10:42:21Z",
+      "timestamp_status": "UNAVAILABLE"
+    },
+    {
+      "command": "npm --prefix app/g6/frontend test -- src/test/design-tokens.test.tsx",
+      "cwd": "wt/pack",
+      "exit_code": 0,
+      "passed": 28,
+      "failed": 0,
+      "note": "post-implementation, re-run after the final code edit. Intermediate runs exited 1 with 5 then 24 failures; all were bugs in the tests or in the import mechanism, not in the stylesheets — see boundary_observations.",
+      "observed_at_utc": "2026-10-05T11:11:32Z",
+      "observed_at_utc_source": "captured by `date -u` at the moment this command ran, in scratch/verify_u002.sh"
+    },
+    {
+      "command": "npm --prefix app/g6/frontend run build",
+      "cwd": "wt/pack",
+      "exit_code": 0,
+      "passed": 0,
+      "failed": 0,
+      "note": "tsc -b + vite build, 0 TypeScript errors. Three intermediate runs exited 1: TS2307 on node:fs/node:url, an unused @ts-expect-error, and TS2666/TS2300 from an ambient declare-module block inside a module file.",
+      "observed_at_utc": "2026-10-05T11:11:34Z",
+      "observed_at_utc_source": "captured by `date -u` at the moment this command ran, in scratch/verify_u002.sh"
+    },
+    {
+      "command": "git diff --check",
+      "cwd": "wt/pack",
+      "exit_code": 0,
+      "note": "clean",
+      "observed_at_utc": "2026-10-05T11:11:40Z",
+      "observed_at_utc_source": "captured by `date -u` at the moment this command ran, in scratch/verify_u002.sh"
+    },
+    {
+      "command": "npm --prefix app/g6/frontend test",
+      "cwd": "wt/pack",
+      "exit_code": 0,
+      "passed": 89,
+      "failed": 0,
+      "note": "full G6 frontend: 61 pre-existing + 28 new. This is the AT05 gate — behaviour did not change.",
+      "observed_at_utc": "2026-10-05T11:11:40Z",
+      "observed_at_utc_source": "captured by `date -u` at the moment this command ran, in scratch/verify_u002.sh"
+    },
+    {
+      "command": "npm --prefix app/g7-enterprise/frontend test",
+      "cwd": "wt/pack",
+      "exit_code": 0,
+      "passed": 2,
+      "failed": 0,
+      "note": "untouched",
+      "observed_at_utc": "2026-10-05T11:11:43Z",
+      "observed_at_utc_source": "captured by `date -u` at the moment this command ran, in scratch/verify_u002.sh"
+    },
+    {
+      "command": "python scripts/e2e_ui.py",
+      "cwd": "wt/pack",
+      "exit_code": 0,
+      "passed": 17,
+      "failed": 0,
+      "note": "real Chromium 153.0.8010.12 against a live throwaway backend. THE write-bearing gate for this task — it records 5 human review actions. Run specifically because a CSS-only change still touches the rendering every reviewer sees; F004's agent wrongly skipped this and found a hardcoded status 200 against a 201 backend as a result.",
+      "observed_at_utc": "2026-10-05T10:52:30Z",
+      "observed_at_utc_source": "ANCHORED — docs/evidence/e2e-ui-result.json generated_at_utc=2026-10-05T10:52:30+00:00",
+      "previously_claimed_observed_at_utc": "2026-10-05T10:52:30Z",
+      "timestamp_status": "ANCHORED"
+    },
+    {
+      "command": "node app/g6/frontend/node_modules/@playwright/test/cli.js test --config scratch/u002-playwright.config.ts",
+      "cwd": "wt/pack",
+      "exit_code": 0,
+      "passed": 5,
+      "failed": 0,
+      "note": "U002 boundary sweep, run OUTSIDE the vitest harness against the live app: computed focus-ring contrast, emulated prefers-reduced-motion, grayscale class labels and shapes, and scrollWidth vs clientWidth at 390/768/1440 and at 200% zoom. Vitest cannot do any of this — vite.config.ts sets css:false. First runs exited 1 with 4 then 2 failures, all of them bugs in the sweep (see boundary_observations).",
+      "observed_at_utc": "2026-10-05T11:11:45Z",
+      "observed_at_utc_source": "captured by `date -u` at the moment this command ran, in scratch/verify_u002.sh"
+    },
+    {
+      "command": "python scripts/check_repository.py",
+      "cwd": "wt/pack",
+      "exit_code": 0,
+      "note": "0 errors",
+      "observed_at_utc": "2026-10-05T11:11:50Z",
+      "observed_at_utc_source": "captured by `date -u` at the moment this command ran, in scratch/verify_u002.sh"
+    },
+    {
+      "command": "python -m unittest discover -s tests/tooling",
+      "cwd": "wt/pack",
+      "exit_code": 0,
+      "note": "17 ran, 1 skipped",
+      "observed_at_utc": "2026-10-05T11:11:50Z",
+      "observed_at_utc_source": "captured by `date -u` at the moment this command ran, in scratch/verify_u002.sh"
+    },
+    {
+      "command": "python scripts/verify_prompt_pack.py",
+      "cwd": "wt/pack",
+      "exit_code": 0,
+      "note": "150/150 files match SHA256_MANIFEST.json — the vendored pack is untouched by this task",
+      "observed_at_utc": "2026-10-05T11:11:51Z",
+      "observed_at_utc_source": "captured by `date -u` at the moment this command ran, in scratch/verify_u002.sh"
+    }
+  ],
+  "acceptance_tests": [
+    {
+      "id": "U002-AT01",
+      "result": "PASS",
+      "evidence": "Measured in real Chromium at 720x450 CSS px, which is exactly what 200% zoom produces from a 1440x900 window: documentElement.scrollWidth 720 == clientWidth 720, so no horizontal overflow; the primary action button is visible with offsetParent set and a computed 14px font. Token-side, --font-size-base is 100% (not px) so rem layout scales, --text-body is 14px and --text-label 12px, and .app-main does not use overflow:hidden. A test that incorrectly demanded 100vh be removed was corrected before implementing — browser zoom does not change CSS px, so 100vh does not clip at 200%, and switching it to min-height would move scroll containment to the document, the behaviour redesign this task forbids."
+    },
+    {
+      "id": "U002-AT02",
+      "result": "PASS",
+      "evidence": "Driven by real Tab presses so :focus-visible genuinely matches (element.focus() does not trigger it in Chromium — the first sweep read the text colour at 15.53:1 and was measuring the wrong thing). Computed outlineColor rgb(107,44,23) = --focus #6b2c17, outlineWidth 3px, outlineStyle solid, against the composited panel rgba(255,253,249,0.96): contrast 10.35:1, up from 1.42:1 before this task. The rule covers button, a, input, select and textarea. A unit test also computes the old rgba value and asserts it really was below 3:1, so the regression cannot silently return."
+    },
+    {
+      "id": "U002-AT03",
+      "result": "PASS",
+      "evidence": "Real-browser emulation, not a text assertion: with reducedMotion 'no-preference' the computed animationName on .page-loading/.gallery-skeleton is 'osteo-shimmer'; with 'reduce' it becomes 'none' and animationDuration '0s'. Transitions and scroll-behavior are neutralised too, and .card:hover transform is removed. Before this task the stylesheet contained no prefers-reduced-motion block at all."
+    },
+    {
+      "id": "U002-AT04",
+      "result": "PASS",
+      "evidence": "The three class accents measure grayscale 34 / 33 / 34 — interchangeable by luminance, which is recorded deliberately and is precisely why step 04's text+shape pairing is mandatory rather than optional. The distinction is therefore carried by two channels that survive grayscale: the chip renders the literal identifier (verified in-browser as exactly ['NON_TUMOR','VIABLE_TUMOR','NECROSIS']) and the markers are three distinct shapes (border-radius 50% / 0px / polygon clip-path), confirmed distinct in a live DOM query. The accents were NOT repainted — a rebrand would exceed this task's brief. A test asserts no fourth class accent can be added, keeping mixed/uncertain/deferred as review states rather than learned classes."
+    },
+    {
+      "id": "U002-AT05",
+      "result": "PASS",
+      "evidence": "Behaviour did not change. 89/89 frontend tests pass (61 pre-existing + 28 new), and the full 17/17 Playwright journey — ACCEPT, CORRECT, DEFER, export provenance, attribution honesty — passes against a live backend. Zero component files were modified. On the rendered workbench the before/after screenshots at 1440x900 and 390x844 were visually indistinguishable on inspection — but NO PIXEL DIFF WAS COMPUTED, so 'identical' is an observation, not a measurement. One intended visual change exists and was NOT covered by those screenshots: .attrib-panel (the G7 attribution panel, not visible in the gallery state) had a stale cool-gray fallback var(--border, #d8dee4) and now renders the earth-tone --border #ddd5cc. That change is recorded as a fix, not verified here by screenshot."
+    }
+  ],
+  "data_mode": "verified_replay",
+  "model_artifact_identities": "No model was loaded, run, or modified. No prediction, score, reference label, or review was altered. The browser rehearsal used the real authorized dataset (1144 images, 1144 predictions) read-only through the live API at 127.0.0.1:5199. No histology pixel was touched — the before/after screenshots show the same image data.",
+  "canonical_data_unchanged": {
+    "status": "VERIFIED_TRUE",
+    "evidence": "runtime-artifacts/db/osteopatch_g6.sqlite3 hashed 0e4524db91f7a6e22dfbdc3395cf0fce6b7bf1b5628ac4cd1198be291d01ac40 before and after scripts/e2e_ui.py, the only write-bearing gate in this task. The e2e runner independently reports the canonical store byte-identical and wrote its 5 review actions into the throwaway database. This task has no migration and no schema change."
+  },
+  "ui_browser_observations": [
+    "Desktop 1440x900 and phone 390x844, real workbench, real API, before and after captured. Visually indistinguishable on inspection at both widths. NOT a computed pixel diff, and NOT a claim that the whole app is unchanged: .attrib-panel's border changes #d8dee4 -> #ddd5cc, a fix for a stale cool-gray fallback that the captured gallery state never showed.",
+    "Phone 390x844: no horizontal overflow (scrollWidth 390 == clientWidth 390); sort, filter, search and both export links all present and legible; no control is hidden behind a hamburger without an equivalent accessible location.",
+    "Keyboard focus is now visible: a solid 3px oxide ring at 10.35:1, replacing a 1.42:1 ring that was effectively invisible. Measured with real Tab presses because element.focus() does not trigger :focus-visible in Chromium.",
+    "Under emulated reduced-motion the loading shimmer stops entirely and becomes a flat fill (animationName osteo-shimmer -> none, duration 0s).",
+    "Class chips remain readable with colour removed: literal label text plus circle/square/triangle markers.",
+    "Only one failed request during the rehearsal: a 503 on /v1/images/.../attribution, the documented honest refusal (torch is absent from the locked serve venv) rather than a fabricated heatmap. Enumerated explicitly in the sweep rather than swallowed."
+  ],
+  "boundary_observations": [
+    "FOUND IN THE CODE THIS TASK TOUCHED — focus ring at 1.42:1. rgba(139,63,39,.22) composites to #e5d3cb over the panel. A live accessibility defect in shipped UI, now 10.35:1.",
+    "FOUND IN THE CODE THIS TASK TOUCHED — no prefers-reduced-motion block anywhere, despite an infinite shimmer and a hover lift.",
+    "FOUND IN THE CODE THIS TASK TOUCHED — :root declared twice; the second overwrote 11 properties, so the first block was dead code that read like the real theme and showed a different class palette than the app painted.",
+    "FOUND IN THE CODE THIS TASK TOUCHED — var(--border, #d8dee4) carried a stale cool-gray fallback from the pre-earth-tone theme on one control.",
+    "FOUND IN MY OWN TEST — I first asserted height:100vh must be removed. That reasoning was wrong: browser zoom does not change CSS px, so it does not clip at 200%, and switching to min-height would move scroll containment from the inner pane to the document. Corrected before implementation; .app was left untouched.",
+    "FOUND IN MY OWN TEST — four assertions were wrong (five failing tests): a token filter matching --text-body/--text-label as colours, a focus regex anchored at ':focus-visible' that dropped the leading 'button', a missing class-name to token-suffix map, and a label matcher expecting 'NON TUMOR' when the chip renders the literal 'NON_TUMOR'. All corrected, none weakened.",
+    "FOUND IN MY OWN SWEEP — element.focus() does not trigger :focus-visible in Chromium, so the first browser sweep measured the text colour (15.53:1) and would have passed while testing the wrong property. Now driven by real Tab presses.",
+    "TOOLING LIMITATION DISCOVERED — Vite's ?raw, ?inline and import.meta.glob all return a ZERO-LENGTH string for CSS under this project's css:false vitest setting, and an ambient declare-module block is illegal inside a module file. A filesystem read is therefore the only way to assert real stylesheet content here, behind two @ts-expect-error directives (not @ts-ignore) that fail the build if @types/node is ever added. Installing a type package or widening tsconfig types are both outside this task's authorisation.",
+    "NOT ADDRESSED, DISCLOSED — neither --border (1.43:1 on --surface) nor --border-strong (1.80:1) meets the 3:1 non-text floor. They render as decorative dividers and restyling them would be a visual redesign, but any future control relying on a border alone to convey state would fail WCAG 1.4.11. Not claimed as passing.",
+    "NOT ADDRESSED, DISCLOSED — sub-12px sizes (10px, 11px) still exist in the professional layer. The contract sets 12px as a target; restyling them was outside this brief.",
+    "CORRECTION TO MY OWN EVIDENCE — I wrote that before/after screenshots were 'pixel-identical'. I never computed a pixel diff; they were visually indistinguishable on inspection. Worse, the claim was false as a general statement: .attrib-panel carried var(--border, #d8dee4), a stale cool-gray fallback, and now renders #ddd5cc. The gallery screenshots simply never showed that panel. Corrected in acceptance_tests, ui_browser_observations and limitations."
+  ],
+  "limitations": [
+    "TIMESTAMP INTEGRITY — the first draft of this receipt wrote the vitest runner's LOCAL clock (+0700) into observed_at_utc as if it were UTC, producing stamps roughly seven hours in the future. Every gate was re-run with a `date -u` wrapper (scratch/verify_u002.sh) and all eleven stamps now come from a real capture; the single exception is the pre-implementation run, which has no wrapper and is marked DERIVED with the arithmetic shown in observed_at_utc_source. Same defect appeared in the first draft of U002.md's narrative and was corrected.",
+    "VISUAL-DIFF SCOPE — 'before and after look the same' was observed by eye, not proven by a pixel diff, and it covers only the workbench gallery state at two widths. It is not evidence that the entire app renders identically; .attrib-panel is a known counter-example.",
+    "Two @ts-expect-error directives on the node:fs / node:url imports in the test file. No @types/node exists in this workspace and tsconfig.json pins a types allowlist; installing a dependency or editing tsconfig are outside this task's authorisation. The directives are deliberately self-invalidating rather than @ts-ignore.",
+    "The unit tests read stylesheet TEXT. vite.config.ts sets css:false, so no computed style, media-query evaluation or layout is reachable from vitest at all. Every rendering claim therefore rests on the separate Playwright sweep, which is not part of the committed suite.",
+    "The 28 new tests are not in CI's blocking set. Wiring them in requires Makefile/CI edits this task is not authorised to make.",
+    "mypy does not cover this task — it is scoped to app/g6/backend/osteopatch. TypeScript is covered by tsc -b.",
+    "The U002 browser sweep lives in scratch/ and is gitignored, so it is reproducible evidence for this receipt but not a permanent regression guard.",
+    "Real Grad-CAM heatmaps remain unverified (torch absent from the locked serve venv); the 503 seen in the sweep is the documented honest refusal.",
+    "AWS, deployment, and the original G4 bundle were untouched and unauthorised."
+  ],
+  "blockers": [],
+  "required_approval": "None for this task. Installing dependencies (notably @types/node), editing tsconfig.json, Makefile or CI, and any AWS or publication action all remain gated and were not attempted. A reviewer must still accept this task; it does not accept itself.",
+  "external_effects": "None. No network egress beyond localhost, no files written outside the worktree, no credentials read or printed, USD 0, no cloud resource touched. Background dev servers (127.0.0.1:5197 vite, 127.0.0.1:5199 uvicorn) were started for the rehearsal and terminated afterwards; both ports verified free.",
+  "evidence_path": "docs/task-evidence/U002.md and docs/task-evidence/U002-receipt.json",
+  "dirty_paths": [
+    " M .gitignore",
+    " M app/g6/frontend/src/api.ts",
+    " M app/g6/frontend/src/styles.css",
+    " M app/local-tester.py",
+    " M docs/evidence/e2e-ui-result.json",
+    " M docs/task-evidence/F001-baseline.json",
+    " M docs/task-evidence/F001-baseline.md",
+    " M docs/task-evidence/F001-receipt.json",
+    " M scripts/e2e_ui.py",
+    "?? aidlc-docs/prompt-pack/",
+    "?? app/g6/backend/tests/fixtures/",
+    "?? app/g6/backend/tests/test_fixture_contract.py",
+    "?? app/g6/frontend/src/apiErrors.ts",
+    "?? app/g6/frontend/src/styles/",
+    "?? app/g6/frontend/src/test/api-client.test.ts",
+    "?? app/g6/frontend/src/test/design-tokens.test.tsx",
+    "?? docs/task-evidence/F002-receipt.json",
+    "?? docs/task-evidence/F002.md",
+    "?? docs/task-evidence/F004-receipt.json",
+    "?? docs/task-evidence/F004.md",
+    "?? docs/task-evidence/STATUS.md",
+    "?? docs/task-evidence/TURN0-setup-baseline.md",
+    "?? docs/task-evidence/TURN0-setup-receipt.json",
+    "?? docs/task-evidence/U002-receipt.json",
+    "?? docs/task-evidence/U002.md",
+    "?? scripts/task_env.sh",
+    "?? scripts/verify_prompt_pack.py"
+  ],
+  "next_integrator_action": "Take exactly one task: F003, in wt/pack on feat/prompt-pack-run, source scripts/task_env.sh first, write its named acceptance tests before implementing, and stop there. Its prerequisites F001 and F002 are both present. Do not begin F007. F001, F002, F004 and U002 all remain NOT_REVIEWED — this receipt grants no acceptance, and nothing has been committed.",
+  "timestamp_audit": {
+    "audited_at_utc": "2026-10-05T11:20Z",
+    "verdict": "AUDIT 2026-10-05T11:20:16Z — trustworthy after its own in-turn repair. Nine stamps come from a `date -u` capture at the moment each command ran, one from the e2e runner's own generated_at_utc, and one is explicitly labelled DERIVED with its arithmetic. This was the receipt that exposed the failure mode in the first place: its FIRST draft wrote vitest's local +0700 clock into observed_at_utc as though it were UTC, putting stamps ~7h in the future.",
+    "receipt_last_modified_utc": "2026-10-05T11:13:45Z",
+    "classification": {
+      "ANCHORED": 1,
+      "DERIVED": 0,
+      "UNAVAILABLE": 1,
+      "CAPTURED": 9
+    },
+    "rule": "Every observed_at_utc must be ANCHORED (a runner-timestamped artifact), DERIVED (arithmetic on a real captured value, with the arithmetic recorded), or UNAVAILABLE. A round minute with no source is not an observation. Nothing is backdated.",
+    "claims_reverified_at_utc": "2026-10-05T11:17Z"
+  },
+  "dirty_paths_note": "Exact `git status --porcelain` at the close of the evidence-integrity audit. F001-baseline.json and F001-receipt.json appear here because the audit rewrote their timestamp fields; they were tracked on origin/main and are now modified alongside the untracked U002 files. Nothing is committed."
+}

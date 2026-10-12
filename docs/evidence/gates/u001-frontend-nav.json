@@ -1,0 +1,24 @@
+{
+  "gate": "u001-frontend-nav",
+  "command": "'C:\\Program Files\\nodejs\\npm.cmd' --prefix app/g6/frontend test -- src/test/navigation.test.tsx",
+  "argv": [
+    "C:\\Program Files\\nodejs\\npm.cmd",
+    "--prefix",
+    "app/g6/frontend",
+    "test",
+    "--",
+    "src/test/navigation.test.tsx"
+  ],
+  "cwd": "C:\\Users\\enkso\\.kiro\\crew\\workspace\\osteopatch\\wt\\pack",
+  "exit_code": 0,
+  "ok": true,
+  "observed_at_utc": "2026-10-05T14:25:22Z",
+  "observed_at_utc_source": "captured by `date -u +%Y-%m-%dT%H:%M:%SZ` at spawn time",
+  "timestamp_status": "CAPTURED",
+  "summary": "\u001b[2m      Tests \u001b[22m \u001b[1m\u001b[32m9 passed\u001b[39m\u001b[22m\u001b[90m (9)\u001b[39m",
+  "output_tail": "> osteopatch-g6-frontend@0.6.0 test\n> vitest run src/test/navigation.test.tsx\n\n\n\u001b[1m\u001b[7m\u001b[36m RUN \u001b[39m\u001b[27m\u001b[22m \u001b[36mv2.1.9 \u001b[39m\u001b[90mC:/Users/enkso/.kiro/crew/workspace/osteopatch/wt/pack/app/g6/frontend\u001b[39m\n\n \u001b[32mâœ“\u001b[39m src/test/navigation.test.tsx \u001b[2m(\u001b[22m\u001b[2m9 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[90m 186\u001b[2mms\u001b[22m\u001b[39m\n\n\u001b[2m Test Files \u001b[22m \u001b[1m\u001b[32m1 passed\u001b[39m\u001b[22m\u001b[90m (1)\u001b[39m\n\u001b[2m      Tests \u001b[22m \u001b[1m\u001b[32m9 passed\u001b[39m\u001b[22m\u001b[90m (9)\u001b[39m\n\u001b[2m   Start at \u001b[22m 21:25:23\n\u001b[2m   Duration \u001b[22m 1.44s\u001b[2m (transform 157ms, setup 78ms, collect 431ms, tests 186ms, environment 409ms, prepare 120ms)\u001b[22m",
+  "output_chars": 610,
+  "output_truncated": false,
+  "output_log": null,
+  "durability": "VERSIONED"
+}

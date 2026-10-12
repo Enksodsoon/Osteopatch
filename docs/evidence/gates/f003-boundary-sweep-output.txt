@@ -1,0 +1,77 @@
+==============================================================================
+A. SYNTHETIC two_models fixture (8 images x 2 bundles)
+==============================================================================
+stored predictions                             16
+stored images                                  8
+gallery total (2 bundles, 1 explicit model)    8
+distinct image_id in page                      8
+model hash on every card                       {'fixture00000'}
+rank values                                    [1, 2, 3, 4, 5, 6, 7, 8]
+switch model -> total                          8
+switch model -> versions                       {'fixture-model-v2'}
+predictions still stored                       16
+proj-A total                                   3
+proj-B total                                   5
+A ranks                                        [1, 2, 3]
+B ranks                                        [1, 2, 3, 4, 5]
+max A rank vs A total                          3 <= 3
+cross-project probe fx-06 from A               None
+nonexistent probe from A                       None
+export A ids                                   ['fx-01', 'fx-02', 'fx-03']
+empty intersection total                       0
+empty intersection export                      []
+empty intersection ranks                       {}
+empty dataset membership                       0
+unknown project total                          0
+default project after re-grants                0
+empty allowlist (0 ids)                        0
+fx-02 after delete: prediction_id              None
+fx-02 after delete: reason present             True
+fx-02 card prediction is null                  True
+fx-02 card reason present                      True
+
+==============================================================================
+B. MALFORMED VALUES / IMMUTABILITY (at construction)
+==============================================================================
+empty model hash                               ValueError
+blank model hash                               ValueError
+blank project id                               ValueError
+scoped mode, no project                        ValueError
+local mode with a project                      ValueError
+unknown dataset, no membership                 DatasetUnavailable
+mutate frozen scope                            FrozenInstanceError
+provenance                                     {'mode': 'scoped', 'project_id': 'proj-A', 'dataset_version_id': 'sweep-dataset', 'model_bundle_hash': 'fixture000000000000000000000000000000000000000000000000000000000000f', 'review_session_id': None, 'actor_id': None, 'deployment_allowlist_size': None, 'cache_key': 'e512542d235acb5ae2f6c2b84cfae00f25c413e520c3f44a1465cbc47243b7ed'}
+
+==============================================================================
+C. DUPLICATE IDENTITY under a supposedly unique key
+==============================================================================
+duplicate rows for one (image, model)          2
+resolve_prediction_rows                        PredictionSelectionIntegrityError: duplicate prediction rows for image_id='dup-1' under model_bundle_hash='fixture000000000000000000000
+gallery path                                   PredictionSelectionIntegrityError (surfaced, not swallowed)
+
+==============================================================================
+D. REAL corpus copy (throwaway, never the canonical file)
+==============================================================================
+images in real corpus                          1144
+distinct model hashes                          1
+legacy dataset version id                      legacy-ingestion-manifest:sha256:715138501148d5df91981cd5c37840f72a2b02ec08a76f339a3b49633d214bca
+manifest sha256 is the id suffix               True
+manifest membership == store                   True
+project owns (no allowlist)                    1144
+resolved rows with 50-id allowlist             50
+gallery total with 50-id allowlist             50
+export rows with 50-id allowlist               50
+allowlisted image readable                     True
+non-allowlisted image readable                 False
+server-resolved scope, no allowlist            1144
+ranks dense 1..N on real corpus                [1, 2, 3]
+
+==============================================================================
+E. PROCESS-GLOBAL STATE after everything above
+==============================================================================
+OSTEOPATCH_IMAGE_ALLOWLIST                     None
+cfg.IMAGE_ALLOWLIST_PATH                       ''
+cfg._IMAGE_ALLOWLIST_CACHE                     <object object at 0x000001897E3E8940>
+canonical store sha256                         0e4524db91f7a6e22dfbdc3395cf0fce6b7bf1b5628ac4cd1198be291d01ac40
+
+sweep complete

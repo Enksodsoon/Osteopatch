@@ -1,0 +1,24 @@
+{
+  "gate": "u003-async-state-red",
+  "command": "'C:\\Program Files\\nodejs\\npm.cmd' --prefix app/g6/frontend test -- src/test/async-state.test.tsx",
+  "argv": [
+    "C:\\Program Files\\nodejs\\npm.cmd",
+    "--prefix",
+    "app/g6/frontend",
+    "test",
+    "--",
+    "src/test/async-state.test.tsx"
+  ],
+  "cwd": "C:\\Users\\enkso\\.kiro\\crew\\workspace\\osteopatch\\wt\\pack",
+  "exit_code": 1,
+  "ok": false,
+  "observed_at_utc": "2026-10-05T14:46:11Z",
+  "observed_at_utc_source": "captured by `date -u +%Y-%m-%dT%H:%M:%SZ` at spawn time",
+  "timestamp_status": "CAPTURED",
+  "summary": "- If the error occurred after the test had been completed, this was the last documented test before it was thrown.\u001b[39m",
+  "output_tail": "[33m>\u001b[39m\n    \u001b[90m141| \u001b[39m        \u001b[33m{\u001b[39mdata\u001b[33m?.\u001b[39mitems\u001b[33m.\u001b[39m\u001b[34mmap\u001b[39m((im) \u001b[33m=>\u001b[39m (\n    \u001b[90m   | \u001b[39m                     \u001b[31m^\u001b[39m\n    \u001b[90m142| \u001b[39m          \u001b[33m<\u001b[39m\u001b[33mGalleryCard\u001b[39m \u001b[33mkey\u001b[39m\u001b[33m=\u001b[39m\u001b[33m{\u001b[39mim\u001b[33m.\u001b[39mimage_id\u001b[33m}\u001b[39m \u001b[33mim\u001b[39m\u001b[33m=\u001b[39m\u001b[33m{\u001b[39mim\u001b[33m}\u001b[39m \u001b[33monOpen\u001b[39m\u001b[33m=\u001b[39m\u001b[33m{\u001b[39monOpen\u001b[33m}\u001b[39m \u001b[33m/\u001b[39m\u001b[33m>\u001b[39m\n    \u001b[90m143| \u001b[39m        ))\u001b[33m}\u001b[39m\n\u001b[90m \u001b[2m❯\u001b[22m renderWithHooks node_modules/react-dom/cjs/react-dom.development.js:\u001b[2m15486:18\u001b[22m\u001b[39m\n\u001b[90m \u001b[2m❯\u001b[22m updateFunctionComponent node_modules/react-dom/cjs/react-dom.development.js:\u001b[2m19617:20\u001b[22m\u001b[39m\n\u001b[90m \u001b[2m❯\u001b[22m beginWork node_modules/react-dom/cjs/react-dom.development.js:\u001b[2m21640:16\u001b[22m\u001b[39m\n\u001b[90m \u001b[2m❯\u001b[22m beginWork$1 node_modules/react-dom/cjs/react-dom.development.js:\u001b[2m27465:14\u001b[22m\u001b[39m\n\u001b[90m \u001b[2m❯\u001b[22m performUnitOfWork node_modules/react-dom/cjs/react-dom.development.js:\u001b[2m26599:12\u001b[22m\u001b[39m\n\u001b[90m \u001b[2m❯\u001b[22m workLoopSync node_modules/react-dom/cjs/react-dom.development.js:\u001b[2m26505:5\u001b[22m\u001b[39m\n\u001b[90m \u001b[2m❯\u001b[22m renderRootSync node_modules/react-dom/cjs/react-dom.development.js:\u001b[2m26473:7\u001b[22m\u001b[39m\n\u001b[90m \u001b[2m❯\u001b[22m recoverFromConcurrentError node_modules/react-dom/cjs/react-dom.development.js:\u001b[2m25889:20\u001b[22m\u001b[39m\n\u001b[90m \u001b[2m❯\u001b[22m performConcurrentWorkOnRoot node_modules/react-dom/cjs/react-dom.development.js:\u001b[2m25789:22\u001b[22m\u001b[39m\n\n\u001b[31mThis error originated in \"\u001b[1msrc/test/async-state.test.tsx\u001b[22m\" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.\u001b[39m\n\u001b[31mThe latest test that might've caused the error is \"\u001b[1mreports items is not an array as an unexpected response instead of rendering it as empty\u001b[22m\". It might mean one of the following:\n- The error was thrown, while Vitest was running this test.\n- If the error occurred after the test had been completed, this was the last documented test before it was thrown.\u001b[39m",
+  "output_chars": 266156,
+  "output_truncated": true,
+  "output_log": "docs/evidence/gates/u003-async-state-red.log",
+  "durability": "VERSIONED"
+}

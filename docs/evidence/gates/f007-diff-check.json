@@ -1,0 +1,21 @@
+{
+  "gate": "f007-diff-check",
+  "command": "git diff --check",
+  "argv": [
+    "git",
+    "diff",
+    "--check"
+  ],
+  "cwd": "C:\\Users\\enkso\\.kiro\\crew\\workspace\\osteopatch\\wt\\pack",
+  "exit_code": 0,
+  "ok": true,
+  "observed_at_utc": "2026-10-05T13:29:53Z",
+  "observed_at_utc_source": "captured by `date -u +%Y-%m-%dT%H:%M:%SZ` at spawn time",
+  "timestamp_status": "CAPTURED",
+  "summary": "warning: in the working copy of '.gitignore', LF will be replaced by CRLF the next time Git touches it",
+  "output_tail": "warning: in the working copy of '.gitignore', LF will be replaced by CRLF the next time Git touches it",
+  "output_chars": 103,
+  "output_truncated": false,
+  "output_log": null,
+  "durability": "VERSIONED"
+}

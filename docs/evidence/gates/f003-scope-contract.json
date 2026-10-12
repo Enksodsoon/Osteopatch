@@ -1,0 +1,19 @@
+{
+  "gate": "f003-scope-contract",
+  "command": "uv run pytest app/g6/backend/tests/test_scope_contract.py -q",
+  "argv": [
+    "uv",
+    "run",
+    "pytest",
+    "app/g6/backend/tests/test_scope_contract.py",
+    "-q"
+  ],
+  "cwd": "C:\\Users\\enkso\\.kiro\\crew\\workspace\\osteopatch\\wt\\pack",
+  "exit_code": 0,
+  "ok": true,
+  "observed_at_utc": "2026-10-05T12:25:38Z",
+  "observed_at_utc_source": "captured by `date -u +%Y-%m-%dT%H:%M:%SZ` at spawn time",
+  "timestamp_status": "CAPTURED",
+  "summary": "23 passed in 0.61s",
+  "output_tail": ".......................                                                  [100%]\n23 passed in 0.61s"
+}

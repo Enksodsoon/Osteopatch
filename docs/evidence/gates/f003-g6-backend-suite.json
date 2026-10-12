@@ -1,0 +1,19 @@
+{
+  "gate": "g6-backend-suite",
+  "command": "uv run pytest app/g6/backend/tests -q",
+  "argv": [
+    "uv",
+    "run",
+    "pytest",
+    "app/g6/backend/tests",
+    "-q"
+  ],
+  "cwd": "C:\\Users\\enkso\\.kiro\\crew\\workspace\\osteopatch\\wt\\pack",
+  "exit_code": 0,
+  "ok": true,
+  "observed_at_utc": "2026-10-05T12:25:39Z",
+  "observed_at_utc_source": "captured by `date -u +%Y-%m-%dT%H:%M:%SZ` at spawn time",
+  "timestamp_status": "CAPTURED",
+  "summary": "138 passed, 10 skipped, 1 warning in 2.94s",
+  "output_tail": "..................sssssssss............................................. [ 48%]\n........................................................................ [ 97%]\n...                                                                      [100%]\n============================== warnings summary ===============================\napp/g6/backend/tests/test_api_export.py::test_health_and_meta\n  C:\\Users\\enkso\\.kiro\\crew\\workspace\\osteopatch\\wt\\pack\\.venv\\Lib\\site-packages\\starlette\\testclient.py:40: DeprecationWarning: The anyio.abc.BlockingPortal alias is deprecated, use anyio.from_thread.BlockingPortal instead.\n    _PortalFactoryType = typing.Callable[[], typing.ContextManager[anyio.abc.BlockingPortal]]\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n138 passed, 10 skipped, 1 warning in 2.94s"
+}

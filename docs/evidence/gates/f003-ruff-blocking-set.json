@@ -1,0 +1,28 @@
+{
+  "gate": "ruff-blocking-set",
+  "command": "uv run --locked ruff check scripts tests/tooling app/g6/backend/osteopatch/pathology app/g6/backend/osteopatch/app.py app/g6/backend/osteopatch/limitations.py app/g6/backend/osteopatch/projects.py app/g6/backend/osteopatch/modelcard.py app/g6/backend/tests/test_connection_concurrency.py app/g6/deploy/verify_bake.py",
+  "argv": [
+    "uv",
+    "run",
+    "--locked",
+    "ruff",
+    "check",
+    "scripts",
+    "tests/tooling",
+    "app/g6/backend/osteopatch/pathology",
+    "app/g6/backend/osteopatch/app.py",
+    "app/g6/backend/osteopatch/limitations.py",
+    "app/g6/backend/osteopatch/projects.py",
+    "app/g6/backend/osteopatch/modelcard.py",
+    "app/g6/backend/tests/test_connection_concurrency.py",
+    "app/g6/deploy/verify_bake.py"
+  ],
+  "cwd": "C:\\Users\\enkso\\.kiro\\crew\\workspace\\osteopatch\\wt\\pack",
+  "exit_code": 0,
+  "ok": true,
+  "observed_at_utc": "2026-10-05T12:16:25Z",
+  "observed_at_utc_source": "captured by `date -u +%Y-%m-%dT%H:%M:%SZ` at spawn time",
+  "timestamp_status": "CAPTURED",
+  "summary": "All checks passed!",
+  "output_tail": "All checks passed!"
+}

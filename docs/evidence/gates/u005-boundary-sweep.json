@@ -1,0 +1,25 @@
+{
+  "gate": "u005-boundary-sweep",
+  "command": "'.venv\\Scripts\\python.exe' scratch/task/u005_sweep_gate.py",
+  "argv": [
+    ".venv\\Scripts\\python.exe",
+    "scratch/task/u005_sweep_gate.py"
+  ],
+  "cwd": "C:\\Users\\enkso\\.kiro\\crew\\workspace\\osteopatch\\wt\\pack",
+  "exit_code": 0,
+  "ok": true,
+  "observed_at_utc": "2026-10-05T15:55:36Z",
+  "observed_at_utc_source": "captured by `date -u +%Y-%m-%dT%H:%M:%SZ` at spawn time",
+  "timestamp_status": "CAPTURED",
+  "summary": "SWEEP OK",
+  "output_tail": "\"resolved\":\"light\",\"systemDark\":false,\"persisted\":false,\"storageError\":\"localStorage did not retain the preference\"}\n  PASS  stored \"Dark\" is not trusted - system\n  PASS  stored \" dark\" is not trusted - system\n  PASS  stored \"dark\\n\" is not trusted - system\n  PASS  stored \"system;\" is not trusted - system\n  PASS  stored \"null\" is not trusted - system\n  PASS  stored \"{\\\"a\\\":1}\" is not trusted - system\n  PASS  stored \"0\" is not trusted - system\n  PASS  stored \"true\" is not trusted - system\n  PASS  stored \"[]\" is not trusted - system\n  PASS  stored \"dark\" round-trips - dark\n  PASS  stored \"light\" round-trips - light\n  PASS  stored \"system\" round-trips - system\n  PASS  isThemePreference survives hostile input - accepted []\n  PASS  legacy query: subscription was registered - [\"add\"]\n  PASS  legacy query: unsubscribe removes the listener - [\"add\",\"remove\"]\n  PASS  legacy query: no listener leaks after unsubscribe\n  PASS  no matchMedia: treated as light\n  PASS  no matchMedia: unsubscribe is a safe no-op\n  PASS  throwing matchMedia: treated as light\n  PASS  throwing matchMedia: applyStoredPreference still resolves\n  PASS  system query: one listener while subscribed - 1\n  PASS  system query: OS changes are delivered - [false,true]\n  PASS  system query: no listener after unsubscribe - 0\n  PASS  system query: nothing arrives after unsubscribe\n  PASS  system query: a stored explicit choice outranks the OS - os=dark stored=light\n  PASS  no document: startup does not throw - null\n  PASS  no document: the stored preference is still resolved - {\"preference\":\"dark\",\"resolved\":\"dark\",\"systemDark\":false,\"persisted\":true,\"storageError\":null}\n  PASS  missing documentElement: does not throw - null\n  PASS  rapid choices: the last write is the stored one - dark\n  PASS  rapid choices: the document matches the stored one - {\"theme\":\"dark\",\"themePreference\":\"dark\"}\n  PASS  rapid choices: the value is a bare literal, never JSON - \"dark\"\nSWEEP OK\nbundled 103855 bytes\r\nstaged files removed: True",
+  "output_chars": 2818,
+  "output_truncated": true,
+  "output_capture": "CAPTURED",
+  "output_bytes": 2818,
+  "output_encoding": "utf-8",
+  "output_decode_lossy": false,
+  "output_undecodable": 0,
+  "output_log": "docs/evidence/gates/u005-boundary-sweep.log",
+  "durability": "VERSIONED"
+}

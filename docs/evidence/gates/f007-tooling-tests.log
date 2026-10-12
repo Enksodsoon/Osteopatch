@@ -1,0 +1,54 @@
+test_autoapproved_mcp_is_rejected (test_repository.RepositoryTests.test_autoapproved_mcp_is_rejected) ... ok
+test_current_repository_contract (test_repository.RepositoryTests.test_current_repository_contract) ... ok
+test_mutable_action_reference_is_rejected (test_repository.RepositoryTests.test_mutable_action_reference_is_rejected) ... ok
+test_profiles_are_parseable_and_safe (test_repository.RepositoryTests.test_profiles_are_parseable_and_safe) ... ok
+test_pull_request_target_is_rejected (test_repository.RepositoryTests.test_pull_request_target_is_rejected) ... ok
+test_tracked_private_artifacts_are_rejected (test_repository.RepositoryTests.test_tracked_private_artifacts_are_rejected) ... ok
+test_a_failing_gate_records_its_real_failure_in_the_durable_tree (test_run_gate.DurableRecordTests.test_a_failing_gate_records_its_real_failure_in_the_durable_tree)
+A red gate must still leave an honest record — never a green one. ... ok
+test_a_gate_that_never_ran_leaves_no_durable_record (test_run_gate.DurableRecordTests.test_a_gate_that_never_ran_leaves_no_durable_record) ... ok
+test_an_ignored_record_path_is_refused_and_writes_nothing (test_run_gate.DurableRecordTests.test_an_ignored_record_path_is_refused_and_writes_nothing)
+Pointing the record at scratch/ is the bug this fixes: refuse it. ... ok
+test_default_record_lands_where_git_would_keep_it (test_run_gate.DurableRecordTests.test_default_record_lands_where_git_would_keep_it)
+No --out: the record goes to docs/evidence/gates/<name>.json and ... ok
+test_default_record_never_depends_on_the_ignored_scratch_tree (test_run_gate.DurableRecordTests.test_default_record_never_depends_on_the_ignored_scratch_tree)
+Assert the record really exists first, so this cannot pass vacuously. ... ok
+test_long_output_is_marked_truncated_and_kept_in_full_beside_the_record (test_run_gate.DurableRecordTests.test_long_output_is_marked_truncated_and_kept_in_full_beside_the_record)
+`output_tail` caps at 2 KB. The record must say so, and the text the ... ok
+test_short_output_needs_no_sidecar_log (test_run_gate.DurableRecordTests.test_short_output_needs_no_sidecar_log) ... ok
+test_the_record_shape_the_receipts_carry_is_unchanged (test_run_gate.DurableRecordTests.test_the_record_shape_the_receipts_carry_is_unchanged)
+Durability is additive: every field receipts already read survives. ... ok
+test_a_failing_gate_records_its_real_exit_code (test_run_gate.RunGateTests.test_a_failing_gate_records_its_real_exit_code)
+Non-zero must be reported honestly, not smoothed into success. ... ok
+test_a_gate_that_never_ran_produces_no_record (test_run_gate.RunGateTests.test_a_gate_that_never_ran_produces_no_record)
+A command that cannot be spawned must leave no evidence behind. ... ok
+test_a_missing_command_is_still_a_usage_error (test_run_gate.RunGateTests.test_a_missing_command_is_still_a_usage_error)
+--out became optional (records default to docs/evidence/gates/), but ... ok
+test_a_silent_gate_is_recorded_honestly (test_run_gate.RunGateTests.test_a_silent_gate_is_recorded_honestly)
+No output is not an error, and must not be dressed up as one. ... ok
+test_a_timestamp_cannot_be_injected (test_run_gate.RunGateTests.test_a_timestamp_cannot_be_injected) ... ok
+test_existing_runners_are_left_alone (test_run_gate.RunGateTests.test_existing_runners_are_left_alone)
+The wrapper must not rewire anything that already works. ... ok
+test_record_declares_where_its_timestamp_came_from (test_run_gate.RunGateTests.test_record_declares_where_its_timestamp_came_from) ... ok
+test_record_shape_matches_the_receipts (test_run_gate.RunGateTests.test_record_shape_matches_the_receipts) ... ok
+test_recorded_command_can_be_rerun_verbatim (test_run_gate.RunGateTests.test_recorded_command_can_be_rerun_verbatim)
+`command` must round-trip: quoting that loses an argument turns the ... ok
+test_summary_quotes_the_command_output_verbatim (test_run_gate.RunGateTests.test_summary_quotes_the_command_output_verbatim) ... ok
+test_timestamp_is_a_real_capture_not_a_rounded_value (test_run_gate.RunGateTests.test_timestamp_is_a_real_capture_not_a_rounded_value)
+The stamp must fall inside a `date -u` bracket taken around the run. ... ok
+test_bad_fragment_is_reported (test_site.SiteTests.test_bad_fragment_is_reported) ... ok
+test_build_is_deterministic (test_site.SiteTests.test_build_is_deterministic) ... ok
+test_build_publishes_only_explicit_assets (test_site.SiteTests.test_build_publishes_only_explicit_assets) ... ok
+test_metrics_are_read_from_frozen_evidence (test_site.SiteTests.test_metrics_are_read_from_frozen_evidence) ... ok
+test_missing_asset_is_reported (test_site.SiteTests.test_missing_asset_is_reported) ... ok
+test_missing_safety_disclosure_is_reported (test_site.SiteTests.test_missing_safety_disclosure_is_reported) ... ok
+test_source_symlink_is_rejected (test_site.SiteTests.test_source_symlink_is_rejected) ... skipped 'Creating symlinks is not permitted on this host'
+test_source_tree_cannot_be_an_output (test_site.SiteTests.test_source_tree_cannot_be_an_output) ... ok
+test_unexpected_output_is_rejected (test_site.SiteTests.test_unexpected_output_is_rejected) ... ok
+test_unsafe_source_path_is_rejected (test_site.SiteTests.test_unsafe_source_path_is_rejected) ... ok
+test_valid_site_has_no_link_or_accessibility_errors (test_site.SiteTests.test_valid_site_has_no_link_or_accessibility_errors) ... ok
+
+----------------------------------------------------------------------
+Ran 36 tests in 4.599s
+
+OK (skipped=1)

@@ -1,0 +1,22 @@
+{
+  "gate": "u001-mypy",
+  "command": "uv run --locked mypy",
+  "argv": [
+    "uv",
+    "run",
+    "--locked",
+    "mypy"
+  ],
+  "cwd": "C:\\Users\\enkso\\.kiro\\crew\\workspace\\osteopatch\\wt\\pack",
+  "exit_code": 0,
+  "ok": true,
+  "observed_at_utc": "2026-10-05T14:25:51Z",
+  "observed_at_utc_source": "captured by `date -u +%Y-%m-%dT%H:%M:%SZ` at spawn time",
+  "timestamp_status": "CAPTURED",
+  "summary": "Success: no issues found in 20 source files",
+  "output_tail": "Success: no issues found in 20 source files",
+  "output_chars": 44,
+  "output_truncated": false,
+  "output_log": null,
+  "durability": "VERSIONED"
+}

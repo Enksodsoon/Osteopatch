@@ -81,7 +81,7 @@ Two local branches carry commits **not** on `main`. Per the agreed scope they we
 | Branch | SHA | Ahead | Touches | Comparison with `main` |
 |---|---|---|---|---|
 | `feat/professional-ui-readme` | `1065d2d` | 2 | `scripts/e2e_ui.py`, `docs/evidence/e2e-ui-result.json` | `main` contains the same functional fix (`remove_workspace(attempts=5)` with the `onerror=_unlock` retry, `spawn()` returning log handles) **plus** `--browser edge`, per-engine evidence paths and `browser_version()` recording that the branch lacks. `git cherry` marks both commits `+` only because `main` later rewrote the same lines. |
-| `backup/post-merge-evidence` | `037ce60` | 2 | `docs/evidence/e2e-ui-result.json` only | The branch's evidence is **older** (`03:50:00Z` vs `main`'s `04:02:33Z`) and lacks the `browser` / `browser_version` fields. `main`'s copy is strictly more informative. |
+| `backup/post-merge-evidence` | `037ce60` | 2 | `docs/evidence/e2e-ui-result.json` only | The branch's evidence is **older** (`03:50:00Z` vs `main`'s `04:02:33Z`) and lacks the `browser` / `browser_version` fields. `main`'s copy is strictly more informative. **Audit note:** these two times are unverified against the artifacts they name — `docs/evidence/e2e-edge-result.json` records `generated_at_utc=2026-10-05T04:01:56+00:00`, which matches neither figure exactly. Treat the ordering as reported, not as measured. |
 
 `feat/unified-platform-p0` (`5479248`) and `feat/enterprise-e1-e6` (`75c98fd`) are fully contained in
 `main` — `git log main..<branch>` is empty for both.
@@ -180,7 +180,25 @@ artifacts, read-only. Node gates ran in the primary checkout because a fresh wor
 `node_modules` and `npm ci` is an unauthorized install — a documented deviation, recorded rather
 than silently omitted.
 
-| # | Command | Exit | Outcome | Observed (UTC) | Summary |
+> **TIMESTAMP AUDIT — 2026-10-05T11:20Z. The "Observed (UTC)" column below is NOT an
+> observation.** These values were checked against every source that can establish a time (runners'
+> own `generated_at` / `generated_at_utc` fields, file mtimes, `date -u`) and **none of them has
+> one**. They are round minutes with nothing behind them. They have been left in place rather than
+> deleted so the table still reads as written, but they should be treated as **UNAVAILABLE**, not as
+> evidence that anything ran at that moment. See `timestamp_audit` in `F001-baseline.json` and
+> `F001-receipt.json`, which carry the same verdict per gate.
+>
+> Two tells that they were never captures: six different commands share the identical second
+> `09:05:50Z` and four share `09:05:51Z`, which real captures do not produce; and this file and
+> `F001-receipt.json` disagree about the same gates (`09:09:09Z`/`09:09:10Z` here vs
+> `09:05:48Z`–`09:05:51Z` there).
+>
+> **The Exit and Summary columns were re-verified on 2026-10-05T11:17Z and still hold**: backend G6
+> 84 passed / 10 skipped, enterprise 28 passed / 1 skipped, tooling 16 passed / 1 skipped, frontend
+> 29 + 2 tests, smoke 104/104, browser E2E 17/17, ruff blocking set clean, mypy clean. The defect is
+> confined to *when* these were claimed, not *what* was claimed. Nothing has been backdated.
+
+| # | Command | Exit | Outcome | Observed (UTC) — UNAVAILABLE, see note | Summary |
 |---|---|---|---|---|---|
 | 1 | `pytest app/g6/backend/tests -q` | **0** | PASS | 09:05:44 | 84 passed, 10 skipped |
 | 2 | `pytest app/g7-enterprise/backend/tests -q` | **0** | PASS | 09:05:46 | 28 passed, 1 skipped |
@@ -322,7 +340,7 @@ dead scratch paths were deliberately redacted rather than reproduced.
 
 ## 11. Next action for the integrator
 
-Review this inventory against `templates/REVIEW_ONE_TASK.md`, then pick the next task **from §8** —
+Review this inventory against `aidlc-docs/prompt-pack/GLOBAL_TASK_RULES.md`, then pick the next task **from §8** —
 not from the pack's stale `57c1efc` manifest. On this evidence, the pack's foundation track is
 mostly already satisfied: F001 through F007 have existing code and passing tests behind them and
 will mostly close as `NO_CHANGE_VERIFIED` after tracing to the rows above. Do not start that work

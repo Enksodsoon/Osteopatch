@@ -1,0 +1,61 @@
+  step 1: opened patch Case-3-A17-15765-20926 from the real queue
+  step 2: light: 1024x1024 px, 4194304 bytes, hash f0f10931
+  step 3: dark: 1024x1024 px, 4194304 bytes, hash f0f10931
+  PASS  AT01 histology pixel bytes identical across the switch - light=f0f10931/4194304B dark=f0f10931/4194304B
+  PASS  AT01 attribution overlay pixel bytes identical across the switch - light=undefined/undefinedB dark=undefined/undefinedB
+  PASS  AT01 model scores and evidence text identical across the switch - scores ["0.500","0.001","0.499"]
+  PASS  the theme really did change - light -> dark, body rgb(242, 238, 232) -> rgb(25, 22, 19)
+  step 4: scores read from the live DOM: ["0.500","0.001","0.499"]
+  step 5: priority block: Top-two score margin0.0003Score entropy (normalized)0.6368uncalibratedReview priority is a
+  measured contrast (label | light | dark | floor 4.5):
+    ok   class chip NON_TUMOR        15.78 ->   14.1  (rgb(242, 236, 228) on rgb(34, 30, 26))
+    ok   scorebar value              15.14 ->  16.01  (rgb(242, 236, 228) on rgb(20, 17, 16))
+    ok   priority note                4.69 ->   8.25  (rgb(181, 170, 159) on rgb(20, 17, 16))
+    LOW  review status label             1 ->      1  (rgb(181, 170, 159) on rgb(181, 170, 159))
+    ok   disclaimer                    6.1 ->    8.5  (rgb(232, 195, 122) on rgb(51, 41, 26))
+    ok   uncalibrated badge           8.68 ->   9.44  (rgb(214, 201, 242) on rgb(43, 36, 64))
+    LOW  qc badge                   undefined -> undefined  (undefined on undefined)
+    ok   queue row id                12.95 ->  12.37  (rgb(242, 236, 228) on rgb(58, 36, 25))
+    ok   meta label                   5.01 ->   7.26  (rgb(181, 170, 159) on rgb(34, 30, 26))
+    ok   attribution hint            15.53 ->   14.1  (rgb(242, 236, 228) on rgb(34, 30, 26))
+    ok   attribution disclosure       5.01 ->   7.26  (rgb(181, 170, 159) on rgb(34, 30, 26))
+    ok   panel heading               15.53 ->   14.1  (rgb(242, 236, 228) on rgb(34, 30, 26))
+    LOW  select control             undefined -> undefined  (undefined on undefined)
+    ok   primary button                7.4 ->   7.02  (rgb(28, 18, 11) on rgb(224, 138, 104))
+    ok   disabled button             18.73 ->  16.55  (rgba(255, 255, 255, 0.3) on rgb(34, 30, 26))
+    ok   nav item                    10.84 ->   7.83  (rgb(240, 168, 136) on rgb(40, 36, 31))
+    ok   theme option                15.78 ->  13.13  (rgb(242, 236, 228) on rgb(40, 36, 31))
+    LOW  subset banner              undefined -> undefined  (undefined on undefined)
+  FAIL  AT05 every status label clears 4.5:1 in dark (3:1 for disabled controls) - review status label: 1:1 < 4.5:1 (rgb(181, 170, 159) on rgb(181, 170, 159)); qc badge: undefined:1 < 4.5:1 (undefined on undefined); select control: undefined:1 < 4.5:1 (undefined on undefined); subset banner: undefined:1 < 4.5:1 (undefined on undefined)
+  PASS  AT05 class labels are text plus a shape marker, never colour alone - ["NON_TUMOR","VIABLE_TUMOR","NECROSIS"]
+  step 6: image stage in dark: {"stage":"rgb(23, 21, 20)","viewer":"rgb(32, 35, 39)","attrib":"rgb(0, 0, 0)"}
+  PASS  the slide stage keeps its fixed dark neutral in dark mode - rgb(23, 21, 20)
+  FAIL  no console errors during the switch - Failed to load resource: the server responded with a status of 503 (Service Unavailable)
+  step 7: radiogroup label: Theme: Auto (Light)
+  PASS  arrow keys move the radio selection and the focus with it - {"checked":"theme-light","focused":"theme-light"}
+  PASS  the control is a single tab stop with three named options - ["Auto:true","Light:false","Dark:false"]
+  step 8: Auto: os=light -> light, os=dark -> dark, os=light -> light
+  PASS  AT03 system mode repaints when the OS preference changes - light/dark/light
+  step 9: media-query subscriptions on this page: {"add":2,"remove":1}
+  FAIL  one live subscription per mounted control, none left dangling - {"add":2,"remove":1}
+  PASS  an explicit light choice is not overridden by a dark OS - {"theme":"light","pref":"light"}
+  step 10: stored before reload: "dark"
+  step 11: after reload: theme=dark checked=theme-dark keys=["osteopatch:theme:v1"]
+  step 12: first frames: [{"t":29,"theme":null,"bg":"rgba(0, 0, 0, 0)"},{"t":37,"theme":null,"bg":"rgba(0, 0, 0, 0)"},{"t":56,"theme":"dark","bg":"rgb(25, 22, 19)"},{"t":72,"theme":"dark","bg":"rgb(25, 22, 19)"},{"t":87,"theme":"dark","bg":"rgb(25, 22, 19)"},{"t":104,"theme":"dark","bg":"rgb(25, 22, 19)"}]
+  PASS  AT04 explicit dark survives a refresh - {"theme":"dark","checked":"theme-dark","stored":"dark"}
+  PASS  the stored preference is the only thing this feature writes - ["osteopatch:theme:v1"]
+  FAIL  AT04 no frame painted the light canvas before the stored dark theme was applied - frames without data-theme: 2, backgrounds seen: ["rgba(0, 0, 0, 0)"]
+  step 13: blocked storage: http 200, 60 cards, theme light, note "Not saved in this browser — applies to this session only."
+  step 14: blocked storage after choosing dark: theme=dark note="Not saved in this browser — applies to this session only." body=rgb(25, 22, 19)
+  PASS  AT02 the app still starts and reviews with localStorage blocked - {"theme":"light","pref":"system","cards":60,"note":"Not saved in this browser — applies to this session only."}
+  PASS  AT02 a blocked store themes the session and says it was not saved - {"theme":"dark","pref":"dark","note":"Not saved in this browser — applies to this session only.","noteRole":"status","bodyBg":"rgb(25, 22, 19)"}
+  PASS  AT02 no page error from the blocked store - none
+  step 15: 390x844: control {"x":219,"y":57,"w":159,"h":34} visible=true inViewport=true optionFont=12px
+  PASS  the theme control stays visible and unclipped at 390px - {"visible":true,"inViewport":true,"rect":{"x":219,"y":57,"w":159,"h":34},"viewport":{"w":390,"h":844},"optionFontPx":12}
+  PASS  AT01 thumbnail bytes identical across the switch - dark=ba646a18 light=ba646a18
+REHEARSAL FAILURES: 4
+ports: api=50772 web=50773 (distinct: True)
+API up: 1144 images, 1144 predictions, bundle 01727fb832f9
+SPA up: http://127.0.0.1:50773
+
+rehearsal exit code: 1

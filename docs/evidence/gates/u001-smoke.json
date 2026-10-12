@@ -1,0 +1,22 @@
+{
+  "gate": "u001-smoke",
+  "command": "'.venv\\Scripts\\python.exe' app/local-tester.py --out docs/evidence/gates/u001-smoke-result.json",
+  "argv": [
+    ".venv\\Scripts\\python.exe",
+    "app/local-tester.py",
+    "--out",
+    "docs/evidence/gates/u001-smoke-result.json"
+  ],
+  "cwd": "C:\\Users\\enkso\\.kiro\\crew\\workspace\\osteopatch\\wt\\pack",
+  "exit_code": 0,
+  "ok": true,
+  "observed_at_utc": "2026-10-05T14:25:49Z",
+  "observed_at_utc_source": "captured by `date -u +%Y-%m-%dT%H:%M:%SZ` at spawn time",
+  "timestamp_status": "CAPTURED",
+  "summary": "RESULT: 104/104 checks passed",
+  "output_tail": "status=200\n  [PASS] E5 promotes to serving with eval gate - status=200\n  [PASS] serving state is 'serving' - actual='serving' expected='serving'\n  [PASS] E5 refuses to serve a model whose eval did not pass - actual=400 expected=400\n  [PASS] serving model is the frozen G4 bundle - actual='baseline-frozen-g4' expected='baseline-frozen-g4'\n  [PASS] a second bundle takes over serving - status=200\n  [PASS] single-serving invariant: serving is now candidate-v2 only - actual='candidate-v2' expected='candidate-v2'\n  [PASS] E5 one-click rollback works - status=200 body={\"bundle_sha256\":\"01727fb832f9d5518bbe2e33b901e7041020929c94b89cdb7a5e5195b544df63\",\"model_id\":\"baseline-frozen-g4\",\"sta\n  [PASS] rollback restores the frozen G4 bundle - actual='baseline-frozen-g4' expected='baseline-frozen-g4'\n  [PASS] exactly one serving model after rollback - actual='baseline-frozen-g4' expected='baseline-frozen-g4'\n  [PASS] E6 drift report returned - status=200\n  [PASS] drift is computed over the scoped project predictions - n_predictions=30 n_reviewed=1\n  [PASS] drift reports an alert list - alerts=['correction_rate 1.00 > 0.3']\n  [PASS] reviewer cannot read drift -> 403 - actual=403 expected=403\n  [PASS] auditor reads the audit log - status=200\n  [PASS] hash chain verifies - actual=True expected=True\n  [PASS] audit entries were written - entries=28\n  [PASS] every mutation kind is audited - kinds=['auth.login', 'govern.adjudicate', 'govern.capture_correction', 'govern.signoff', 'infer.enqueue', 'ingest.index_manifest', 'ingest.register_dataset', 'm\n  [PASS] canonical review store is byte-identical after the run - before=0e4524db91f7a6e2… after=0e4524db91f7a6e2…\n\nstopped servers.\n\n==============================================================================\nRESULT: 104/104 checks passed\nG6     : http://127.0.0.1:63351\nEnter. : http://127.0.0.1:63352\n==============================================================================\nresults written to docs\\evidence\\gates\\u001-smoke-result.json",
+  "output_chars": 9751,
+  "output_truncated": true,
+  "output_log": "docs/evidence/gates/u001-smoke.log",
+  "durability": "VERSIONED"
+}

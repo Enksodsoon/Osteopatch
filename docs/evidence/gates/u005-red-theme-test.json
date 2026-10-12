@@ -1,0 +1,29 @@
+{
+  "gate": "u005-red-theme-test",
+  "command": "'C:/Program Files/nodejs/npm.cmd' --prefix app/g6/frontend test -- src/test/theme.test.tsx",
+  "argv": [
+    "C:/Program Files/nodejs/npm.cmd",
+    "--prefix",
+    "app/g6/frontend",
+    "test",
+    "--",
+    "src/test/theme.test.tsx"
+  ],
+  "cwd": "C:\\Users\\enkso\\.kiro\\crew\\workspace\\osteopatch\\wt\\pack",
+  "exit_code": 1,
+  "ok": false,
+  "observed_at_utc": "2026-10-05T15:49:57Z",
+  "observed_at_utc_source": "captured by `date -u +%Y-%m-%dT%H:%M:%SZ` at spawn time",
+  "timestamp_status": "CAPTURED",
+  "summary": "\u001b[31m+   \".inline-error\",\u001b[39m",
+  "output_tail": "39m\n\u001b[31m+   \".startup-error\",\u001b[39m\n\u001b[31m+   \".inline-error\",\u001b[39m\n\u001b[31m+   \".workbench-toolbar\",\u001b[39m\n\u001b[31m+   \".chip\",\u001b[39m\n\u001b[31m+   \".empty-state\",\u001b[39m\n\u001b[31m+   \".pr-queue li button:hover\",\u001b[39m\n\u001b[31m+   \".scorebars\",\u001b[39m\n\u001b[31m+   \".lim-item.lim-blocking\",\u001b[39m\n\u001b[31m+ ]\u001b[39m\n\n\u001b[36m \u001b[2m❯\u001b[22m src/test/theme.test.tsx:\u001b[2m797:21\u001b[22m\u001b[39m\n    \u001b[90m795| \u001b[39m      \u001b[35mif\u001b[39m (\u001b[33m!\u001b[39m\u001b[34mdarkOverrideFor\u001b[39m(selector)) missing\u001b[33m.\u001b[39m\u001b[34mpush\u001b[39m(selector)\u001b[33m;\u001b[39m\n    \u001b[90m796| \u001b[39m    }\n    \u001b[90m797| \u001b[39m    \u001b[34mexpect\u001b[39m(missing)\u001b[33m.\u001b[39m\u001b[34mtoEqual\u001b[39m([])\u001b[33m;\u001b[39m\n    \u001b[90m   | \u001b[39m                    \u001b[31m^\u001b[39m\n    \u001b[90m798| \u001b[39m  })\u001b[33m;\u001b[39m\n    \u001b[90m799| \u001b[39m\n\n\u001b[31m\u001b[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/29]⎯\u001b[22m\u001b[39m\n\n\u001b[31m\u001b[1m\u001b[7m FAIL \u001b[27m\u001b[22m\u001b[39m src/test/theme.test.tsx\u001b[2m > \u001b[22mU005 dark theme - the stylesheet a reviewer can audit\u001b[2m > \u001b[22mkeeps form controls, charts, tables and overlays readable in dark\n\u001b[31m\u001b[1mAssertionError\u001b[22m: dark mode must re-point input/select/textarea: expected undefined to be defined\u001b[39m\n\u001b[36m \u001b[2m❯\u001b[22m src/test/theme.test.tsx:\u001b[2m811:67\u001b[22m\u001b[39m\n    \u001b[90m809| \u001b[39m    \u001b[90m// the inherited text colour has to be replaced, not just the page\u001b[39m…\n    \u001b[90m810| \u001b[39m    \u001b[35mconst\u001b[39m form \u001b[33m=\u001b[39m \u001b[34mdarkOverrideRules\u001b[39m()\u001b[33m.\u001b[39m\u001b[34mfind\u001b[39m((r) \u001b[33m=>\u001b[39m \u001b[36m/(^|[\\s,])input[\\s,{:\u001b[39m…\n    \u001b[90m811| \u001b[39m    \u001b[34mexpect\u001b[39m(form\u001b[33m,\u001b[39m \u001b[32m\"dark mode must re-point input/select/textarea\"\u001b[39m)\u001b[33m.\u001b[39m\u001b[34mtoBe\u001b[39m…\n    \u001b[90m   | \u001b[39m                                                                  \u001b[31m^\u001b[39m\n    \u001b[90m812| \u001b[39m    \u001b[34mexpect\u001b[39m(form\u001b[33m?.\u001b[39mbody)\u001b[33m.\u001b[39m\u001b[34mtoMatch\u001b[39m(\u001b[36m/var\\(--surface-strong\\)|var\\(--surface\u001b[39m…\n    \u001b[90m813| \u001b[39m    \u001b[35mfor\u001b[39m (\u001b[35mconst\u001b[39m selector \u001b[35mof\u001b[39m [\u001b[32m\".scorebars\"\u001b[39m\u001b[33m,\u001b[39m \u001b[32m\".scorebar-track\"\u001b[39m\u001b[33m,\u001b[39m \u001b[32m\".lim-ite\u001b[39m…\n\n\u001b[31m\u001b[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/29]⎯\u001b[22m\u001b[39m",
+  "output_chars": 31305,
+  "output_truncated": true,
+  "output_capture": "CAPTURED",
+  "output_bytes": 32082,
+  "output_encoding": "utf-8",
+  "output_decode_lossy": false,
+  "output_undecodable": 0,
+  "output_log": "docs/evidence/gates/u005-red-theme-test.log",
+  "durability": "VERSIONED"
+}

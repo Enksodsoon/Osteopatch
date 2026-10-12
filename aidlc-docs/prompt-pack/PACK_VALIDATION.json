@@ -1,0 +1,40 @@
+{
+  "schema_version": "1",
+  "scope": "Planning artifacts only; no product code tested by this validation.",
+  "task_count": 129,
+  "unique_task_ids": 129,
+  "individual_prompt_files": 129,
+  "all_dependencies_exist": true,
+  "dependency_graph_acyclic": true,
+  "all_tasks_have_at_least_seven_specific_steps": true,
+  "all_tasks_have_at_least_five_specific_acceptance_checks": true,
+  "all_prior_roadmap_sections_mapped": true,
+  "phase_counts": {
+    "F": 10,
+    "U": 8,
+    "R": 15,
+    "A": 13,
+    "D": 12,
+    "X": 10,
+    "T": 8,
+    "W": 14,
+    "M": 12,
+    "E": 14,
+    "Z": 13
+  },
+  "tier_counts": {
+    "DEMO": 50,
+    "PLATFORM": 63,
+    "RESEARCH": 15,
+    "GATED_DEPLOY": 1
+  },
+  "demo_dependency_closure_count": 52,
+  "total_specific_steps": 1019,
+  "total_named_acceptance_checks": 645,
+  "individual_context_words": {
+    "min": 2296,
+    "max": 2879,
+    "median": 2633
+  },
+  "handbook_word_count": 284049
+}

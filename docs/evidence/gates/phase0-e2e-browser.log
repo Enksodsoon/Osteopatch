@@ -1,0 +1,50 @@
+runtime artifacts root: C:\Users\enkso\.kiro\crew\workspace\osteopatch\OsteoPatch_Kiro_Handoff\runtime-artifacts
+original frozen G4 bundle present: False
+  [           OK] database         db/osteopatch_g6.sqlite3
+  [           OK] recovered_model  models/g4-behavioral-recovery-r1.pt
+  [           OK] g8_subset        recovery/g8-subset-image-ids.json
+  [           OK] images           1144 files
+  [           OK] thumbnails       1144 files
+
+Running 17 tests using 1 worker
+
+  ok  1 [chromium] › e2e\whole-app.spec.ts:57:3 › whole app — reviewer journey › the claim boundary is visible before anything else (2.5s)
+  ok  2 [chromium] › e2e\whole-app.spec.ts:65:3 › whole app — reviewer journey › gallery loads the full 1,144-patch collection, ranked by review priority (604ms)
+  ok  3 [chromium] › e2e\whole-app.spec.ts:88:3 › whole app — reviewer journey › sorting and filtering change the queue (1.0s)
+  ok  4 [chromium] › e2e\whole-app.spec.ts:119:3 › whole app — reviewer journey › search narrows to a single patch and can be cleared (617ms)
+  ok  5 [chromium] › e2e\whole-app.spec.ts:130:3 › whole app — reviewer journey › opening a patch shows exactly three uncalibrated class scores (650ms)
+  ok  6 [chromium] › e2e\whole-app.spec.ts:148:3 › whole app — reviewer journey › ACCEPT records an append-only event and leaves the model prediction intact (785ms)
+  ok  7 [chromium] › e2e\whole-app.spec.ts:173:3 › whole app — reviewer journey › CORRECT preserves BOTH the model prediction and the human decision (868ms)
+  ok  8 [chromium] › e2e\whole-app.spec.ts:199:3 › whole app — reviewer journey › DEFER requires a reason and is recorded with one (857ms)
+  ok  9 [chromium] › e2e\whole-app.spec.ts:215:3 › whole app — reviewer journey › a reviewed patch leaves the unreviewed queue (952ms)
+  ok 10 [chromium] › e2e\whole-app.spec.ts:234:3 › whole app — reviewer journey › next/prev navigate between patches without losing the app (906ms)
+  ok 11 [chromium] › e2e\whole-app.spec.ts:270:3 › whole app — model card limitations › the full catalog is rendered, not just the frozen five (467ms)
+  ok 12 [chromium] › e2e\whole-app.spec.ts:286:3 › whole app — model card limitations › the VIABLE_TUMOR weakness leads the model group and is blocking (395ms)
+  ok 13 [chromium] › e2e\whole-app.spec.ts:296:3 › whole app — model card limitations › each limitation says what would retire it and cites evidence (391ms)
+  ok 14 [chromium] › e2e\whole-app.spec.ts:306:3 › whole app — model card limitations › the frozen G4 evaluation caveats are still shown verbatim (455ms)
+  ok 15 [chromium] › e2e\whole-app.spec.ts:312:3 › whole app — model card limitations › the model card states the claim boundary (466ms)
+  ok 16 [chromium] › e2e\whole-app.spec.ts:319:3 › whole app — attribution honesty › attribution is real or honestly refuses; never a fabricated heatmap (624ms)
+  ok 17 [chromium] › e2e\whole-app.spec.ts:350:3 › whole app — export provenance › CSV export carries the disclaimer and both prediction and correction (1.2s)
+
+  17 passed (15.0s)
+==============================================================================
+OsteoPatch whole-app browser E2E — educational research prototype. NOT for diagnosis, treatment decisions, or predicting treatment response.
+==============================================================================
+workspace : C:\Users\enkso\AppData\Local\Temp\osteopatch-e2e-2emocaud
+canonical : C:\Users\enkso\.kiro\crew\workspace\osteopatch\OsteoPatch_Kiro_Handoff\runtime-artifacts\db\osteopatch_g6.sqlite3 (sha256 0e4524db91f7a6e2… — never written)
+api       : http://127.0.0.1:55666
+web       : http://127.0.0.1:55667
+
+booting G6 review API …
+  up: http://127.0.0.1:55666 (1144 images, 1144 predictions)
+booting Vite dev server …
+  up: http://127.0.0.1:55667
+checking the dev-server proxy reaches the API …
+  17 specs discovered
+
+running the browser journey …
+
+==============================================================================
+E2E PASSED — 17 specs in chromium 153.0.8010.12; the browser journey left 5 human review action(s) across 1144 exportable rows in the throwaway DB; canonical store byte-identical.
+evidence: scratch\phase0\e2e.json
+==============================================================================

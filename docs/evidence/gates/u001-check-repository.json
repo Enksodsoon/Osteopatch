@@ -1,0 +1,20 @@
+{
+  "gate": "u001-check-repository",
+  "command": "'.venv\\Scripts\\python.exe' scripts/check_repository.py",
+  "argv": [
+    ".venv\\Scripts\\python.exe",
+    "scripts/check_repository.py"
+  ],
+  "cwd": "C:\\Users\\enkso\\.kiro\\crew\\workspace\\osteopatch\\wt\\pack",
+  "exit_code": 0,
+  "ok": true,
+  "observed_at_utc": "2026-10-05T14:25:57Z",
+  "observed_at_utc_source": "captured by `date -u +%Y-%m-%dT%H:%M:%SZ` at spawn time",
+  "timestamp_status": "CAPTURED",
+  "summary": "Repository checks: 0 error(s).",
+  "output_tail": "Repository checks: 0 error(s).",
+  "output_chars": 31,
+  "output_truncated": false,
+  "output_log": null,
+  "durability": "VERSIONED"
+}

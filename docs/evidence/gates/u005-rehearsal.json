@@ -1,0 +1,25 @@
+{
+  "gate": "u005-rehearsal",
+  "command": "'.venv\\Scripts\\python.exe' scratch/task/u005_rehearsal.py",
+  "argv": [
+    ".venv\\Scripts\\python.exe",
+    "scratch/task/u005_rehearsal.py"
+  ],
+  "cwd": "C:\\Users\\enkso\\.kiro\\crew\\workspace\\osteopatch\\wt\\pack",
+  "exit_code": 1,
+  "ok": false,
+  "observed_at_utc": "2026-10-05T16:02:25Z",
+  "observed_at_utc_source": "captured by `date -u +%Y-%m-%dT%H:%M:%SZ` at spawn time",
+  "timestamp_status": "CAPTURED",
+  "summary": "PASS  AT02 no page error from the blocked store - none",
+  "output_tail": "eme-dark keys=[\"osteopatch:theme:v1\"]\n  step 12: first frames: [{\"t\":29,\"theme\":null,\"bg\":\"rgba(0, 0, 0, 0)\"},{\"t\":37,\"theme\":null,\"bg\":\"rgba(0, 0, 0, 0)\"},{\"t\":56,\"theme\":\"dark\",\"bg\":\"rgb(25, 22, 19)\"},{\"t\":72,\"theme\":\"dark\",\"bg\":\"rgb(25, 22, 19)\"},{\"t\":87,\"theme\":\"dark\",\"bg\":\"rgb(25, 22, 19)\"},{\"t\":104,\"theme\":\"dark\",\"bg\":\"rgb(25, 22, 19)\"}]\n  PASS  AT04 explicit dark survives a refresh - {\"theme\":\"dark\",\"checked\":\"theme-dark\",\"stored\":\"dark\"}\n  PASS  the stored preference is the only thing this feature writes - [\"osteopatch:theme:v1\"]\n  FAIL  AT04 no frame painted the light canvas before the stored dark theme was applied - frames without data-theme: 2, backgrounds seen: [\"rgba(0, 0, 0, 0)\"]\n  step 13: blocked storage: http 200, 60 cards, theme light, note \"Not saved in this browser — applies to this session only.\"\n  step 14: blocked storage after choosing dark: theme=dark note=\"Not saved in this browser — applies to this session only.\" body=rgb(25, 22, 19)\n  PASS  AT02 the app still starts and reviews with localStorage blocked - {\"theme\":\"light\",\"pref\":\"system\",\"cards\":60,\"note\":\"Not saved in this browser — applies to this session only.\"}\n  PASS  AT02 a blocked store themes the session and says it was not saved - {\"theme\":\"dark\",\"pref\":\"dark\",\"note\":\"Not saved in this browser — applies to this session only.\",\"noteRole\":\"status\",\"bodyBg\":\"rgb(25, 22, 19)\"}\n  PASS  AT02 no page error from the blocked store - none\n  step 15: 390x844: control {\"x\":219,\"y\":57,\"w\":159,\"h\":34} visible=true inViewport=true optionFont=12px\n  PASS  the theme control stays visible and unclipped at 390px - {\"visible\":true,\"inViewport\":true,\"rect\":{\"x\":219,\"y\":57,\"w\":159,\"h\":34},\"viewport\":{\"w\":390,\"h\":844},\"optionFontPx\":12}\n  PASS  AT01 thumbnail bytes identical across the switch - dark=ba646a18 light=ba646a18\nREHEARSAL FAILURES: 4\nports: api=50772 web=50773 (distinct: True)\r\nAPI up: 1144 images, 1144 predictions, bundle 01727fb832f9\r\nSPA up: http://127.0.0.1:50773\r\n\r\nrehearsal exit code: 1",
+  "output_chars": 6106,
+  "output_truncated": true,
+  "output_capture": "CAPTURED",
+  "output_bytes": 6114,
+  "output_encoding": "utf-8",
+  "output_decode_lossy": false,
+  "output_undecodable": 0,
+  "output_log": "docs/evidence/gates/u005-rehearsal.log",
+  "durability": "VERSIONED"
+}

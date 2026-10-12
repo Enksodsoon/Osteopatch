@@ -1,0 +1,25 @@
+{
+  "gate": "phase0-build-g6-vite",
+  "command": "'node_modules\\.bin\\vite.cmd' build",
+  "argv": [
+    "node_modules\\.bin\\vite.cmd",
+    "build"
+  ],
+  "cwd": "C:\\Users\\enkso\\.kiro\\crew\\workspace\\osteopatch\\wt\\pack\\app\\g6\\frontend",
+  "exit_code": 0,
+  "ok": true,
+  "observed_at_utc": "2026-10-06T00:55:04Z",
+  "observed_at_utc_source": "captured by `date -u +%Y-%m-%dT%H:%M:%SZ` at spawn time",
+  "timestamp_status": "CAPTURED",
+  "summary": "\u001b[32m✓ built in 5.77s\u001b[39m",
+  "output_tail": "\u001b[36mvite v6.4.3 \u001b[32mbuilding for production...\u001b[36m\u001b[39m\ntransforming...\n\u001b[32m✓\u001b[39m 41 modules transformed.\nrendering chunks...\ncomputing gzip size...\n\u001b[2mdist/\u001b[22m\u001b[32mindex.html                 \u001b[39m\u001b[1m\u001b[2m  0.63 kB\u001b[22m\u001b[1m\u001b[22m\u001b[2m │ gzip:  0.36 kB\u001b[22m\n\u001b[2mdist/\u001b[22m\u001b[35massets/index-UgGeXek1.css  \u001b[39m\u001b[1m\u001b[2m 30.00 kB\u001b[22m\u001b[1m\u001b[22m\u001b[2m │ gzip:  6.83 kB\u001b[22m\n\u001b[2mdist/\u001b[22m\u001b[36massets/index-DOY6VFYo.js   \u001b[39m\u001b[1m\u001b[2m192.31 kB\u001b[22m\u001b[1m\u001b[22m\u001b[2m │ gzip: 60.59 kB\u001b[22m\n\u001b[32m✓ built in 5.77s\u001b[39m",
+  "output_chars": 508,
+  "output_truncated": false,
+  "output_capture": "CAPTURED",
+  "output_bytes": 518,
+  "output_encoding": "utf-8",
+  "output_decode_lossy": false,
+  "output_undecodable": 0,
+  "output_log": null,
+  "durability": "VERSIONED"
+}

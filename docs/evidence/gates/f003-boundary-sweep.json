@@ -1,0 +1,16 @@
+{
+  "gate": "f003-boundary-sweep",
+  "command": "'.venv\\Scripts\\python.exe' scratch/task/f003_boundary_sweep.py",
+  "argv": [
+    ".venv\\Scripts\\python.exe",
+    "scratch/task/f003_boundary_sweep.py"
+  ],
+  "cwd": "C:\\Users\\enkso\\.kiro\\crew\\workspace\\osteopatch\\wt\\pack",
+  "exit_code": 0,
+  "ok": true,
+  "observed_at_utc": "2026-10-05T12:16:52Z",
+  "observed_at_utc_source": "captured by `date -u +%Y-%m-%dT%H:%M:%SZ` at spawn time",
+  "timestamp_status": "CAPTURED",
+  "summary": "sweep complete",
+  "output_tail": "==========================\nC. DUPLICATE IDENTITY under a supposedly unique key\n==============================================================================\nduplicate rows for one (image, model)          2\nresolve_prediction_rows                        PredictionSelectionIntegrityError: duplicate prediction rows for image_id='dup-1' under model_bundle_hash='fixture000000000000000000000\ngallery path                                   PredictionSelectionIntegrityError (surfaced, not swallowed)\n\n==============================================================================\nD. REAL corpus copy (throwaway, never the canonical file)\n==============================================================================\nimages in real corpus                          1144\ndistinct model hashes                          1\nlegacy dataset version id                      legacy-ingestion-manifest:sha256:715138501148d5df91981cd5c37840f72a2b02ec08a76f339a3b49633d214bca\nmanifest sha256 is the id suffix               True\nmanifest membership == store                   True\nproject owns (no allowlist)                    1144\nresolved rows with 50-id allowlist             50\ngallery total with 50-id allowlist             50\nexport rows with 50-id allowlist               50\nallowlisted image readable                     True\nnon-allowlisted image readable                 False\nserver-resolved scope, no allowlist            1144\nranks dense 1..N on real corpus                [1, 2, 3]\n\n==============================================================================\nE. PROCESS-GLOBAL STATE after everything above\n==============================================================================\nOSTEOPATCH_IMAGE_ALLOWLIST                     None\ncfg.IMAGE_ALLOWLIST_PATH                       ''\ncfg._IMAGE_ALLOWLIST_CACHE                     <object object at 0x000001C1BEC28940>\ncanonical store sha256                         0e4524db91f7a6e22dfbdc3395cf0fce6b7bf1b5628ac4cd1198be291d01ac40\n\nsweep complete"
+}

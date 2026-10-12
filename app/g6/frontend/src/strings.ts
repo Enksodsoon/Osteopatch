@@ -131,6 +131,12 @@ const en = {
   "export.csv": "Export CSV",
   "export.json": "Export JSON",
 
+  "theme.label": "Theme",
+  "theme.system": "Auto",
+  "theme.light": "Light",
+  "theme.dark": "Dark",
+  "theme.storageBlocked": "Not saved in this browser — applies to this session only.",
+
   "attribution.title": "Model attribution",
   "attribution.navBody":
     "Model attribution is shown per patch, on the review screen. Open a patch and use the Model attribution panel to compare what pushed the model toward one class rather than another.",

@@ -1,0 +1,324 @@
+{
+  "task_id": "F003",
+  "task_title": "Centralize authorization scope and explicit prediction selection",
+  "status": "IMPLEMENTED_VERIFIED",
+  "acceptance_status": "NOT_REVIEWED - this receipt is the implementer's, not an acceptance. Test success and acceptance are separate: a reviewer may reject a green implementation for an incorrect requirement or a security boundary.",
+  "baseline_sha": "626aaadc9e4282b470b74fe94893a412cf7d127a",
+  "baseline_sha_note": "Inherited from the uncommitted Turn 0 baseline and unchanged by F003; this worktree still has zero commits beyond origin/main.",
+  "remote_main_sha": "626aaadc9e4282b470b74fe94893a412cf7d127a",
+  "candidate_sha": null,
+  "candidate_sha_note": "No commit was authorized for this turn, so the working tree carries the change; diff_sha256 below is the digest of the reviewed diff instead.",
+  "diff_sha256": "06937e288fd73dd7fd915ed7891cd78a1ec9c53ca8b640cfe03ec3a0119583cc",
+  "diff_sha256_covers": "Uncommitted working-tree change (Turn 0 + F001/F002/F004/U002 evidence + F003 product code); committing is not authorized this turn. Recomputed with scratch/diff_digest.py AFTER the last F003 code edit.",
+  "branch": "feat/prompt-pack-run",
+  "worktree": "C:/Users/enkso/.kiro/crew/workspace/osteopatch/wt/pack",
+  "isolation": "dedicated git worktree; one writer; nothing committed, nothing pushed; the canonical review store was opened read-only and never written.",
+  "dirty_paths": [
+    " M .gitignore",
+    " M app/g6/backend/osteopatch/queries.py",
+    " M app/g6/frontend/src/api.ts",
+    " M app/g6/frontend/src/styles.css",
+    " M app/g7-enterprise/backend/enterprise/review_proxy.py",
+    " M app/local-tester.py",
+    " M docs/evidence/e2e-ui-result.json",
+    " M docs/task-evidence/F001-baseline.json",
+    " M docs/task-evidence/F001-baseline.md",
+    " M docs/task-evidence/F001-receipt.json",
+    " M scripts/e2e_ui.py",
+    "?? aidlc-docs/prompt-pack/",
+    "?? app/g6/backend/osteopatch/scope.py",
+    "?? app/g6/backend/tests/fixtures/",
+    "?? app/g6/backend/tests/test_fixture_contract.py",
+    "?? app/g6/backend/tests/test_scope_contract.py",
+    "?? app/g6/frontend/src/apiErrors.ts",
+    "?? app/g6/frontend/src/styles/",
+    "?? app/g6/frontend/src/test/api-client.test.ts",
+    "?? app/g6/frontend/src/test/design-tokens.test.tsx",
+    "?? docs/task-evidence/F002-receipt.json",
+    "?? docs/task-evidence/F002.md",
+    "?? docs/task-evidence/F003-receipt.json",
+    "?? docs/task-evidence/F003.md",
+    "?? docs/task-evidence/F004-receipt.json",
+    "?? docs/task-evidence/F004.md",
+    "?? docs/task-evidence/STATUS.md",
+    "?? docs/task-evidence/TURN0-setup-baseline.md",
+    "?? docs/task-evidence/TURN0-setup-receipt.json",
+    "?? docs/task-evidence/U002-receipt.json",
+    "?? docs/task-evidence/U002.md",
+    "?? scripts/run_gate.py",
+    "?? scripts/task_env.sh",
+    "?? scripts/verify_prompt_pack.py",
+    "?? tests/tooling/test_run_gate.py"
+  ],
+  "dirty_paths_note": "Exact `git status --porcelain` at close (35 paths). F003 touched exactly the four paths its section 5 boundary allows and nothing else. NOTE: the editor tool's project root resolves to the PRIMARY checkout (OsteoPatch_Kiro_Handoff, branch main), not this worktree; two F003 files were written there by mistake early in the turn and were deleted. That checkout is clean again and its HEAD is unchanged at 626aaad, verified with `git status --porcelain` returning empty there.",
+  "changed_files": [
+    {
+      "path": "app/g6/backend/osteopatch/scope.py",
+      "why": "New, task-owned (section 5). The single selection helper the contract names: immutable ScopeContext (project_id, dataset_version_id, model_bundle_hash, deployment_allowlist, review_session_id, actor_id); the legacy dataset id derived from the verified ingestion-manifest SHA-256; and resolve_prediction_rows(conn, scope) -> list[SelectedPredictionRow], which intersects project, dataset, allowlist and model in SQL before any counting, ranking, paging or search, and raises PredictionSelectionIntegrityError on a duplicate (image_id, model_bundle_hash) instead of choosing a row.",
+      "task_owned": true
+    },
+    {
+      "path": "app/g6/backend/osteopatch/queries.py",
+      "why": "Modified narrowly, task-owned (section 5). Gallery, detail, rank, search and export now all read from that one selection. This removes two measured defects: the gallery called _priority_rank_map(conn) with no project_id while the detail view passed one (gallery ranks counted other tenants' images), and model_bundle_hash appeared in no WHERE clause at all while the join was LEFT JOIN prediction ON image_id (a second bundle produced a second gallery card and an inflated total). Response field names are preserved; one field is ADDED (prediction_unavailable_reason) so an image with no prediction for the selected model reports null plus a reason instead of a zero score.",
+      "task_owned": true
+    },
+    {
+      "path": "app/g7-enterprise/backend/enterprise/review_proxy.py",
+      "why": "Modified narrowly, task-owned (section 5). The delegated reads now carry a server-resolved ScopeContext (scope_for) instead of a bare project_id, so the dataset version and the active deployment's model hash come from the server rather than the caller. The 404 messages and the 400 on a missing project are unchanged, so 'unknown image' and 'not in your project' stay indistinguishable.",
+      "task_owned": true
+    },
+    {
+      "path": "app/g6/backend/tests/test_scope_contract.py",
+      "why": "New, task-owned (section 5). The named acceptance file for F003-AT01..AT05 plus the section 9 boundary/failure review, written first and observed failing for the intended missing behaviour.",
+      "task_owned": true
+    }
+  ],
+  "product_code_changed": true,
+  "product_files_modified": [
+    "app/g6/backend/osteopatch/queries.py",
+    "app/g7-enterprise/backend/enterprise/review_proxy.py"
+  ],
+  "dependency_receipts_inspected": [
+    "docs/task-evidence/F001-receipt.json (baseline inventory; product_code_changed False)",
+    "docs/task-evidence/F002-receipt.json (fixture make_review_fixture + two_models variant; its tests were run unmodified as part of the G6 regression)",
+    "aidlc-docs/prompt-pack/TASK_MANIFEST.json - topological_order[0:5] = F001, F002, F004, U002, F003, which is how F003 was selected rather than assumed"
+  ],
+  "produced_interfaces": [
+    "osteopatch.scope.ScopeContext (frozen dataclass; project_id, dataset_version_id, dataset_image_ids, model_bundle_hash, deployment_allowlist, review_session_id, actor_id, mode) with .effective_dataset_image_ids, .cache_key, .provenance()",
+    "osteopatch.scope.SelectedPredictionRow (frozen dataclass; one image plus at most one selected prediction, carrying unavailable_reason)",
+    "osteopatch.scope.resolve_prediction_rows(conn, scope) -> list[SelectedPredictionRow]",
+    "osteopatch.scope.selected_prediction_ids(conn, scope) -> dict[image_id, prediction_id]",
+    "osteopatch.scope.scope_for_request(*, project_id, model_bundle_hash=None, deployment_allowlist=None, review_session_id=None, actor_id=None, ...) -> ScopeContext [server-side entry point]",
+    "osteopatch.scope.legacy_dataset_version_id() / legacy_dataset_image_ids() / legacy_manifest_sha256() / active_model_bundle_hash()",
+    "osteopatch.scope.DatasetUnavailable, osteopatch.scope.PredictionSelectionIntegrityError",
+    "queries.list_images / get_image / export_rows / priority_rank_map accept scope= plus optional model_bundle_hash, deployment_allowlist, review_session_id, actor_id; queries._priority_rank_map retained as a compatibility wrapper",
+    "enterprise.review_proxy.scope_for(project_id, *, actor_id=None, review_session_id=None)"
+  ],
+  "produced_endpoints": [],
+  "produced_endpoints_note": "None. No route was added or changed: app/g6/backend/osteopatch/app.py is outside F003's section 5 boundary and is deliberately untouched. Every existing route keeps its path, method and response field names, and the enterprise proxy's routes are unchanged in signature and status codes.",
+  "produced_types": [
+    "ScopeContext",
+    "SelectedPredictionRow",
+    "DatasetUnavailable (ScopeError)",
+    "PredictionSelectionIntegrityError (ScopeError)",
+    "MODE_SCOPED = 'scoped'",
+    "MODE_LOCAL_SINGLE_USER = 'local_single_user'",
+    "MODE_PROJECT_ONLY = 'project_only' (documented compatibility adapter)"
+  ],
+  "tests": [
+    {
+      "command": "uv run pytest app/g6/backend/tests/test_scope_contract.py -q",
+      "cwd": "wt/pack",
+      "exit_code": 0,
+      "note": "[TASK VERIFICATION COMMAND 1] task §10 verification command 1, verbatim (`uv run pytest app/g6/backend/tests/test_scope_contract.py -q`)  23 passed in 0.61s",
+      "observed_at_utc": "2026-10-05T12:25:38Z",
+      "observed_at_utc_source": "captured by `date -u +%Y-%m-%dT%H:%M:%SZ` at spawn time",
+      "timestamp_status": "CAPTURED",
+      "gate_record": "docs/evidence/gates/f003-scope-contract.json",
+      "passed": 23
+    },
+    {
+      "command": "git diff --check",
+      "cwd": "wt/pack",
+      "exit_code": 0,
+      "note": "[TASK VERIFICATION COMMAND 2] task §10 verification command 2, verbatim (`git diff --check`). The wrapper's heuristic summary picked the trailing git line-ending warning rather than a pass line; the authoritative result is exit_code 0, which is what this entry reports.  warning: in the working copy of '.gitignore', LF will be replaced by CRLF the next time Git touches it",
+      "observed_at_utc": "2026-10-05T12:25:39Z",
+      "observed_at_utc_source": "captured by `date -u +%Y-%m-%dT%H:%M:%SZ` at spawn time",
+      "timestamp_status": "CAPTURED",
+      "gate_record": "docs/evidence/gates/f003-git-diff-check.json"
+    },
+    {
+      "command": "uv run pytest app/g6/backend/tests -q",
+      "cwd": "wt/pack",
+      "exit_code": 0,
+      "note": "[REGRESSION] full G6 backend regression  138 passed, 10 skipped, 1 warning in 2.94s",
+      "observed_at_utc": "2026-10-05T12:25:39Z",
+      "observed_at_utc_source": "captured by `date -u +%Y-%m-%dT%H:%M:%SZ` at spawn time",
+      "timestamp_status": "CAPTURED",
+      "gate_record": "docs/evidence/gates/f003-g6-backend-suite.json",
+      "passed": 138,
+      "skipped": 10
+    },
+    {
+      "command": "uv run pytest app/g7-enterprise/backend/tests -q",
+      "cwd": "wt/pack",
+      "exit_code": 0,
+      "note": "[REGRESSION] enterprise regression incl. proxy 404 shape  28 passed, 1 skipped, 1 warning in 1.47s",
+      "observed_at_utc": "2026-10-05T12:16:22Z",
+      "observed_at_utc_source": "captured by `date -u +%Y-%m-%dT%H:%M:%SZ` at spawn time",
+      "timestamp_status": "CAPTURED",
+      "gate_record": "docs/evidence/gates/f003-enterprise-backend-suite.json",
+      "passed": 28,
+      "skipped": 1
+    },
+    {
+      "command": "'.venv\\Scripts\\python.exe' app/local-tester.py --out docs/evidence/gates/f003-smoke-result.json",
+      "cwd": "wt/pack",
+      "exit_code": 0,
+      "note": "[WRITE-BEARING SMOKE] real HTTP path (app/local-tester.py) against the throwaway store; this gate WRITES review events, so the canonical store was hashed immediately before and after  RESULT: 104/104 checks passed",
+      "observed_at_utc": "2026-10-05T12:16:37Z",
+      "observed_at_utc_source": "captured by `date -u +%Y-%m-%dT%H:%M:%SZ` at spawn time",
+      "timestamp_status": "CAPTURED",
+      "gate_record": "docs/evidence/gates/f003-http-smoke.json"
+    },
+    {
+      "command": "'.venv\\Scripts\\python.exe' scratch/task/f003_boundary_sweep.py",
+      "cwd": "wt/pack",
+      "exit_code": 0,
+      "note": "[BOUNDARY SWEEP] boundary/failure review run OUTSIDE pytest against seeded throwaway DBs; full output kept at docs/evidence/gates/f003-boundary-sweep-output.txt because run_gate.py keeps only a 2 KB tail  sweep complete",
+      "observed_at_utc": "2026-10-05T12:16:52Z",
+      "observed_at_utc_source": "captured by `date -u +%Y-%m-%dT%H:%M:%SZ` at spawn time",
+      "timestamp_status": "CAPTURED",
+      "gate_record": "docs/evidence/gates/f003-boundary-sweep.json"
+    },
+    {
+      "command": "uv run --locked mypy",
+      "cwd": "wt/pack",
+      "exit_code": 0,
+      "note": "[STATIC] type check  Success: no issues found in 20 source files",
+      "observed_at_utc": "2026-10-05T12:16:24Z",
+      "observed_at_utc_source": "captured by `date -u +%Y-%m-%dT%H:%M:%SZ` at spawn time",
+      "timestamp_status": "CAPTURED",
+      "gate_record": "docs/evidence/gates/f003-mypy.json"
+    },
+    {
+      "command": "uv run --locked ruff check scripts tests/tooling app/g6/backend/osteopatch/pathology app/g6/backend/osteopatch/app.py app/g6/backend/osteopatch/limitations.py app/g6/backend/osteopatch/projects.py app/g6/backend/osteopatch/modelcard.py app/g6/backend/tests/test_connection_concurrency.py app/g6/deploy/verify_bake.py",
+      "cwd": "wt/pack",
+      "exit_code": 0,
+      "note": "[STATIC] the CI blocking Ruff set (make lint)  All checks passed!",
+      "observed_at_utc": "2026-10-05T12:16:25Z",
+      "observed_at_utc_source": "captured by `date -u +%Y-%m-%dT%H:%M:%SZ` at spawn time",
+      "timestamp_status": "CAPTURED",
+      "gate_record": "docs/evidence/gates/f003-ruff-blocking-set.json"
+    },
+    {
+      "command": "python -m unittest discover -s tests/tooling",
+      "cwd": "wt/pack",
+      "exit_code": 0,
+      "note": "[REGRESSION] pack tooling regression (run_gate.py among it)  OK (skipped=1)",
+      "observed_at_utc": "2026-10-05T12:16:48Z",
+      "observed_at_utc_source": "captured by `date -u +%Y-%m-%dT%H:%M:%SZ` at spawn time",
+      "timestamp_status": "CAPTURED",
+      "gate_record": "docs/evidence/gates/f003-tooling-unittest.json"
+    },
+    {
+      "command": "'.venv\\Scripts\\python.exe' scripts/check_repository.py",
+      "cwd": "wt/pack",
+      "exit_code": 0,
+      "note": "[STATIC] repository structural checks  Repository checks: 0 error(s).",
+      "observed_at_utc": "2026-10-05T12:25:43Z",
+      "observed_at_utc_source": "captured by `date -u +%Y-%m-%dT%H:%M:%SZ` at spawn time",
+      "timestamp_status": "CAPTURED",
+      "gate_record": "docs/evidence/gates/f003-check-repository.json"
+    }
+  ],
+  "tests_note": "Every entry above was produced by actually running the command through scripts/run_gate.py, which stamps observed_at_utc from `date -u` at spawn time and mirrors the gate's exit code. No gate entry in this receipt was transcribed by hand; the generated records are named per entry in gate_record. The two task section 10 verification commands were run verbatim, including `uv run pytest`. DURABILITY REPAIR (2026-10-05, after F007): these records were originally written to `scratch/gates/`, which `.gitignore` covers, so they were NOT durable — a fresh checkout had no way to read the evidence this receipt cites. All 10 records were copied to `docs/evidence/gates/` and their `gate_record` fields repointed here. The copies are byte-identical to what the runs produced (sha256 verified per file); four generic names gained an `f003-` prefix so the accumulated directory can never silently rewrite this evidence with a later run. The recorded `diff_sha256` still describes F003's tree at its own moment and was deliberately not recomputed: this repair moves evidence, it does not re-date the work. The same repair covered three cited artifacts that were never gate records but were equally unreadable in a fresh checkout: the boundary-sweep transcript, the smoke result file and the pre-smoke canonical-store hash were all under `scratch/task/`. They are now `docs/evidence/gates/f003-boundary-sweep-output.txt`, `f003-smoke-result.json` and `f003-canon-before-smoke.txt`, each copied byte-identically and verified by sha256. The boundary-sweep transcript matters most: F003 kept it precisely because run_gate.py records only a 2 KB tail. That limit is now explicit in every record (`output_chars`, `output_truncated`) with the complete output written beside the record when the cap bites. The sweep and rehearsal SCRIPTS stay in `scratch/task/` — they are run, not evidence, and are regenerable.",
+  "evidence_path": "docs/task-evidence/F003.md and docs/task-evidence/F003-receipt.json",
+  "acceptance_tests": [
+    {
+      "id": "F003-AT01",
+      "result": "PASS",
+      "evidence": "test_F003_AT01_project_a_cannot_see_project_b and test_F003_AT01_review_event_from_other_project_does_not_leak. Two projects are granted OVERLAPPING candidate lists on the F002 two_models fixture (8 images x 2 bundles). After assignment A owns fx-01..03 and B owns fx-04..08. Observed: totals 3 and 5, sets disjoint, A's ranks dense 1..3 and B's 1..5 (the gallery no longer numbers over the whole store), export sets disjoint, and both a foreign image and a nonexistent id return None from get_image - identical, so the 404 shape cannot probe for another tenant. B's review event never appears in A's listing."
+    },
+    {
+      "id": "F003-AT02",
+      "result": "PASS",
+      "evidence": "test_F003_AT02_two_predictions_yield_one_row_per_image, ..._selection_helper_returns_one_row_per_image, ..._ranking_uses_only_the_selected_model. The fixture stores 16 predictions over 8 images (two bundles). Observed in the boundary sweep: gallery total 8, 8 distinct image_ids, one model hash on every card, ranks [1..8]; switching the scope's model_bundle_hash yields 8 rows all carrying fixture-model-v2."
+    },
+    {
+      "id": "F003-AT03",
+      "result": "PASS",
+      "evidence": "test_F003_AT03_allowlist_of_50_narrows_a_1144_image_project and ..._legacy_dataset_membership_is_the_manifest, run against a WRITABLE COPY of the verified real store (1,144 images, one bundle hash). Observed: project owns 1,144; with a 50-image deployment allowlist the selection, the gallery total and the export all return exactly 50; an allowlisted image reads and a non-allowlisted one returns None. The legacy dataset id is legacy-ingestion-manifest:sha256:715138501148d5df91981cd5c37840f72a2b02ec08a76f339a3b49633d214bca and its membership equals the store's 1,144 ids exactly (measured: 0 rows either way), so the restriction is real, not invented."
+    },
+    {
+      "id": "F003-AT04",
+      "result": "PASS",
+      "evidence": "test_F003_AT04_changing_model_hash_changes_selection_without_overwriting and ..._gallery_reflects_the_requested_model_only. Resolving the same project under each bundle hash selects that bundle's prediction per image, the two selection sets share image_ids but have disjoint prediction_ids, and a full before/after dump of the prediction table is byte-identical: still 16 rows, 8 at fixture-model-v1 and 8 at fixture-model-v2. No older model is overwritten."
+    },
+    {
+      "id": "F003-AT05",
+      "result": "PASS",
+      "evidence": "test_F003_AT05_empty_intersection_returns_empty_not_unscoped, ..._empty_dataset_membership_returns_empty, ..._unknown_project_is_empty_not_everything. An allowlist disjoint from the project yields total 0, items [], export [], rank map {} and None from every detail read - never the 8-image unscoped fallback. Same for empty dataset membership, a zero-length allowlist, and a project that owns nothing. resolve_prediction_rows returns [] before issuing any broad query, so this holds by construction."
+    }
+  ],
+  "data_mode": "synthetic_fixture + real_authorized_data (read-only)",
+  "data_mode_detail": "Two corpora, deliberately. The synthetic_fixture half is the F002 two_models variant (8 generated images, 2 bundles, TEST_FIXTURE) and carries AT01, AT02, AT04, AT05 and the Step 06/07 boundary work. The real_authorized_data half is a WRITABLE COPY of the verified review store under scratch/, used for AT03 because a 50-of-1,144 allowlist assertion is meaningless against 8 synthetic rows. No test opens config.DB_PATH, and no canonical file was written.",
+  "scope": "Real corpus measured this turn: 1,144 source_qc rows, 1,144 predictions, exactly one model bundle hash, one project (__default__). The ingestion manifest holds 1,144 rows / 1,144 unique image_id and its id set equals the store's exactly.",
+  "model_artifact_identities": {
+    "baseline-frozen-g4": {
+      "sha256": "01727fb832f9d5518bbe2e33b901e7041020929c94b89cdb7a5e5195b544df63",
+      "state": "the ACTIVE deployment identity: active_model_bundle_hash() returns config.EXPECTED_BUNDLE_SHA256, and it is the only hash present in the real store. Frozen identity, unchanged and not reassigned."
+    },
+    "g4-behavioral-recovery-r1": {
+      "sha256": "ffff1282f533758d7d7c8370ee6092f97f553da69918c5ee7e83632428176a73",
+      "state": "untouched; not used by this task and not in the store"
+    },
+    "fixture-model-v1": {
+      "sha256": "fixture000000000000000000000000000000000000000000000000000000000000f",
+      "state": "TEST_FIXTURE only; never mistaken for production evidence"
+    },
+    "fixture-model-v2": {
+      "sha256": "fixture111111111111111111111111111111111111111111111111111111111111f",
+      "state": "TEST_FIXTURE only; the second bundle that makes AT02/AT04 real"
+    }
+  },
+  "canonical_data_unchanged": {
+    "status": "VERIFIED_TRUE",
+    "evidence": "runtime-artifacts/db/osteopatch_g6.sqlite3 hashed 0e4524db91f7a6e22dfbdc3395cf0fce6b7bf1b5628ac4cd1198be291d01ac40 at the START of the turn, again immediately BEFORE the write-bearing smoke gate (docs/evidence/gates/f003-canon-before-smoke.txt), again immediately AFTER it, and again after the whole boundary sweep. Identical at all four points. The write-bearing gate was app/local-tester.py (104/104) against the throwaway store."
+  },
+  "ui_browser_observations": "None, and none claimed. F003 is a backend task with no UI change; no browser session was opened and no screenshot was taken. The user-visible rehearsal was done through the real HTTP path instead (app/local-tester.py, 104/104) and through the boundary sweep's exact API output, both quoted above.",
+  "limitations": [
+    "MODE_PROJECT_ONLY is a real compatibility surface, not a formality. queries.* still accept the pre-F003 `project_id=` argument, which applies project + model + allowlist but NO dataset version. This is what the existing isolation regressions call, and it is deliberately narrower than the full contract rather than a silent widening: on the REAL corpus the difference is nil (the manifest's 1,144 ids are exactly the store's, measured), and it differs only for synthetic corpora outside the manifest. The server-side entry point scope_for_request, which the enterprise proxy uses, always declares a dataset version.",
+    "active_model_bundle_hash() returns the frozen G4 constant. There is no deployment registry in this prototype, so a genuine per-deployment model selection is E5's job (model:manage). One obvious limitation of that choice: if a second bundle were ever added to the real store, the default server-resolved scope would show only the frozen bundle's predictions, and selecting the other would need an explicit hash. That is the safe direction to fail, but it is a real constraint, not a solved problem.",
+    "Review state is adapted, not re-derived: the revision token stays image-global (because repo.submit_review compares against the image-global maximum) while the status uses only events referencing the selected prediction_id. Consequence: if the newest event on an image is on another model and an older event is on the selected one, the older event is used. That under-reports progress rather than over-reporting it, and get_image still returns the full append-only history.",
+    "The Step 06 integrity error is exercised against a store whose UNIQUE constraint was deliberately removed, because the shipped schema prevents duplicates. The code path is real and runs in production reads; the corruption it guards against has never been observed in this repository.",
+    "No browser/UI rehearsal and no screenshot: F003 changed no UI. The G6 frontend was not re-run because no frontend file changed; the additive `prediction_unavailable_reason` field is additive and no existing field was renamed or removed, but that is a code-reading claim, not a browser observation.",
+    "torch is absent from this venv, so 10 G6 skips and 1 enterprise skip remain. They are the same pre-existing torch-gated skips recorded at baseline, and none of them covers the code F003 changed.",
+    "Scratch evidence (gate records, the boundary sweep and its output, the canonical hashes) lives under gitignored scratch/. It is reproducible but is not durable evidence in docs/evidence/; only the receipt and F003.md are committed-tree files."
+  ],
+  "blockers": [],
+  "required_approval": "None requested. No dependency was installed or updated, no paid API called, no model downloaded or trained, no cloud resource created, no data published, nothing deployed, and nothing scheduled. Additional spend USD 0.",
+  "boundary_observations": {
+    "no_rows": "Empty store: selection [], list_images returns the exact empty envelope (total 0, items []), export [], get_image None. PASS",
+    "one_row": "Dataset narrowed to a single image: 1 selected row, total 1, rank 1. PASS",
+    "duplicate_input_retry": "No retry/dedup path exists in this task's scope; repo.upsert_prediction and submit_review idempotency are unchanged and still covered by their own suites. N/A",
+    "missing_or_malformed_values": "Empty or blank model_bundle_hash, blank project_id, scoped mode with no project, and local mode carrying a project all raise ValueError at construction. An unknown dataset_version_id with no explicit membership raises DatasetUnavailable. All observed.",
+    "unavailable_artifact": "An image in scope with no prediction for the selected model keeps its identity, reports prediction None, a null prediction_unavailable_reason string, and rank None. It never borrows the other model's prediction. Observed on fx-02.",
+    "unauthorized_object": "Foreign image and nonexistent image both return None (identical); an unknown project yields an empty authorized result rather than the corpus. Observed.",
+    "changed_project_model_session": "cache_key is distinct across project, model hash, allowlist, session, actor and dataset membership, and stable for an identical scope. Observed: 7 distinct keys, 64 hex chars.",
+    "stale_response": "Not applicable to a read-only selection; the optimistic-concurrency token (revision) is unchanged and still image-global, so an F003 read cannot cause a spurious 409.",
+    "concurrent_revision": "Not exercised by F003; submit_review's revision handling is unchanged and covered by the pre-existing suites.",
+    "canceled_job_request": "Not applicable - no job or background task in this task.",
+    "partial_failure": "The duplicate-identity case fails closed at the selection and is surfaced by the gallery path rather than swallowed; observed PredictionSelectionIntegrityError on both.",
+    "timeout_after_write": "Not applicable - F003 writes nothing.",
+    "process_global_allowlist": "After the entire sweep, OSTEOPATCH_IMAGE_ALLOWLIST is unset, cfg.IMAGE_ALLOWLIST_PATH is '' and cfg._IMAGE_ALLOWLIST_CACHE is still the unset sentinel. No read mutated process state."
+  },
+  "external_effects": {
+    "installs": "none",
+    "cloud_calls": "none",
+    "training_or_calibration": "none",
+    "publish_or_deploy": "none",
+    "additional_spend_usd": 0,
+    "branches_modified": "none",
+    "running_services_touched": "none",
+    "commits": "none - every F003 change remains uncommitted in the worktree, as required. Nothing staged, nothing pushed, no PR.",
+    "migrations": "none - no .sql file was added or edited. F003 introduces no schema change; the existing UNIQUE (image_id, model_bundle_hash) and project_id columns are what the selection relies on.",
+    "canonical_store_writes": "none",
+    "primary_checkout_incident": "The editor tool's project root is the PRIMARY checkout, not this worktree. Two F003 files were written there early in the turn and were deleted; that checkout is clean again with HEAD unchanged at 626aaad. Disclosed rather than hidden."
+  },
+  "next_integrator_action": "Review docs/task-evidence/F003-receipt.json and docs/task-evidence/F003.md against templates/ and the F003 task file, and in particular rule on the one judgement call this task could not make from its own data: whether the documented MODE_PROJECT_ONLY compatibility adapter (the pre-F003 `project_id=` argument, which applies project + model + allowlist but no dataset version) is acceptable, or whether it should be retired in favour of requiring an explicit ScopeContext everywhere - a change that would touch test_project_isolation.py, which is outside F003's boundary. Then decide acceptance. Do NOT start F007 until F003 is accepted.",
+  "self_acceptance": "NOT GIVEN - this receipt records implementation and verification only. No earlier receipt (F001, F002, F004, U002, TURN0) has been altered, re-stated or marked accepted by this turn; each remains NOT_REVIEWED as its author left it.",
+  "timestamp_audit": {
+    "audited_at_utc": "2026-10-05T12:25:43Z",
+    "verdict": "TRUSTWORTHY. All 10 observed_at_utc values in this receipt are CAPTURED: each was written by scripts/run_gate.py from a `date -u` capture taken at the instant that command was spawned, and the wrapper deliberately offers no option to supply one by hand. This is the first receipt whose gate stamps come from the runner rather than from the author, so the failure mode the evidence audit found in the earlier receipts cannot recur here. The stamps span 2026-10-05T12:16:22Z to 2026-10-05T12:25:43Z (those bounds are read off the captured values themselves, not calculated from a guessed number). No value is backdated; no value is a round minute. The two task section 10 commands were re-run last, against the finished tree, so the stamps at the top of the range describe the shipped state.",
+    "receipt_last_modified_utc": "2026-10-05T12:25:43Z",
+    "classification": {
+      "CAPTURED": 10,
+      "ANCHORED": 0,
+      "DERIVED": 0,
+      "UNAVAILABLE": 0
+    },
+    "rule": "Every observed_at_utc must be ANCHORED (a runner-timestamped artifact), DERIVED (arithmetic on a real captured value, with the arithmetic recorded), or UNAVAILABLE. A round minute with no source is not an observation. This receipt satisfies the rule by construction: it holds no hand-written timestamp.",
+    "gate_records": "docs/evidence/gates/f003-*.json — one generated record per gate, each containing the exact argv, cwd, exit code, captured stamp, and output tail. Copied byte-identically out of the gitignored `scratch/gates/`; see tests_note."
+  }
+}

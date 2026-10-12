@@ -1,0 +1,54 @@
+# U003 §11 rehearsal transcript.
+# Command: .venv\Scripts\python.exe scratch/task/u003_rehearsal.py
+# This log is from a DIRECT run of that command (run_gate.py captures the child's
+# output into the JSON record, so redirecting its stdout yields only the wrapper's lines).
+# The gate record docs/evidence/gates/u003-rehearsal.json is the wrapped run.
+
+  EXPECTED 1: the queue loads and reports a patch count
+  PASS  workbench reaches ready on real data — ready
+  PASS  real cards from the real store — 60 cards
+  PASS  live region announces a count, not card content — "1144 patches loaded."
+  EXPECTED 2: a filter that matches nothing shows the no-match wording
+  PASS  narrowed query reaches empty — empty
+  PASS  empty reason is no_match, not no_dataset — no_match
+  PASS  empty wording is the no-match one — "No patches match these filters.Clear the search or choose a "
+  PASS  empty wording is NOT the failure wording
+  EXPECTED 3: search cleared -> ready again (retry is not needed)
+  PASS  cleared query reaches ready — ready
+  PASS  no retry control offered on success
+  EXPECTED 4: offline API keeps the previous cards but marks them stale
+  PASS  network failure becomes offline, not failed — offline
+  PASS  offline text labels the previous page stale — "You appear to be offline. Showing the previous list — out of date.Coul"
+  PASS  gallery is marked stale
+  PASS  previous cards retained as stale, not discarded — 60 stale cards
+  PASS  retry IS offered for an offline failure
+  PASS  offline says offline, not a failure — "Offline. Showing the previous patch list."
+  EXPECTED 5: retry while still offline -> bounded, then reload advice
+  PASS  retry control withdrawn after the bound
+  PASS  withdrawn retry explains what to do — "You appear to be offline. Showing the previous list — out of date.Coul"
+  EXPECTED 6: route restored -> retry recovers
+  PASS  queue recovers once the API returns — ready
+  PASS  gallery no longer stale
+  EXPECTED 7: HTTP 500 -> failed with a retry, and stale cards cleared
+  PASS  500 after data exists keeps the previous page, labelled — offline
+  PASS  a 500 is NOT reported as being offline — "The patch list could not be refreshed. Showing the previous list — out"
+  PASS  a 500 is reported as a failed refresh
+  EXPECTED 8: permission denied -> failed, NO retry, NO link, NO fallback call
+  PASS  403 keeps already-loaded rows, labelled — offline
+  PASS  403 text states the access problem — "The patch list could not be refreshed. Showing the previous list — out of date.Y"
+  PASS  403 is NOT reported as being offline
+  PASS  403 offers NO retry control
+  PASS  403 renders NO link
+  PASS  403 issued no retry storm — 1 /v1/ request(s) observed
+  EXPECTED 9: keyboard access to the retry control
+  PASS  offline again for the keyboard check — offline
+  PASS  retry control is focusable — async-retry
+  PASS  retry is a real <button> — BUTTON
+  EXPECTED 10: no console errors during the whole journey
+  PASS  journey completed — 0 failure(s)
+
+rehearsal failures: 0
+API up: 1144 images, 1144 predictions, bundle 01727fb832f9
+SPA up: http://127.0.0.1:62069
+
+rehearsal exit code: 0

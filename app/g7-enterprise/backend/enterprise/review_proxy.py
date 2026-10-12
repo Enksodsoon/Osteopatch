@@ -12,6 +12,20 @@ mutation was a symptom.
 
 When the G6 package cannot be imported (bare test env, missing runtime data),
 every call returns a labelled 503 — NEVER a fabricated prediction or review.
+
+Centralized scope (F003)
+------------------------
+The delegated reads now carry an immutable ``ScopeContext`` resolved HERE, on
+the server, rather than a bare ``project_id``. ``deps.require`` has already
+verified the caller's membership in that project (token claim, then live DB), so
+what this layer adds is the rest of the scope that a browser must never be able
+to assert: the dataset version, the active deployment's model hash, and the
+deployment allowlist. The project id still arrives as a header, but it is only
+ever a *request* for a project — the scope that results is server-derived.
+
+The 404 responses stay exactly as they were. "Unknown image" and "not in your
+project" must remain indistinguishable, or the status code becomes a tenant
+existence oracle; that is unchanged and is asserted by the enterprise suite.
 """
 from __future__ import annotations
 
@@ -65,6 +79,30 @@ def _require_project(project_id: str | None) -> str:
     return project_id
 
 
+def scope_for(
+    project_id: str | None,
+    *,
+    actor_id: str | None = None,
+    review_session_id: str | None = None,
+):
+    """Resolve the G6 ``ScopeContext`` for an authenticated request.
+
+    Server-side inputs only: the membership-verified project id, the active
+    deployment's model, and deployment configuration. No query string
+    contributes, and nothing here mutates process-global state, so two
+    concurrent project reads cannot observe each other.
+    """
+    from osteopatch import scope as g6_scope  # type: ignore
+
+    if not project_id:
+        raise HTTPException(status_code=400, detail="missing project context")
+    return g6_scope.scope_for_request(
+        project_id=project_id,
+        review_session_id=review_session_id,
+        actor_id=actor_id,
+    )
+
+
 def all_corpus_image_ids(limit: int | None = None) -> list[str]:
     """Real image_ids known to the G6 store (used to validate / default a grant)."""
     from osteopatch import projects  # type: ignore
@@ -108,14 +146,20 @@ def list_images(project_id: str | None, *, sort: str, filt: str, page: int, page
     conn = _g6().get_conn()
     from osteopatch import queries  # type: ignore
     return queries.list_images(
-        conn, sort=sort, filt=filt, q=None, page=page, page_size=page_size, project_id=pid
+        conn,
+        sort=sort,
+        filt=filt,
+        q=None,
+        page=page,
+        page_size=page_size,
+        scope=scope_for(pid),
     )
 
 
 def get_image(project_id: str | None, image_id: str) -> dict:
     pid = _require_project(project_id)
     from osteopatch import queries  # type: ignore
-    image = queries.get_image(_g6().get_conn(), image_id, project_id=pid)
+    image = queries.get_image(_g6().get_conn(), image_id, scope=scope_for(pid))
     if image is None:
         # Indistinguishable from "does not exist" on purpose: telling the two
         # apart would let a tenant probe for another tenant's data.
@@ -130,7 +174,7 @@ def submit_review(project_id: str | None, image_id: str, body: dict, *, reviewer
 
     # Refuse to review an image this project cannot see, using the same
     # request-scoped filter as the read path.
-    if queries.get_image(conn, image_id, project_id=pid) is None:
+    if queries.get_image(conn, image_id, scope=scope_for(pid, actor_id=reviewer)) is None:
         raise HTTPException(status_code=404, detail="unknown image_id (or out of project scope)")
 
     event, created = review_store.submit_review(
@@ -153,5 +197,5 @@ def submit_review(project_id: str | None, image_id: str, body: dict, *, reviewer
 def export_reviews(project_id: str | None, *, format: str) -> dict:
     pid = _require_project(project_id)
     from osteopatch import queries  # type: ignore
-    rows = queries.export_rows(_g6().get_conn(), project_id=pid)
+    rows = queries.export_rows(_g6().get_conn(), scope=scope_for(pid))
     return {"format": format, "count": len(rows), "rows": rows}

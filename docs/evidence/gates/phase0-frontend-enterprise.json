@@ -1,0 +1,25 @@
+{
+  "gate": "phase0-frontend-enterprise",
+  "command": "'node_modules\\.bin\\vitest.cmd' run",
+  "argv": [
+    "node_modules\\.bin\\vitest.cmd",
+    "run"
+  ],
+  "cwd": "C:\\Users\\enkso\\.kiro\\crew\\workspace\\osteopatch\\wt\\pack\\app\\g7-enterprise\\frontend",
+  "exit_code": 0,
+  "ok": true,
+  "observed_at_utc": "2026-10-06T00:54:48Z",
+  "observed_at_utc_source": "captured by `date -u +%Y-%m-%dT%H:%M:%SZ` at spawn time",
+  "timestamp_status": "CAPTURED",
+  "summary": "\u001b[2m      Tests \u001b[22m \u001b[1m\u001b[32m2 passed\u001b[39m\u001b[22m\u001b[90m (2)\u001b[39m",
+  "output_tail": "\u001b[1m\u001b[7m\u001b[36m RUN \u001b[39m\u001b[27m\u001b[22m \u001b[36mv2.1.9 \u001b[39m\u001b[90mC:/Users/enkso/.kiro/crew/workspace/osteopatch/wt/pack/app/g7-enterprise/frontend\u001b[39m\n\n \u001b[32m✓\u001b[39m src/test/ui.test.tsx \u001b[2m(\u001b[22m\u001b[2m2 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[90m 74\u001b[2mms\u001b[22m\u001b[39m\n\n\u001b[2m Test Files \u001b[22m \u001b[1m\u001b[32m1 passed\u001b[39m\u001b[22m\u001b[90m (1)\u001b[39m\n\u001b[2m      Tests \u001b[22m \u001b[1m\u001b[32m2 passed\u001b[39m\u001b[22m\u001b[90m (2)\u001b[39m\n\u001b[2m   Start at \u001b[22m 07:54:50\n\u001b[2m   Duration \u001b[22m 6.14s\u001b[2m (transform 58ms, setup 724ms, collect 661ms, tests 74ms, environment 4.10s, prepare 305ms)\u001b[22m",
+  "output_chars": 529,
+  "output_truncated": false,
+  "output_capture": "CAPTURED",
+  "output_bytes": 531,
+  "output_encoding": "utf-8",
+  "output_decode_lossy": false,
+  "output_undecodable": 0,
+  "output_log": null,
+  "durability": "VERSIONED"
+}

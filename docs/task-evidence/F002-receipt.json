@@ -1,0 +1,327 @@
+{
+  "task_id": "F002",
+  "task_title": "Create deterministic test fixtures and a throwaway integration database",
+  "status": "IMPLEMENTED_VERIFIED",
+  "acceptance_status": "NOT_REVIEWED — this receipt is the implementer's, not an acceptance",
+  "baseline_sha": "626aaadc9e4282b470b74fe94893a412cf7d127a",
+  "baseline_sha_note": "Inherited from the uncommitted Turn 0 baseline. The approved plan originally named b40bf34; that was wrong because local main was 5 commits behind origin/main and branching from it would have discarded F001's own evidence. 626aaad was verified as origin/main and used instead. No reset was performed.",
+  "remote_main_sha": "626aaadc9e4282b470b74fe94893a412cf7d127a",
+  "candidate_sha": null,
+  "candidate_sha_note": "No commit was authorized for this turn, so the working tree carries both the Turn 0 and F002 changes. Resolve the head with: git -C ../wt/pack rev-parse feat/prompt-pack-run",
+  "diff_sha256": "7cde172407f2e33fb586d4595a4270582c2f3b608034880e2637fd123c3de180",
+  "diff_sha256_covers": "Uncommitted working-tree change (Turn 0 + F002); committing is not authorized for this turn. SHA-256 over every dirty path in sorted order, each fed as utf-8(path) + NUL + file bytes; a directory is the concatenation of its files in sorted order. docs/task-evidence/F002-receipt.json is excluded so the digest does not depend on its own contents. Per-path digests: .gitignore 0a80b54c…, aidlc-docs/prompt-pack/ e54e1c26…, app/g6/backend/tests/fixtures/ caa178a3…, app/g6/backend/tests/test_fixture_contract.py 7b733097…, app/local-tester.py e29534a5…, docs/task-evidence/F002.md b16849b8…, docs/task-evidence/STATUS.md 524be5d9…, docs/task-evidence/TURN0-setup-baseline.md ac6aba11…, docs/task-evidence/TURN0-setup-receipt.json 467f47f4…, scripts/e2e_ui.py 3ec0f961…, scripts/task_env.sh 8ef44b3e…, scripts/verify_prompt_pack.py 48de7d13…. Recomputed after the counting-defect fix and the dirty_paths addition; recompute after any further edit.",
+  "branch": "feat/prompt-pack-run",
+  "worktree": "C:/Users/enkso/.kiro/crew/workspace/osteopatch/wt/pack",
+  "isolation": "dedicated git worktree; one writer; nothing committed, nothing pushed",
+  "dirty_paths": [
+    " M .gitignore",
+    " M app/local-tester.py",
+    " M scripts/e2e_ui.py",
+    "?? aidlc-docs/prompt-pack/",
+    "?? app/g6/backend/tests/fixtures/",
+    "?? app/g6/backend/tests/test_fixture_contract.py",
+    "?? docs/task-evidence/F002-receipt.json",
+    "?? docs/task-evidence/F002.md",
+    "?? docs/task-evidence/STATUS.md",
+    "?? docs/task-evidence/TURN0-setup-baseline.md",
+    "?? docs/task-evidence/TURN0-setup-receipt.json",
+    "?? scripts/task_env.sh",
+    "?? scripts/verify_prompt_pack.py"
+  ],
+  "changed_files": [
+    {
+      "path": "app/g6/backend/tests/fixtures/review_fixture.py",
+      "why": "task-owned deliverable — make_review_fixture(root, variant) -> FixturePaths; reuses db.run_migrations and repo record constructors, seeds the 8-image hand-check example plus 7 variants, and writes labelled TEST_FIXTURE pixels",
+      "task_owned": true
+    },
+    {
+      "path": "app/g6/backend/tests/test_fixture_contract.py",
+      "why": "task-owned acceptance suite — F002-AT01..AT05 plus the boundary/failure review, 30 tests",
+      "task_owned": true
+    },
+    {
+      "path": "docs/task-evidence/F002.md",
+      "why": "task-owned evidence document",
+      "task_owned": true
+    },
+    {
+      "path": "docs/task-evidence/F002-receipt.json",
+      "why": "task-owned receipt on the pack's RECEIPT_TEMPLATE schema",
+      "task_owned": true
+    },
+    {
+      "path": "docs/task-evidence/STATUS.md",
+      "why": "integration-owned roll-up; the user explicitly authorised updating F002's status row",
+      "task_owned": false
+    }
+  ],
+  "product_code_changed": false,
+  "product_files_modified": [],
+  "dependency_receipts_inspected": [
+    "docs/task-evidence/F001-receipt.json — status IMPLEMENTED_VERIFIED, acceptance_status NOT_REVIEWED, self_acceptance NOT_GIVEN. F002's only declared prerequisite. Its BaselineInventory interface was confirmed present in F001-baseline.json.",
+    "docs/task-evidence/TURN0-setup-receipt.json — supplied the worktree, task environment, and re-measured baseline this task inherits"
+  ],
+  "produced_interfaces": [
+    "make_review_fixture(root: Path, variant: str = 'default') -> FixturePaths",
+    "FixturePaths{root, db_path, image_root, expected_snapshot_path, variant}.open()",
+    "counts_from(conn, model_bundle_hash=..., project_id=None) -> counts+rates (fixture-local assertion helper; NOT the product AnalyticsSnapshot, which is A001's task)",
+    "latest_states(conn, model_bundle_hash=...) -> {image_id: {status, action, effective_label, predicted_class, prediction_id}}",
+    "add_superseded_event(conn, image_id, action, reason=None, revision_number=0) -> event_id",
+    "canonical_db_sha256(db_path=None) -> str | None",
+    "VARIANTS = (default, no_reviews, no_predictions, empty, corrupt_asset, empty_project, two_models)"
+  ],
+  "produced_endpoints": [],
+  "produced_types": [
+    "FixturePaths (frozen dataclass)",
+    "expected_snapshot.json manifest (schema_version, definitions_version='review-v1', scope, counts, rates, warnings, provenance)"
+  ],
+  "tests": [
+    {
+      "command": "pytest app/g6/backend/tests/test_scoring_contract.py -q  [environment sanity, pre-implementation]",
+      "cwd": "wt/pack",
+      "exit_code": 0,
+      "passed": 15,
+      "failed": 0,
+      "note": "proves the failure below was the intended missing behaviour, not a broken environment",
+      "observed_at_utc": "UNAVAILABLE",
+      "previously_claimed_observed_at_utc": "2026-10-05T10:05:00Z",
+      "observed_at_utc_source": "UNAVAILABLE — no runner-timestamped artifact and no `date -u` capture existed for this gate. The previously written value was a round minute with nothing behind it and is retained only as a record of what was claimed. Not backdated.",
+      "timestamp_status": "UNAVAILABLE"
+    },
+    {
+      "command": "pytest app/g6/backend/tests/test_fixture_contract.py -q  [PRE-IMPLEMENTATION]",
+      "cwd": "wt/pack",
+      "exit_code": 2,
+      "result": "ModuleNotFoundError: No module named 'fixtures' — acceptance tests written and observed failing first, as required by the task's step 4",
+      "observed_at_utc": "UNAVAILABLE",
+      "previously_claimed_observed_at_utc": "2026-10-05T10:06:00Z",
+      "observed_at_utc_source": "UNAVAILABLE — no runner-timestamped artifact and no `date -u` capture existed for this gate. The previously written value was a round minute with nothing behind it and is retained only as a record of what was claimed. Not backdated.",
+      "timestamp_status": "UNAVAILABLE"
+    },
+    {
+      "command": "uv run --locked pytest app/g6/backend/tests/fixtures/review_fixture.py -q  [task verification command 1]",
+      "cwd": "wt/pack",
+      "exit_code": 5,
+      "result": "'no tests ran'. The named file is a fixture module containing zero test functions, not a test module. Recorded exactly as it exited rather than rewritten to 0.",
+      "observed_at_utc": "UNAVAILABLE",
+      "previously_claimed_observed_at_utc": "2026-10-05T10:20:00Z",
+      "observed_at_utc_source": "UNAVAILABLE — no runner-timestamped artifact and no `date -u` capture existed for this gate. The previously written value was a round minute with nothing behind it and is retained only as a record of what was claimed. Not backdated.",
+      "timestamp_status": "UNAVAILABLE"
+    },
+    {
+      "command": "python -c 'import fixtures.review_fixture; build all 7 variants'  [EQUIVALENT for command 1]",
+      "cwd": "wt/pack",
+      "exit_code": 0,
+      "result": "ALL_VARIANTS_BUILT — default/no_reviews/no_predictions/empty/corrupt_asset/empty_project/two_models each produced a database; empty produced 0 images and 0 pixels",
+      "observed_at_utc": "UNAVAILABLE",
+      "previously_claimed_observed_at_utc": "2026-10-05T10:21:00Z",
+      "observed_at_utc_source": "UNAVAILABLE — no runner-timestamped artifact and no `date -u` capture existed for this gate. The previously written value was a round minute with nothing behind it and is retained only as a record of what was claimed. Not backdated.",
+      "timestamp_status": "UNAVAILABLE"
+    },
+    {
+      "command": "uv run --locked pytest app/g6/backend/tests/test_fixture_contract.py -q  [task verification command 2]",
+      "cwd": "wt/pack",
+      "exit_code": 0,
+      "passed": 31,
+      "failed": 0,
+      "skipped": 0,
+      "observed_at_utc": "UNAVAILABLE",
+      "previously_claimed_observed_at_utc": "2026-10-05T10:22:00Z",
+      "observed_at_utc_source": "UNAVAILABLE — no runner-timestamped artifact and no `date -u` capture existed for this gate. The previously written value was a round minute with nothing behind it and is retained only as a record of what was claimed. Not backdated.",
+      "timestamp_status": "UNAVAILABLE"
+    },
+    {
+      "command": "git diff --check  [task verification command 3]",
+      "cwd": "wt/pack",
+      "exit_code": 0,
+      "result": "no whitespace errors",
+      "observed_at_utc": "UNAVAILABLE",
+      "previously_claimed_observed_at_utc": "2026-10-05T10:20:00Z",
+      "observed_at_utc_source": "UNAVAILABLE — no runner-timestamped artifact and no `date -u` capture existed for this gate. The previously written value was a round minute with nothing behind it and is retained only as a record of what was claimed. Not backdated.",
+      "timestamp_status": "UNAVAILABLE"
+    },
+    {
+      "command": "pytest app/g6/backend/tests -q -rs  [full G6 regression]",
+      "cwd": "wt/pack",
+      "exit_code": 0,
+      "passed": 115,
+      "failed": 0,
+      "skipped": 10,
+      "result": "85 before F002 plus the 31 new tests (30 initial + 1 added by the completion check); the 10 skips are torch-gated attribution tests, unchanged",
+      "observed_at_utc": "UNAVAILABLE",
+      "previously_claimed_observed_at_utc": "2026-10-05T10:23:00Z",
+      "observed_at_utc_source": "UNAVAILABLE — no runner-timestamped artifact and no `date -u` capture existed for this gate. The previously written value was a round minute with nothing behind it and is retained only as a record of what was claimed. Not backdated.",
+      "timestamp_status": "UNAVAILABLE"
+    },
+    {
+      "command": "pytest app/g7-enterprise/backend/tests -q  [enterprise regression]",
+      "cwd": "wt/pack",
+      "exit_code": 0,
+      "passed": 28,
+      "failed": 0,
+      "skipped": 1,
+      "observed_at_utc": "UNAVAILABLE",
+      "previously_claimed_observed_at_utc": "2026-10-05T10:23:10Z",
+      "observed_at_utc_source": "UNAVAILABLE — no runner-timestamped artifact and no `date -u` capture existed for this gate. The previously written value was a round minute with nothing behind it and is retained only as a record of what was claimed. Not backdated.",
+      "timestamp_status": "UNAVAILABLE"
+    },
+    {
+      "command": "ruff check <CI blocking set>",
+      "cwd": "wt/pack",
+      "exit_code": 0,
+      "result": "All checks passed!",
+      "observed_at_utc": "UNAVAILABLE",
+      "previously_claimed_observed_at_utc": "2026-10-05T10:24:00Z",
+      "observed_at_utc_source": "UNAVAILABLE — no runner-timestamped artifact and no `date -u` capture existed for this gate. The previously written value was a round minute with nothing behind it and is retained only as a record of what was claimed. Not backdated.",
+      "timestamp_status": "UNAVAILABLE"
+    },
+    {
+      "command": "ruff check app/g6/backend/tests/fixtures/review_fixture.py app/g6/backend/tests/test_fixture_contract.py",
+      "cwd": "wt/pack",
+      "exit_code": 0,
+      "result": "clean after fixing 4 genuine violations found on first run (B007 unused loop variable, I001 import order, 2x F401 unused imports). Fixed at source; none suppressed.",
+      "observed_at_utc": "UNAVAILABLE",
+      "previously_claimed_observed_at_utc": "2026-10-05T10:24:20Z",
+      "observed_at_utc_source": "UNAVAILABLE — no runner-timestamped artifact and no `date -u` capture existed for this gate. The previously written value was a round minute with nothing behind it and is retained only as a record of what was claimed. Not backdated.",
+      "timestamp_status": "UNAVAILABLE"
+    },
+    {
+      "command": "mypy",
+      "cwd": "wt/pack",
+      "exit_code": 0,
+      "result": "Success: no issues found in 19 source files",
+      "observed_at_utc": "UNAVAILABLE",
+      "previously_claimed_observed_at_utc": "2026-10-05T10:24:30Z",
+      "observed_at_utc_source": "UNAVAILABLE — no runner-timestamped artifact and no `date -u` capture existed for this gate. The previously written value was a round minute with nothing behind it and is retained only as a record of what was claimed. Not backdated.",
+      "timestamp_status": "UNAVAILABLE"
+    },
+    {
+      "command": "rehearsal: build default variant, print counts/rates/per-image status, hash canonical store before and after",
+      "cwd": "wt/pack",
+      "exit_code": 0,
+      "result": "total=8 decided=3 deferred=2 unreviewed=3 corrected=1 disagreement=1 touched=5; completion 3/8, agreement 2/3, correction 1/3, defer 2/5; canonical unchanged",
+      "observed_at_utc": "UNAVAILABLE",
+      "previously_claimed_observed_at_utc": "2026-10-05T10:25:00Z",
+      "observed_at_utc_source": "UNAVAILABLE — no runner-timestamped artifact and no `date -u` capture existed for this gate. The previously written value was a round minute with nothing behind it and is retained only as a record of what was claimed. Not backdated.",
+      "timestamp_status": "UNAVAILABLE"
+    },
+    {
+      "command": "sha256sum canonical db before and after every gate in this task",
+      "cwd": "OsteoPatch_Kiro_Handoff",
+      "exit_code": 0,
+      "result": "0e4524db91f7a6e22dfbdc3395cf0fce6b7bf1b5628ac4cd1198be291d01ac40 at both points",
+      "observed_at_utc": "UNAVAILABLE",
+      "previously_claimed_observed_at_utc": "2026-10-05T10:26:00Z",
+      "observed_at_utc_source": "UNAVAILABLE — no runner-timestamped artifact and no `date -u` capture existed for this gate. The previously written value was a round minute with nothing behind it and is retained only as a record of what was claimed. Not backdated.",
+      "timestamp_status": "UNAVAILABLE"
+    }
+  ],
+  "evidence_path": "docs/task-evidence/F002.md and docs/task-evidence/F002-receipt.json",
+  "acceptance_tests": [
+    {
+      "id": "F002-AT01",
+      "result": "PASS",
+      "evidence": "test_F002_AT01_default_fixture_has_eight_unique_images_and_expected_statuses asserts 8 rows and 8 distinct image_ids, and statuses reviewed=3 / deferred=2 / unreviewed=3. Independent literal assertions on decided=3, touched=5, corrected=1, disagreement=1. test_..._expected_snapshot_file_matches_the_contract proves the derived manifest equals the hand-written EXPECTED_DEFAULT, so the check is not circular."
+    },
+    {
+      "id": "F002-AT02",
+      "result": "PASS",
+      "evidence": "test_F002_AT02_superseded_event_changes_event_count_not_latest_state: event count rises by exactly 1 while counts_from returns an identical dict. test_..._default_fixture_already_carries_one_superseded_event shows fx-01 history == [(1,'DEFER'),(2,'ACCEPT')] with state 'reviewed'. test_..._event_rows_are_append_only confirms the newer row is unchanged."
+    },
+    {
+      "id": "F002-AT03",
+      "result": "PASS",
+      "evidence": "test_F002_AT03_second_model_does_not_double_the_selected_image_count: prediction table holds 16 rows, selected-model rows 8, selected-model total_images 8. test_..._reviews_on_another_model_do_not_mark_the_selected_model_reviewed: a repo.submit_review against the OTHER model's prediction leaves fx-06 'unreviewed' in the selected-model view."
+    },
+    {
+      "id": "F002-AT04",
+      "result": "PASS",
+      "evidence": "test_F002_AT04_build_is_repeatable_across_two_independent_roots: two unrelated roots yield equal counts and a byte-identical expected_snapshot.json. test_..._does_not_import_torch_or_touch_the_network traps builtins.__import__ (raises on torch) and socket.socket (raises on any socket); neither fired, and the fixture still built."
+    },
+    {
+      "id": "F002-AT05",
+      "result": "PASS",
+      "evidence": "test_F002_AT05_destroying_the_fixture_dir_leaves_source_runtime_data: shutil.rmtree(fx.root) removes the fixture and canonical_db_sha256() is identical before and after. test_..._canonical_hash_helper_refuses_a_missing_store returns None for an absent store rather than a fabricated hash."
+    }
+  ],
+  "data_mode": "synthetic_fixture",
+  "scope": "Eight synthetic images generated locally as 16x16 coloured PNGs, prefixed TEST_FIXTURE-, plus eight predictions under a fixture-only model identity (fixture0000...f, NOT the frozen production hash 01727fb8...). Two source groups FX-GROUP-A/FX-GROUP-B. No real H&E, no real review, no canonical row, no public demo asset. The fixture was used exclusively in an isolated temp directory and destroyed on exit.",
+  "model_artifact_identities": {
+    "fixture-model-v1": {
+      "sha256": "fixture000000000000000000000000000000000000000000000000000000000000f",
+      "state": "TEST_FIXTURE — deliberately distinct from every production identity"
+    },
+    "fixture-model-v2": {
+      "sha256": "fixture111111111111111111111111111111111111111111111111111111111111f",
+      "state": "TEST_FIXTURE — used only by the two_models variant"
+    },
+    "baseline-frozen-g4": {
+      "sha256": "01727fb832f9d5518bbe2e33b901e7041020929c94b89cdb7a5e5195b544df63",
+      "state": "referenced for contrast only; never used as a fixture identity"
+    },
+    "g4-behavioral-recovery-r1": {
+      "sha256": "ffff1282f533758d7d7c8370ee6092f97f553da69918c5ee7e83632428176a73",
+      "state": "untouched; not used by this task"
+    }
+  },
+  "canonical_data_unchanged": {
+    "status": "VERIFIED_TRUE",
+    "evidence": "runtime-artifacts/db/osteopatch_g6.sqlite3 hashed 0e4524db91f7a6e22dfbdc3395cf0fce6b7bf1b5628ac4cd1198be291d01ac40 before and after every gate in this task. The fixture builds only under a caller-supplied root; config.DB_PATH is never opened for writing and test_boundary_fixture_never_uses_the_config_default_db_path asserts the default is never even created. No pixel, thumbnail, or model binary was written."
+  },
+  "ui_browser_observations": [
+    "Not applicable: F002 is a test-fixture task with no user-visible surface, and the task's section 11 directs a CLI/API output for non-UI work.",
+    "Rehearsal instead printed the deterministic counts, all four rates with numerator/denominator/unavailable_reason, and the per-image latest status (fx-01:reviewed fx-02:reviewed fx-03:reviewed fx-04:deferred fx-05:deferred fx-06:unreviewed fx-07:unreviewed fx-08:unreviewed).",
+    "The browser E2E suite was deliberately NOT re-run: this task changed no product code, no frontend, and no runner. Turn 0 already measured it at 17/17, and re-running an unaffected gate would only restate a passing result."
+  ],
+  "limitations": [
+    "A real counting defect was found in this task's own code during the completion check and fixed: counts_from() seeded prediction_images from the total when no model was selected and then counted again, reporting 16 predictions for 8 images on the two_models fixture. Fixed at the cause and locked by test_boundary_counts_are_images_not_prediction_rows, which asserts prediction_images <= total_images in both selection modes. No assertion was weakened.",
+    "The fixture is not in CI's blocking Ruff set or any CI job; this task is not authorised to edit the Makefile or the CI workflow, so its 30 tests only run when the G6 backend suite runs.",
+    "mypy is scoped to app/g6/backend/osteopatch, so these two new test files receive no type checking.",
+    "Task verification command 1 exits 5, not 0, because the file it names contains no test functions. The command is reproduced exactly above and an equivalent import-and-build check (exit 0) is recorded beside it.",
+    "One acceptance test of mine encoded a wrong expectation (no_predictions -> total_images 0) and was corrected to the contract-accurate 8-visible-images version before implementation, with a separate 'empty' variant added for the true no-rows case. Recorded rather than quietly fixed.",
+    "The synthetic pixels are flat colours, not tissue-like texture. They exist so asset handling has a real decodable file; they make no claim to resemble H&E and are never shown in a screenshot.",
+    "Real Grad-CAM, the original G4 bundle, real whole-slide reading, and any cloud resource remain unexercised. This task changed no product behaviour at all."
+  ],
+  "blockers": [],
+  "required_approval": [
+    "none needed to complete this task",
+    "separate authorization would still be required for: committing either this task or the Turn 0 changes, pushing, opening a PR, editing the Makefile or CI workflow to register the new fixture suite, installing torch, using any AWS credential, or starting F004"
+  ],
+  "boundary_observations": [
+    "no rows: the 'empty' variant builds a migrated database with zero images; every rate returns value=null with an unavailable_reason instead of 0.0",
+    "one row and duplicates: all 7 variants build; a replayed submission under one idempotency key appends exactly one event across three attempts",
+    "missing or malformed values: an unknown prediction_id raises repo.NotFoundError rather than silently recording a review",
+    "unavailable artifact: the 'corrupt_asset' variant writes a deliberately undecodable TEST_FIXTURE asset, drops fx-08's prediction, and raises a warning plus predictionless_images=1",
+    "unauthorized object: 'empty_project' yields total_images=0 for a project id that grants no images",
+    "changed project/model/session: 'two_models' proves the selected model's image count does not double, and a review bound to the other model's prediction does not decide the selected model",
+    "partial failure: the pre-implementation run exited 2 and is recorded as a failure, not smoothed into a pass",
+    "no metric is reported as zero where it was undefined: _rate returns null plus a reason whenever the denominator is 0",
+    "domain boundary preserved: MIXED_VIABLE_NECROTIC and deferred states appear only as metadata; the fixture emits only the three canonical classes and exactly ACCEPT/CORRECT/DEFER",
+    "double counting: prediction_images is an IMAGE count, not a prediction-row count; a two-model fixture with 16 rows over 8 images reports 8 in both selection modes"
+  ],
+  "external_effects": {
+    "installs": "none",
+    "cloud_calls": "none",
+    "training_or_calibration": "none",
+    "publish_or_deploy": "none",
+    "additional_spend_usd": 0,
+    "branches_modified": "none",
+    "running_services_touched": "none",
+    "commits": "none — both the Turn 0 and F002 changes remain uncommitted in the working tree, awaiting the user's authorisation"
+  },
+  "next_integrator_action": "Review this receipt and docs/task-evidence/F002.md against aidlc-docs/prompt-pack/tasks/00_foundation/F002__create-deterministic-test-fixtures-and-a-throwaway-integration-database.md, confirm the diff touches only the two task-owned files under app/g6/backend/tests/ plus docs/task-evidence/ and no product source, then start exactly one task: F004 — Add a typed API client with cancellation and honest errors — in worktree ../wt/pack on feat/prompt-pack-run, sourcing scripts/task_env.sh first. F001 and F002 both remain NOT_REVIEWED and need a separate accept or reject; do not treat either receipt as its own acceptance. Do not start F004 until the F002 receipt is accepted, because F004 depends on the shared API client contract rather than this fixture. NOTE (evidence-integrity pass): the review template this receipt originally named, REVIEW_ONE_TASK.md, was never committed to this repository and exists nowhere in the working tree, so the reference above now points at the governing brief instead. scripts/check_repository.py now fails the build on any receipt citing an artifact a fresh checkout cannot read, which is how this was found.",
+  "self_acceptance": "NOT GIVEN — this receipt records implementation and verification only. Test success and acceptance are separate; a reviewer may still reject this for an incorrect requirement, a security boundary, or a misleading scientific claim.",
+  "timestamp_audit": {
+    "audited_at_utc": "2026-10-05T11:20Z",
+    "verdict": "AUDIT 2026-10-05T11:20:16Z — NOT trustworthy as written, and internally impossible. The receipt's own last modification time is 10:12:30Z, yet it records gates at 10:20:00Z through 10:26:00Z — up to 13 minutes AFTER the file that describes them was last written. A file cannot report a run that postdates it. Every stamp in this receipt is a round minute and none has a runner artifact. Exit codes and counts re-verified 2026-10-05T11:17Z and still hold; the TIMES are discarded as UNAVAILABLE.",
+    "receipt_last_modified_utc": "2026-10-05T10:12:30Z",
+    "classification": {
+      "ANCHORED": 0,
+      "DERIVED": 0,
+      "UNAVAILABLE": 13,
+      "CAPTURED": 0
+    },
+    "rule": "Every observed_at_utc must be ANCHORED (a runner-timestamped artifact), DERIVED (arithmetic on a real captured value, with the arithmetic recorded), or UNAVAILABLE. A round minute with no source is not an observation. Nothing is backdated.",
+    "claims_reverified_at_utc": "2026-10-05T11:17Z"
+  }
+}

@@ -52,6 +52,12 @@ _site/
 # Local logs, OS files and editor/agent scratch
 *.log
 *.log.err
+# ...except gate transcripts, which are the evidence a receipt cites.
+!docs/evidence/**/*.log
 .DS_Store
 Thumbs.db
 .freebuff/
+
+# Prompt-pack task worktrees: throwaway integration databases and per-task
+# scratch state. Regenerable by scripts/task_env.sh; never a source artifact.
+scratch/

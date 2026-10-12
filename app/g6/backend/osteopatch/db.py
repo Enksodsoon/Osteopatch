@@ -7,12 +7,18 @@ are applied idempotently and recorded in ``schema_migrations``.
 from __future__ import annotations
 
 import sqlite3
+import threading
 from datetime import datetime, timezone
 from pathlib import Path
 
 from . import config
 
 MIGRATIONS_DIR = Path(__file__).resolve().parent / "migrations"
+
+# Startup migration bookkeeping. F007: migrations run once per DATABASE, not
+# once per worker thread, and a failed run is never recorded as done.
+_MIGRATION_LOCK = threading.Lock()
+_MIGRATED: set[str] = set()
 
 
 def utc_now() -> str:
@@ -27,6 +33,47 @@ def connect(db_path: Path | str | None = None) -> sqlite3.Connection:
     conn.execute("PRAGMA foreign_keys = ON")
     conn.execute("PRAGMA busy_timeout = 5000")
     return conn
+
+
+def initialize(conn: sqlite3.Connection, db_path: Path | str | None = None) -> list[int]:
+    """Bring one database to head, at most once per process, under a lock.
+
+    Returns the migration versions applied by THIS call (empty when another
+    thread already initialized the same database). The database is recorded as
+    migrated only after ``run_migrations`` returns, so a failed initialization
+    is retried by the next caller instead of leaving a half-built schema behind
+    a cached "done" marker.
+
+    Keyed by resolved path, so a test (or a second store) that points
+    ``DB_PATH`` at a new file still gets its own migrations.
+    """
+    key = str(Path(db_path if db_path is not None else config.DB_PATH).resolve())
+    with _MIGRATION_LOCK:
+        if key in _MIGRATED:
+            return []
+        applied = run_migrations(conn)
+        _MIGRATED.add(key)
+        return applied
+
+
+def close(conn: sqlite3.Connection) -> None:
+    """Release a connection: end any open transaction, then close the handle.
+
+    Idempotent — SQLite treats a second ``close()`` as a no-op. Used by the
+    bounded request lifecycle so a transaction a handler left open is rolled
+    back instead of being inherited by the next request on the same thread.
+    """
+    try:
+        if conn.in_transaction:
+            conn.rollback()
+    except sqlite3.ProgrammingError:
+        pass  # already closed - nothing of ours is still open
+    except sqlite3.Error as exc:
+        # Report, do not hide: a caller must never read a silent rollback
+        # failure as a clean release of an uncommitted write.
+        print(f"[db] rollback before close failed: {exc}")
+    finally:
+        conn.close()
 
 
 def _applied_versions(conn: sqlite3.Connection) -> set[int]:

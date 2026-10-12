@@ -6,10 +6,12 @@ NO torch — all predictions are precomputed.
 """
 from __future__ import annotations
 
+import contextlib
 import csv
 import io
 import sqlite3
 import threading
+from collections.abc import AsyncIterator, Iterator
 
 from fastapi import FastAPI, Query, Request, Response
 from fastapi.responses import JSONResponse, StreamingResponse
@@ -18,17 +20,43 @@ from pydantic import BaseModel, Field
 from . import config, db, images, modelcard, queries, repo, review_store
 
 # ---------------------------------------------------------------------------
-# App + per-request connection
+# App + bounded connection lifecycle
+#
+# F007. Two owners, two lifetimes:
+#
+#   * a thread-local handle (``get_conn``) reused by the read-only handlers,
+#     bounded by the worker-thread pool and released at shutdown; and
+#   * a request-scoped handle (``request_connection``) for the handlers that
+#     can leave a transaction behind - review writes and export - released in a
+#     ``finally`` so one request can never hand its open transaction to the next
+#     request served by the same thread.
+#
+# ``_conn`` remains the explicit injected override for tests, which
+# intentionally use one isolated in-memory/temp connection.
 # ---------------------------------------------------------------------------
+_conn: sqlite3.Connection | None = None
+_thread_conn = threading.local()
+_conn_init_lock = threading.Lock()
+
+# Every connection this process opened, so shutdown can release the lot. Keyed
+# by id() because identity is exactly the ownership question being asked here.
+_open_conns: dict[int, sqlite3.Connection] = {}
+_open_conns_lock = threading.Lock()
+
+
+@contextlib.asynccontextmanager
+async def _lifespan(_: FastAPI) -> AsyncIterator[None]:
+    """Release every worker-thread connection when the application stops."""
+    yield
+    close_all_connections()
+
+
 app = FastAPI(
     title="OsteoPatch Review (G6, local)",
     version="0.6.0",
     description=config.DISCLAIMER,
+    lifespan=_lifespan,
 )
-
-_conn: sqlite3.Connection | None = None
-_thread_conn = threading.local()
-_conn_init_lock = threading.Lock()
 
 
 def get_conn() -> sqlite3.Connection:
@@ -47,12 +75,21 @@ def get_conn() -> sqlite3.Connection:
 
     conn = getattr(_thread_conn, "conn", None)
     if conn is None:
-        # Serialise first-use migration work; afterwards each thread owns its
-        # independent SQLite connection and SQLite coordinates file-level writes.
+        # Serialise first-use connection + migration work; afterwards each
+        # thread owns its independent SQLite connection and SQLite coordinates
+        # file-level writes. The migrations themselves run once per database.
         with _conn_init_lock:
             conn = db.connect()
-            db.run_migrations(conn)
+            try:
+                db.initialize(conn, config.DB_PATH)
+            except Exception:
+                # A failed initialization leaves no handle behind and is never
+                # cached as "ready"; the next caller retries it.
+                db.close(conn)
+                raise
         _thread_conn.conn = conn
+        with _open_conns_lock:
+            _open_conns[id(conn)] = conn
     return conn
 
 
@@ -60,6 +97,67 @@ def set_conn(conn: sqlite3.Connection) -> None:
     """Test hook: inject an in-memory / temp connection."""
     global _conn
     _conn = conn
+
+
+def release_conn() -> bool:
+    """Release the current thread's cached connection. True if one was held.
+
+    Rolls back a transaction the thread left open, then closes the handle, so
+    the next request on this worker thread starts from a clean connection. An
+    injected ``_conn`` fixture connection is never touched: its owner closes it.
+    """
+    conn = getattr(_thread_conn, "conn", None)
+    if conn is None:
+        return False
+    _thread_conn.conn = None
+    with _open_conns_lock:
+        _open_conns.pop(id(conn), None)
+    db.close(conn)
+    return True
+
+
+def open_connection_count() -> int:
+    """How many thread-local connections this process currently holds open."""
+    with _open_conns_lock:
+        return len(_open_conns)
+
+
+def close_all_connections() -> int:
+    """Release every connection this process opened. Returns how many.
+
+    Called at application shutdown. A connection already released by
+    ``release_conn`` is no longer in the registry, so this cannot double-close.
+    """
+    with _open_conns_lock:
+        conns = list(_open_conns.values())
+        _open_conns.clear()
+    for conn in conns:
+        db.close(conn)
+    return len(conns)
+
+
+@contextlib.contextmanager
+def request_connection() -> Iterator[sqlite3.Connection]:
+    """Yield this thread's connection and release it when the request ends.
+
+    Exceptions propagate unchanged - this never turns a failed write into a
+    silent success. On the way out the connection is rolled back and closed, so
+    the next request served by this thread cannot inherit an open transaction.
+
+    Scopes may nest (a handler delegating to a helper that opens its own
+    scope): the connection is released by the OUTERMOST scope, so an inner one
+    cannot close a handle its caller is still using.
+    """
+    depth = getattr(_thread_conn, "depth", 0)
+    _thread_conn.depth = depth + 1
+    conn = get_conn()
+    try:
+        yield conn
+    finally:
+        _thread_conn.depth = depth
+        if depth == 0:
+            release_conn()
+
 
 
 # ---------------------------------------------------------------------------
@@ -386,22 +484,25 @@ def get_review(image_id: str):
 
 @app.post("/v1/images/{image_id}/reviews")
 def post_review(image_id: str, body: ReviewSubmission):
-    conn = get_conn()
-    event, created = review_store.submit_review(
-        conn,
-        image_id=image_id,
-        prediction_id=body.prediction_id,
-        action=body.action,
-        expected_revision=body.expected_revision,
-        idempotency_key=body.idempotency_key,
-        selected_label=body.selected_label,
-        reason=body.reason,
-        note=body.note,
-        reviewer=body.reviewer,
-    )
-    payload = queries._event_dict(event)
-    payload["created"] = created
-    payload["current_revision"] = review_store.current_revision(conn, image_id)
+    # Request-scoped: a write that fails part-way cannot leave its transaction
+    # on the thread-local connection for the next request on this thread. The
+    # event row is materialized here, so it survives the release below.
+    with request_connection() as conn:
+        event, created = review_store.submit_review(
+            conn,
+            image_id=image_id,
+            prediction_id=body.prediction_id,
+            action=body.action,
+            expected_revision=body.expected_revision,
+            idempotency_key=body.idempotency_key,
+            selected_label=body.selected_label,
+            reason=body.reason,
+            note=body.note,
+            reviewer=body.reviewer,
+        )
+        payload = queries._event_dict(event)
+        payload["created"] = created
+        payload["current_revision"] = review_store.current_revision(conn, image_id)
     return JSONResponse(status_code=201 if created else 200, content=payload)
 
 
@@ -410,8 +511,10 @@ def post_review(image_id: str, body: ReviewSubmission):
 # ---------------------------------------------------------------------------
 @app.get("/v1/exports/reviews")
 def export_reviews(format: str = Query("csv")):
-    conn = get_conn()
-    rows = queries.export_rows(conn)
+    # Request-scoped, and the rows are materialized inside the scope: nothing
+    # lazy may outlive the connection that produced it.
+    with request_connection() as conn:
+        rows = queries.export_rows(conn)
     if format == "json":
         return {
             "disclaimer": config.DISCLAIMER,

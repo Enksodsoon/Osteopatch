@@ -1,0 +1,42 @@
+  PASS  blocked storage: readPreference does not throw - null
+  PASS  blocked storage: falls back to system - system
+  PASS  blocked storage: applyStoredPreference reports the failure - {"persisted":false,"error":"localStorage is unavailable in this browser context"}
+  PASS  blocked storage: write reports unavailable - {"saved":false,"reason":"unavailable"}
+  PASS  quota: write reports write-failed - {"saved":false,"reason":"write-failed"}
+  PASS  quota: the choice still applies for the session - {"preference":"dark","resolved":"dark","systemDark":false,"persisted":false,"storageError":"localStorage refused the write"}
+  PASS  quota: the document still carries the resolved theme - {"theme":"dark","themePreference":"dark"}
+  PASS  silent write loss is reported, not claimed as saved - {"preference":"light","resolved":"light","systemDark":false,"persisted":false,"storageError":"localStorage did not retain the preference"}
+  PASS  stored "Dark" is not trusted - system
+  PASS  stored " dark" is not trusted - system
+  PASS  stored "dark\n" is not trusted - system
+  PASS  stored "system;" is not trusted - system
+  PASS  stored "null" is not trusted - system
+  PASS  stored "{\"a\":1}" is not trusted - system
+  PASS  stored "0" is not trusted - system
+  PASS  stored "true" is not trusted - system
+  PASS  stored "[]" is not trusted - system
+  PASS  stored "dark" round-trips - dark
+  PASS  stored "light" round-trips - light
+  PASS  stored "system" round-trips - system
+  PASS  isThemePreference survives hostile input - accepted []
+  PASS  legacy query: subscription was registered - ["add"]
+  PASS  legacy query: unsubscribe removes the listener - ["add","remove"]
+  PASS  legacy query: no listener leaks after unsubscribe
+  PASS  no matchMedia: treated as light
+  PASS  no matchMedia: unsubscribe is a safe no-op
+  PASS  throwing matchMedia: treated as light
+  PASS  throwing matchMedia: applyStoredPreference still resolves
+  PASS  system query: one listener while subscribed - 1
+  PASS  system query: OS changes are delivered - [false,true]
+  PASS  system query: no listener after unsubscribe - 0
+  PASS  system query: nothing arrives after unsubscribe
+  PASS  system query: a stored explicit choice outranks the OS - os=dark stored=light
+  PASS  no document: startup does not throw - null
+  PASS  no document: the stored preference is still resolved - {"preference":"dark","resolved":"dark","systemDark":false,"persisted":true,"storageError":null}
+  PASS  missing documentElement: does not throw - null
+  PASS  rapid choices: the last write is the stored one - dark
+  PASS  rapid choices: the document matches the stored one - {"theme":"dark","themePreference":"dark"}
+  PASS  rapid choices: the value is a bare literal, never JSON - "dark"
+SWEEP OK
+bundled 103855 bytes
+staged files removed: True

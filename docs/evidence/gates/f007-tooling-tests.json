@@ -1,0 +1,25 @@
+{
+  "gate": "f007-tooling-tests",
+  "command": "'.venv\\Scripts\\python.exe' -m unittest discover -s tests/tooling -v",
+  "argv": [
+    ".venv\\Scripts\\python.exe",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "tests/tooling",
+    "-v"
+  ],
+  "cwd": "C:\\Users\\enkso\\.kiro\\crew\\workspace\\osteopatch\\wt\\pack",
+  "exit_code": 0,
+  "ok": true,
+  "observed_at_utc": "2026-10-05T13:30:04Z",
+  "observed_at_utc_source": "captured by `date -u +%Y-%m-%dT%H:%M:%SZ` at spawn time",
+  "timestamp_status": "CAPTURED",
+  "summary": "OK (skipped=1)",
+  "output_tail": "d_declares_where_its_timestamp_came_from) ... ok\ntest_record_shape_matches_the_receipts (test_run_gate.RunGateTests.test_record_shape_matches_the_receipts) ... ok\ntest_recorded_command_can_be_rerun_verbatim (test_run_gate.RunGateTests.test_recorded_command_can_be_rerun_verbatim)\n`command` must round-trip: quoting that loses an argument turns the ... ok\ntest_summary_quotes_the_command_output_verbatim (test_run_gate.RunGateTests.test_summary_quotes_the_command_output_verbatim) ... ok\ntest_timestamp_is_a_real_capture_not_a_rounded_value (test_run_gate.RunGateTests.test_timestamp_is_a_real_capture_not_a_rounded_value)\nThe stamp must fall inside a `date -u` bracket taken around the run. ... ok\ntest_bad_fragment_is_reported (test_site.SiteTests.test_bad_fragment_is_reported) ... ok\ntest_build_is_deterministic (test_site.SiteTests.test_build_is_deterministic) ... ok\ntest_build_publishes_only_explicit_assets (test_site.SiteTests.test_build_publishes_only_explicit_assets) ... ok\ntest_metrics_are_read_from_frozen_evidence (test_site.SiteTests.test_metrics_are_read_from_frozen_evidence) ... ok\ntest_missing_asset_is_reported (test_site.SiteTests.test_missing_asset_is_reported) ... ok\ntest_missing_safety_disclosure_is_reported (test_site.SiteTests.test_missing_safety_disclosure_is_reported) ... ok\ntest_source_symlink_is_rejected (test_site.SiteTests.test_source_symlink_is_rejected) ... skipped 'Creating symlinks is not permitted on this host'\ntest_source_tree_cannot_be_an_output (test_site.SiteTests.test_source_tree_cannot_be_an_output) ... ok\ntest_unexpected_output_is_rejected (test_site.SiteTests.test_unexpected_output_is_rejected) ... ok\ntest_unsafe_source_path_is_rejected (test_site.SiteTests.test_unsafe_source_path_is_rejected) ... ok\ntest_valid_site_has_no_link_or_accessibility_errors (test_site.SiteTests.test_valid_site_has_no_link_or_accessibility_errors) ... ok\n\n----------------------------------------------------------------------\nRan 36 tests in 4.599s\n\nOK (skipped=1)",
+  "output_chars": 5469,
+  "output_truncated": true,
+  "output_log": "docs/evidence/gates/f007-tooling-tests.log",
+  "durability": "VERSIONED"
+}

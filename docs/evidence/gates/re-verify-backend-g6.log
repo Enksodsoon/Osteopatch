@@ -1,0 +1,32 @@
+
+=================================== ERRORS ====================================
+____ ERROR collecting app/g6/backend/tests/test_connection_concurrency.py _____
+ImportError while importing test module 'C:\Users\enkso\.kiro\crew\workspace\osteopatch\wt\pack\app\g6\backend\tests\test_connection_concurrency.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\Users\enkso\AppData\Local\Programs\Python\Python312\Lib\importlib\__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+app\g6\backend\tests\test_connection_concurrency.py:7: in <module>
+    from osteopatch import app as app_module
+app\g6\backend\osteopatch\app.py:16: in <module>
+    from fastapi import FastAPI, Query, Request, Response
+E   ModuleNotFoundError: No module named 'fastapi'
+_____ ERROR collecting app/g6/backend/tests/test_connection_lifecycle.py ______
+ImportError while importing test module 'C:\Users\enkso\.kiro\crew\workspace\osteopatch\wt\pack\app\g6\backend\tests\test_connection_lifecycle.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\Users\enkso\AppData\Local\Programs\Python\Python312\Lib\importlib\__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+app\g6\backend\tests\test_connection_lifecycle.py:30: in <module>
+    from osteopatch import app as app_module  # noqa: E402
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+app\g6\backend\osteopatch\app.py:16: in <module>
+    from fastapi import FastAPI, Query, Request, Response
+E   ModuleNotFoundError: No module named 'fastapi'
+=========================== short test summary info ===========================
+ERROR app/g6/backend/tests/test_connection_concurrency.py
+ERROR app/g6/backend/tests/test_connection_lifecycle.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!
+1 skipped, 2 errors in 0.48s

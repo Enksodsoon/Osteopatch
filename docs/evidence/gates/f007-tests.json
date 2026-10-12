@@ -1,0 +1,21 @@
+{
+  "gate": "f007-tests",
+  "command": "pytest app/g6/backend/tests/test_connection_lifecycle.py -q",
+  "argv": [
+    "pytest",
+    "app/g6/backend/tests/test_connection_lifecycle.py",
+    "-q"
+  ],
+  "cwd": "C:\\Users\\enkso\\.kiro\\crew\\workspace\\osteopatch\\wt\\pack",
+  "exit_code": 0,
+  "ok": true,
+  "observed_at_utc": "2026-10-05T13:29:51Z",
+  "observed_at_utc_source": "captured by `date -u +%Y-%m-%dT%H:%M:%SZ` at spawn time",
+  "timestamp_status": "CAPTURED",
+  "summary": "17 passed, 1 warning in 0.90s",
+  "output_tail": ".................                                                        [100%]\n============================== warnings summary ===============================\napp/g6/backend/tests/test_connection_lifecycle.py::test_at03_app_lifespan_shutdown_releases_connections\n  C:\\Users\\enkso\\.kiro\\crew\\workspace\\osteopatch\\wt\\pack\\.venv\\Lib\\site-packages\\starlette\\testclient.py:40: DeprecationWarning: The anyio.abc.BlockingPortal alias is deprecated, use anyio.from_thread.BlockingPortal instead.\n    _PortalFactoryType = typing.Callable[[], typing.ContextManager[anyio.abc.BlockingPortal]]\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n17 passed, 1 warning in 0.90s",
+  "output_chars": 686,
+  "output_truncated": false,
+  "output_log": null,
+  "durability": "VERSIONED"
+}

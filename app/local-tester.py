@@ -45,7 +45,14 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parent.parent
 G6_BACKEND = REPO / "app" / "g6" / "backend"
 ENT_BACKEND = REPO / "app" / "g7-enterprise" / "backend"
-RUNTIME = REPO / "runtime-artifacts"
+# Artifact root resolution. A fresh git worktree carries none of the
+# gitignored runtime data, so the default only works in the checkout that
+# owns it. Honour the same environment override osteopatch.config uses so
+# every task can point at the one verified read-only artifact source.
+RUNTIME = Path(
+    os.environ.get("OSTEOPATCH_RUNTIME_ARTIFACTS")
+    or (REPO / "runtime-artifacts")
+).resolve()
 CANON_DB = RUNTIME / "db" / "osteopatch_g6.sqlite3"
 
 FROZEN_BUNDLE = "01727fb832f9d5518bbe2e33b901e7041020929c94b89cdb7a5e5195b544df63"

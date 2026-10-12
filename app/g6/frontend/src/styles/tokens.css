@@ -1,0 +1,350 @@
+/* U002 — editorial design tokens.
+ *
+ * Single source of truth for colour, spacing and type scale. Imported first by
+ * styles.css, so these values win over anything declared later in that file.
+ *
+ * Values are literal, opaque hex so a reviewer can compute WCAG contrast
+ * directly from this file. A translucent token cannot be audited that way,
+ * which is how the previous focus ring shipped at 1.42:1 unnoticed.
+ *
+ * The class accents are the three canonical classes and nothing else. Mixed,
+ * uncertain, deferred and poor-quality are review/QC states: they are never a
+ * fourth learned class and never get an accent here.
+ */
+
+:root {
+  /* Light is the default scheme. U005: this also tells the browser to draw its
+   * own widgets - scrollbars, checkbox, range track, select popup - light, so a
+   * dark page never ends up with a light scrollbar in the middle of it. */
+  color-scheme: light;
+
+  /* ---- surfaces -------------------------------------------------- */
+  --canvas: #f2eee8;          /* app background, warm paper */
+  --surface: #fffdf9;         /* cards, panels, sheets */
+  --surface-strong: #ffffff;  /* raised surfaces, inputs */
+  --surface-sunken: #eee8e1;  /* wells, skeletons, table stripes */
+
+  /* ---- text ------------------------------------------------------ */
+  --text: #26221f;            /* 15.53:1 on --surface */
+  /* Worst light backdrop for muted text is --surface-sunken (#eee8e1), which is
+   * what sits behind .theme-opt and the wells, so the ratio quoted here is the
+   * one measured there and not against --surface-strong. The old comment read
+   * "5.01:1 on --surface" but that figure was measured on --surface-strong; the
+   * real value on --surface was 4.41:1 and on --surface-sunken 4.19:1, below the
+   * 4.5:1 text floor. Darkened to clear the floor on every light surface. */
+  --text-muted: #6b645e;      /* 4.78:1 sunken / 5.03:1 surface / 5.45:1 canvas */
+  --text-inverse: #fffdf9;
+
+  /* ---- lines ----------------------------------------------------- */
+  --border: #ddd5cc;
+  --border-strong: #c8beb3;
+
+  /* ---- accents --------------------------------------------------- */
+  --accent: #8b3f27;          /* warm oxide, the editorial signature */
+  --accent-deep: #672b1a;
+  --accent-soft: #f4e6df;
+
+  /* Keyboard focus ring. The 3px solid keeps the 3:1 non-text floor on every
+   * surface it can land on (9.10:1 canvas / 10.35:1 surface / 10.51:1 strong)
+   * while staying in the same oxide family as --accent. */
+  --focus: #6b2c17;
+
+  /* ---- status ---------------------------------------------------- */
+  --warning: #78551c;             /* 6.64:1 on --surface */
+  --warning-surface: #fbf3df;
+  --warning-border: #eadcb8;
+  --error: #b3261e;               /* 6.43:1 on --surface */
+  --error-surface: #fdf3f2;
+
+  /* ---- canonical class accents ----------------------------------- */
+  /* Paired with a shape marker and a text label; never colour-only.
+   * NOTE: in grayscale these measure 34 / 33 / 34 — interchangeable by
+   * luminance. That is expected: hue is the *redundant* channel here, and the
+   * shape marker (circle / square / triangle) plus the literal class name are
+   * what actually carry the distinction. Do not add a fourth value. */
+  --class-nt: #476f5d;    /* NON_TUMOR     */
+  --class-vt: #a34b31;    /* VIABLE_TUMOR  */
+  --class-nec: #725d8f;   /* NECROSIS      */
+
+  /* ---- spacing scale (step 02) ----------------------------------- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+
+  /* ---- radii, elevation ------------------------------------------ */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --shadow-sm: 0 1px 2px rgba(44, 33, 26, .05), 0 6px 18px rgba(44, 33, 26, .04);
+  --shadow-md: 0 12px 32px rgba(44, 33, 26, .09);
+
+  /* ---- type scale ------------------------------------------------- */
+  /* Percentage, not px: a px-locked root font-size stops rem-based layout from
+   * responding to browser zoom, which breaks U002-AT01 at 200%. */
+  --font-size-base: 100%;
+  --text-body: 14px;   /* contract minimum for body copy */
+  --text-label: 12px;  /* contract minimum for supporting labels */
+  --font-ui: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+/* Root sizing. Set here so zoom and user font-size preferences propagate into
+ * every rem-based measurement below. */
+html {
+  font-size: var(--font-size-base);
+}
+
+/* ==========================================================================
+   U005 - dark theme.
+
+   The dark palette is written twice, for the two ways a dark UI arrives:
+
+     :root[data-theme="dark"]           an explicit reviewer choice
+     @media (prefers-color-scheme: dark) :root:not([data-theme])  the OS, before
+                                        any script has run (and if it never does)
+
+   A media query cannot share a declaration block with a plain selector, so the
+   values are repeated. theme.test.tsx asserts the two blocks are identical, so
+   the repetition cannot drift. The system block deliberately matches only when
+   no data-theme is present: an explicit "light" choice must survive an OS set to
+   dark, and an explicit "dark" choice must not be re-resolved by the media query.
+
+   Every value is a literal hex so a reviewer can compute WCAG contrast from this
+   file without running anything. Measured against the surfaces below (U005-AT05):
+   --text on --surface 14.10:1, --text-muted on --canvas 7.91:1, --warning on
+   --warning-surface 8.50:1, --error on --error-surface 6.49:1, the class accents
+   on --surface 7.82 / 6.10 / 7.23:1, --focus on every surface 8.55:1 or better,
+   --on-accent on --accent 7.02:1, and --border-strong 3.22:1 or better on every
+   surface so component boundaries (a status pill, an input) stay visible - the
+   light theme's --border-strong is a hover tone at 1.80:1 and cannot simply be
+   inverted. The class accents stay the SAME THREE
+   canonical classes and remain interchangeable in grayscale, exactly as in
+   light: hue is the redundant channel and the shape marker plus the literal
+   class name carry the distinction.
+   ========================================================================== */
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  /* ---- surfaces -------------------------------------------------- */
+  --canvas: #191613;          /* app background, warm near-black */
+  --surface: #221e1a;         /* cards, panels, sheets */
+  --surface-strong: #28241f;  /* raised surfaces, inputs */
+  --surface-sunken: #141110;  /* wells, table stripes, chart tracks */
+
+  /* ---- text ------------------------------------------------------ */
+  --text: #f2ece4;            /* 14.10:1 on --surface */
+  --text-muted: #b5aa9f;      /*  7.26:1 on --surface */
+  --text-inverse: #191613;
+
+  /* ---- lines ----------------------------------------------------- */
+  --border: #3b342d;
+  --border-strong: #7a7166;
+
+  /* ---- accents --------------------------------------------------- */
+  --accent: #e08a68;          /* the oxide, lifted to read on a dark surface */
+  --accent-deep: #f0a888;
+  --accent-soft: #3a2419;
+  /* Foreground for anything painted on --accent. In light this is #fff; in dark
+   * the accent is light enough that white on it would be 2.62:1, so the pair
+   * flips to the canvas. styles.css hardcodes #fff on these backgrounds, which
+   * is why the dark block below re-points them at this token. */
+  --on-accent: #1c120b;
+
+  --focus: #f2b394;           /* 8.55:1 or better on every surface below */
+
+  /* ---- status ---------------------------------------------------- */
+  --warning: #e8c37a;
+  --warning-surface: #33291a;
+  --warning-border: #4b3e25;
+  --error: #ef8a80;
+  --error-surface: #341c1a;
+
+  /* ---- canonical class accents ----------------------------------- */
+  --class-nt: #7cc0a2;    /* NON_TUMOR     */
+  --class-vt: #e0856a;    /* VIABLE_TUMOR  */
+  --class-nec: #b9a0e0;   /* NECROSIS      */
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    color-scheme: dark;
+
+    --canvas: #191613;
+    --surface: #221e1a;
+    --surface-strong: #28241f;
+    --surface-sunken: #141110;
+
+    --text: #f2ece4;
+    --text-muted: #b5aa9f;
+    --text-inverse: #191613;
+
+    --border: #3b342d;
+    --border-strong: #7a7166;
+
+    --accent: #e08a68;
+    --accent-deep: #f0a888;
+    --accent-soft: #3a2419;
+    --on-accent: #1c120b;
+
+    --focus: #f2b394;
+
+    --warning: #e8c37a;
+    --warning-surface: #33291a;
+    --warning-border: #4b3e25;
+    --error: #ef8a80;
+    --error-surface: #341c1a;
+
+    --class-nt: #7cc0a2;
+    --class-vt: #e0856a;
+    --class-nec: #b9a0e0;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   U005 - theme control.
+
+   Sits in the existing header actions cluster. Every colour is a token, so the
+   control needs no dark-specific rules at all. (It lives in this file because
+   styles.css is outside this task's allowed change surface; moving the block
+   next to the other component styles is a one-line follow-up for the
+   integrator.)
+   -------------------------------------------------------------------------- */
+.theme-control { display: flex; align-items: center; gap: var(--space-2); }
+.theme-options {
+  display: inline-flex;
+  gap: 2px;
+  padding: 2px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface-sunken);
+}
+.theme-opt {
+  padding: 5px 10px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: var(--text-label);
+  font-weight: 650;
+}
+.theme-opt.active {
+  border-color: var(--border);
+  background: var(--surface-strong);
+  color: var(--text);
+}
+.theme-note { color: var(--warning); font-size: var(--text-label); }
+
+/* ==========================================================================
+   U005 - dark-theme re-points for the legacy literal colours in styles.css.
+
+   styles.css predates theming and pins roughly thirty backgrounds to light
+   literals. Re-pointing them here rather than editing styles.css keeps this task
+   inside its change surface, and the attribute-qualified selector (0,2,0)
+   outranks the plain class rule (0,1,0) no matter which file it came from.
+
+   Colour only - no layout, no geometry, no images. The image stage, the viewer
+   chrome and the attribution overlay are deliberately absent from this list: the
+   backdrop a slide is read against is identical in both themes, which is part of
+   why the pixels cannot change. theme.test.tsx fails if a new light literal
+   appears in styles.css without a matching rule here.
+   ========================================================================== */
+
+[data-theme="dark"] .app-header { background: var(--surface); }
+[data-theme="dark"] .app-nav { background: var(--surface-sunken); }
+[data-theme="dark"] .app-export .btn-link:hover { background: var(--surface-strong); }
+[data-theme="dark"] .workbench-toolbar { background: var(--surface); }
+[data-theme="dark"] .subset-banner {
+  background: var(--surface-sunken);
+  color: var(--text);
+  border-bottom-color: var(--border);
+}
+/* The DEMO DATASET pill is painted with the text token; that token inverts in
+   dark, so the pill flips with it instead of becoming light-on-light. */
+[data-theme="dark"] .subset-label { background: var(--text-muted); color: var(--canvas); }
+[data-theme="dark"] .brand-mark { background: var(--accent); color: var(--on-accent); }
+[data-theme="dark"] .disclaimer { border-bottom-color: var(--warning-border); }
+[data-theme="dark"] .pr-right > .disclaimer { border-color: var(--warning-border); }
+[data-theme="dark"] .startup-error,
+[data-theme="dark"] .inline-error {
+  border-color: var(--error);
+  background: var(--error-surface);
+  color: var(--error);
+}
+[data-theme="dark"] .page-loading,
+[data-theme="dark"] .gallery-skeleton {
+  background: linear-gradient(100deg, #211e1a 20%, #2b2723 35%, #211e1a 50%);
+}
+[data-theme="dark"] .empty-state { background: var(--surface-sunken); }
+[data-theme="dark"] .card-thumb { background: var(--surface-sunken); }
+[data-theme="dark"] .card:hover { border-color: var(--border-strong); }
+/* The status pill is the one place a review state is read at a glance, so its
+ * background and the three label colours (--text-muted / --class-nt /
+ * --warning) are all re-checked together in U005-AT05. */
+[data-theme="dark"] .card-status {
+  border-color: var(--border-strong);
+  background: var(--surface-strong);
+}
+[data-theme="dark"] .chip { background: var(--surface); }
+[data-theme="dark"] .badge-qc { border-color: var(--warning-border); }
+[data-theme="dark"] .badge-uncal {
+  border-color: #4a3f6b;
+  background: #2b2440;
+  color: #d6c9f2;
+}
+[data-theme="dark"] .badge-elig {
+  border-color: #2f4a3b;
+  background: #1c2b23;
+  color: var(--class-nt);
+}
+[data-theme="dark"] .badge-inelig {
+  border-color: #4a2c24;
+  background: #2f1c17;
+  color: var(--class-vt);
+}
+[data-theme="dark"] .pr-queue li:hover,
+[data-theme="dark"] .pr-queue li button:hover { background: var(--surface-sunken); }
+[data-theme="dark"] .pr-queue li.active { background: var(--accent-soft); }
+[data-theme="dark"] .scorebars,
+[data-theme="dark"] .scorebar-track { background: var(--surface-sunken); }
+[data-theme="dark"] .pr-priority { background: var(--surface-sunken); }
+[data-theme="dark"] .evidence-missing { background: var(--surface-sunken); }
+[data-theme="dark"] .lim-item { background: var(--surface); }
+[data-theme="dark"] .lim-item.lim-blocking { background: var(--error-surface); }
+[data-theme="dark"] .sev-high { border-color: #e0a15c; color: #e0a15c; }
+
+/* The header status dot is a second channel beside the "API live" text, so it
+ * only has to clear the 3:1 non-text floor; it clears it comfortably. */
+[data-theme="dark"] .system-status-dot { background: #8c837b; }
+[data-theme="dark"] .status-live .system-status-dot { background: var(--class-nt); }
+[data-theme="dark"] .status-offline .system-status-dot { background: var(--class-vt); }
+
+/* Anything painted on --accent takes --on-accent, because the accent inverts
+ * with the theme and #fff does not. */
+[data-theme="dark"] .review-action.active,
+[data-theme="dark"] .btn-primary,
+[data-theme="dark"] .btn-primary:hover:not(:disabled),
+[data-theme="dark"] .startup-error-mark { color: var(--on-accent); }
+
+/* UA-drawn form controls come with their own light background, and the text
+ * colour is inherited - so a select or textarea would be cream-on-white. Range
+ * and checkbox are excluded: color-scheme already handles those. */
+[data-theme="dark"] input:not([type="range"]):not([type="checkbox"]),
+[data-theme="dark"] select,
+[data-theme="dark"] textarea {
+  border-color: var(--border);
+  background: var(--surface-strong);
+  color: var(--text);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-theme="dark"] .page-loading,
+  [data-theme="dark"] .gallery-skeleton {
+    background: var(--surface-sunken);
+    background-image: none;
+  }
+}

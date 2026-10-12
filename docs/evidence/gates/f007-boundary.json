@@ -1,0 +1,20 @@
+{
+  "gate": "f007-boundary",
+  "command": "'.venv\\Scripts\\python.exe' scratch/task/f007_boundary_sweep.py",
+  "argv": [
+    ".venv\\Scripts\\python.exe",
+    "scratch/task/f007_boundary_sweep.py"
+  ],
+  "cwd": "C:\\Users\\enkso\\.kiro\\crew\\workspace\\osteopatch\\wt\\pack",
+  "exit_code": 0,
+  "ok": true,
+  "observed_at_utc": "2026-10-05T13:30:01Z",
+  "observed_at_utc_source": "captured by `date -u +%Y-%m-%dT%H:%M:%SZ` at spawn time",
+  "timestamp_status": "CAPTURED",
+  "summary": "SWEEP concurrent_churn: errors=[] registry=0",
+  "output_tail": "SWEEP release_on_cold_thread: False\n[db] backfilled project scope on 4 pre-existing rows\nSWEEP double_release: first=True second=False\nSWEEP close_all_twice: 0/0\nSWEEP db_close_already_closed: no exception\n[db] rollback before close failed: disk I/O error\nSWEEP rollback_failure: closed=True (diagnostic printed above)\nSWEEP initialize_paths: migrate_calls=2 (expect 2: one per database)\nSWEEP db_file_replaced_under_process: applied=[] -> LIMITATION loud failure: OperationalError: no such table: source_qc\n[db] backfilled project scope on 4 pre-existing rows\nSWEEP nested_request_connection: no error (outer handle survived)\nSWEEP nested_leaves_registry: 0\nSWEEP export_empty_scope: rows=0 registry=0\n[db] backfilled project scope on 4 pre-existing rows\nSWEEP concurrent_churn: errors=[] registry=0\nSWEEP close_all_while_in_use: handle closed by shutdown: ProgrammingError",
+  "output_chars": 875,
+  "output_truncated": false,
+  "output_log": null,
+  "durability": "VERSIONED"
+}

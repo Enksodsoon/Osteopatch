@@ -1,0 +1,21 @@
+{
+  "gate": "u001-rehearsal",
+  "command": "'.venv\\Scripts\\python.exe' scratch/task/u001_rehearsal.py",
+  "argv": [
+    ".venv\\Scripts\\python.exe",
+    "scratch/task/u001_rehearsal.py"
+  ],
+  "cwd": "C:\\Users\\enkso\\.kiro\\crew\\workspace\\osteopatch\\wt\\pack",
+  "exit_code": 0,
+  "ok": true,
+  "observed_at_utc": "2026-10-05T14:27:37Z",
+  "observed_at_utc_source": "captured by `date -u +%Y-%m-%dT%H:%M:%SZ` at spawn time",
+  "timestamp_status": "CAPTURED",
+  "summary": "PASS  workbench controls match the URL â€” url sort=image_id filter=unreviewed | controls sort=image_id filter=unreviewed",
+  "output_tail": "step 1: workbench loaded\n  filter=unreviewed -> 60 cards\n  step 2: filtered URL: #/workbench?sort=image_id&filter=unreviewed (60 cards, filter=unreviewed)\n  PASS  queue context is in the URL\n  PASS  workbench shows cards â€” 60 cards\n  step 3: deep link: #/patch/Case-3-A17-15765-20926?sort=image_id&filter=unreviewed\n  PASS  deep link names the opened patch\n  PASS  deep link carries the queue context\n  PASS  cold deep link restores the patch â€” #/patch/Case-3-A17-15765-20926?sort=image_id&filter=unreviewed\n  PASS  restored patch shows the same image\n  step 4: reload the original tab\n  PASS  reload keeps the patch route â€” #/patch/Case-3-A17-15765-20926?sort=image_id&filter=unreviewed\n  step 5: browser Back\n  step 6: after Back: #/workbench?sort=image_id&filter=unreviewed\n  PASS  Back returns to the filtered workbench â€” #/workbench?sort=image_id&filter=unreviewed\n  PASS  workbench controls match the URL â€” url sort=image_id filter=unreviewed | controls sort=image_id filter=unreviewed\n  step 7: unknown route shows a real view, not a blank screen\n  PASS  not-available view has meaningful text\n  PASS  shell still present (not a blank page)\n  step 8: current-page indicator and skip link\n  PASS  exactly one nav item is aria-current â€” 1 marked\n  PASS  skip link is the first tab stop â€” \"Skip to content\"\n\nrehearsal failures: 0\nAPI up: 1144 images, 1144 predictions, bundle 01727fb832f9\nSPA up: http://127.0.0.1:56590\n\nrehearsal exit code: 0",
+  "output_chars": 1464,
+  "output_truncated": false,
+  "output_log": "docs/evidence/gates/u001-rehearsal-output.txt",
+  "durability": "VERSIONED",
+  "record_note": "output_log here was attached by the U001 implementer to make the full rehearsal transcript durable and readable; it was NOT produced by this tool's 2 KB cap, which never bit on this run (output_chars 1464 < 2000). The transcript itself was captured under PYTHONUTF8=1. The output_tail in this record was decoded by the pre-fix cp1252 path and shows mojibake ('a€”') where the transcript has the real em-dash; the authoritative text is the transcript file."
+}

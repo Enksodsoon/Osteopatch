@@ -1,0 +1,20 @@
+{
+  "gate": "u003-boundary-sweep",
+  "command": "'.venv\\Scripts\\python.exe' scratch/task/u003_sweep_gate.py",
+  "argv": [
+    ".venv\\Scripts\\python.exe",
+    "scratch/task/u003_sweep_gate.py"
+  ],
+  "cwd": "C:\\Users\\enkso\\.kiro\\crew\\workspace\\osteopatch\\wt\\pack",
+  "exit_code": 0,
+  "ok": true,
+  "observed_at_utc": "2026-10-05T15:05:21Z",
+  "observed_at_utc_source": "captured by `date -u +%Y-%m-%dT%H:%M:%SZ` at spawn time",
+  "timestamp_status": "CAPTURED",
+  "summary": "86 hostile checks, 0 unstable/throwing",
+  "output_tail": "--- resolveFetch / announcement / canRetry vs hostile payloads ---\n--- rejectFetch vs hostile throwables ---\n--- transitions from every kind (stability) ---\n--- prototype pollution through the payload ---\n--- retry control cannot appear for a permission denial ---\n\n86 hostile checks, 0 unstable/throwing",
+  "output_chars": 305,
+  "output_truncated": false,
+  "output_log": null,
+  "durability": "VERSIONED"
+}
