@@ -11,6 +11,7 @@ import { VerdictCard } from "./live/VerdictCard";
 import { ProvenanceStrip } from "./live/ProvenanceStrip";
 import { TileGrid, TileInspector } from "./live/TileGrid";
 import { LiveScreen } from "./live/LiveScreen";
+import { LiveAttributionPanel } from "./LiveAttributionPanel";
 
 type Annotation = api.SlideRegion & { id: string; label: string; note: string };
 const labels = ["Observation", "NON_TUMOR", "VIABLE_TUMOR", "NECROSIS"];
@@ -38,6 +39,13 @@ export function SlideWorkspace({ role, projectId, onReport }: {
   const analysisRequest = useRef(0);
   const mayAnalyze = role !== undefined && LIVE_ANALYZE_ROLES.includes(role);
   const region = annotations.find(a => a.id === selected) ?? view;
+  const selectedTile = detail?.tiles.find(tile => selected === `tile-${tile.tile_index}`) ?? null;
+  const attributionTarget = result && ("prediction" in result
+    ? { tileIndex: 0, sourceLabel: "selected slide view", scores: result.prediction.scores, available: true }
+    : selectedTile ? {
+      tileIndex: selectedTile.tile_index, sourceLabel: `tile ${selectedTile.tile_index}`,
+      scores: selectedTile.scores, available: Boolean(selectedTile.tile_png_filename) && !selectedTile.decode_error,
+    } : null);
   const zoom = slide ? Math.max(slide.width / Math.max(1, view.width), slide.height / Math.max(1, view.height)) : 1;
 
   function open(next: api.SlideMeta) {
@@ -197,7 +205,10 @@ export function SlideWorkspace({ role, projectId, onReport }: {
         {result && <div data-testid="slide-analysis-result">
           {"prediction" in result ? <VerdictCard run={result.run} prediction={result.prediction} sourceLabel="Selected slide view" /> : <p>{result.run.tile_count} of {result.run.tiles_available} regions analyzed{result.run.truncated ? " · scan limit reached" : ""}.</p>}
           {detail && <><TileGrid tiles={detail.tiles} mosaic={(result as LiveSlideResult).mosaic} onInspect={tile => setSelected(`tile-${tile.tile_index}`)} />
-            <TileInspector tile={detail.tiles.find(tile => selected === `tile-${tile.tile_index}`) ?? null} /></>}
+            <TileInspector tile={selectedTile} />
+            {!selectedTile && <p className="muted small" data-testid="gradcam-tile-prompt">Select a decoded tile above to generate Grad-CAM for that region.</p>}</>}
+          {attributionTarget && <LiveAttributionPanel key={`${result.run.run_id}:${attributionTarget.tileIndex}`}
+            runId={result.run.run_id} {...attributionTarget} />}
           <ModelEvidenceSummary runModelId={result.run.model_id} />
           <details className="slide-run-details">
             <summary>Run provenance</summary>

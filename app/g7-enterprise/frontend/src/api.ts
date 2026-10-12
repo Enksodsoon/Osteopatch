@@ -3,7 +3,7 @@
 import type {
   Gallery, GalleryItem, LiveCapability, LivePatchResult, LiveRunDetail,
   LiveRunSummary, LiveSlideResult, Me, PublicReport, ReportSummary, ServingModel,
-  Meta, ModelCard, ImageList, ImageDetail, AttributionMeta,
+  Meta, ModelCard, ImageList, ImageDetail, AttributionMeta, CanonicalClass,
 } from "./types";
 
 let token: string | null = null;
@@ -328,8 +328,12 @@ export const mosaicPath = (runId: string) =>
 export const liveThumbnailPath = (runId: string) =>
   `/v1/live/runs/${encodeURIComponent(runId)}/thumbnail.png`;
 
-export const tileAttributionPath = (runId: string, tileIndex: number) =>
-  `/v1/live/runs/${encodeURIComponent(runId)}/tiles/${tileIndex}/attribution`;
+export const tileAttributionPath = (
+  runId: string, tileIndex: number, targetA?: CanonicalClass, targetB?: CanonicalClass,
+) => {
+  const pair = targetA && targetB ? `?${new URLSearchParams({ target_a: targetA, target_b: targetB })}` : "";
+  return `/v1/live/runs/${encodeURIComponent(runId)}/tiles/${tileIndex}/attribution${pair}`;
+};
 
 export const fullImagePath = (imageId: string) =>
   `/v1/images/${encodeURIComponent(imageId)}/full`;

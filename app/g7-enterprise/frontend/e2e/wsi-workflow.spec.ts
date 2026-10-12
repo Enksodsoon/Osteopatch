@@ -94,6 +94,19 @@ test("real WSI upload, navigation, annotations, inference, reports and downloads
   await expect(page.getByRole("alert")).toHaveCount(0);
   await expect(page.getByTestId("slide-analysis-result")).toContainText("uncalibrated");
   await expect(page.getByTestId("analysis-region")).toBeVisible();
+  const gradcam = page.getByTestId("live-attribution-panel");
+  await expect(gradcam).toBeVisible();
+  const focusClass = page.getByTestId("live-attribution-class");
+  await expect(focusClass.locator("option")).toHaveCount(3);
+  const overlay = page.getByTestId("live-attribution-overlay");
+  const classNames = { NON_TUMOR: "Non-tumor", VIABLE_TUMOR: "Viable tumor", NECROSIS: "Necrosis" };
+  for (const classId of ["NON_TUMOR", "VIABLE_TUMOR", "NECROSIS"] as const) {
+    await focusClass.selectOption(classId);
+    await page.getByRole("button", { name: /(?:Generate|Regenerate) Grad-CAM/ }).click();
+    await expect(overlay).toBeVisible({ timeout: 120_000 });
+    await expect(overlay).toHaveAttribute("alt", new RegExp(`highlighting ${classNames[classId]}`));
+    await expect.poll(() => overlay.evaluate(image => (image as HTMLImageElement).naturalWidth)).toBeGreaterThan(0);
+  }
   const modelEvidence = page.getByTestId("slide-model-evidence");
   await modelEvidence.locator("summary").first().click();
   await expect(modelEvidence).toContainText("independent accuracy for this recovered model has not been measured");
@@ -123,8 +136,15 @@ test("real WSI upload, navigation, annotations, inference, reports and downloads
   await expect(page.getByTestId("slide-analysis-result")).toContainText(/tiles scored/, { timeout: 120_000 });
   await expect(page.getByTestId("analysis-tile").first()).toBeVisible();
   await expect(page.getByText(/Class map · not an attention heatmap/)).toBeVisible();
-  await page.getByRole("gridcell").first().click();
+  const decodedTile = page.locator('[role="gridcell"]:not([aria-label*="could not be decoded"])').first();
+  await expect(decodedTile).toBeVisible();
+  await decodedTile.click();
   await expect(page.locator(".tile-inspect")).toBeVisible();
+  await expect(page.getByTestId("live-attribution-panel")).toContainText("Grad-CAM · tile");
+  await page.getByRole("button", { name: "Generate Grad-CAM", exact: true }).click();
+  const tileOverlay = page.getByTestId("live-attribution-overlay");
+  await expect(tileOverlay).toBeVisible({ timeout: 120_000 });
+  await expect.poll(() => tileOverlay.evaluate(image => (image as HTMLImageElement).naturalWidth)).toBeGreaterThan(0);
   await expect.poll(() => page.evaluate(key => JSON.parse(sessionStorage.getItem(key) ?? "[]").length, notesKey)).toBe(1);
   await page.reload();
   await expect.poll(() => page.evaluate(key => JSON.parse(sessionStorage.getItem(key) ?? "[]").length, notesKey)).toBe(1);

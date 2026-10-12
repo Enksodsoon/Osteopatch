@@ -158,8 +158,7 @@ test("model evidence, patch pixels and attribution recover from API failures", a
   await login(page);
   await injectFailure(page, "**/v1/model-card", route => route.fulfill({ status: 503, json: { detail: "QA unavailable" } }));
   await page.getByRole("button", { name: "Learn", exact: true }).click();
-  await page.getByText("Technical model notes", { exact: true }).click();
-  await page.getByRole("button", { name: "Open model evidence", exact: true }).click();
+  await page.getByRole("button", { name: "Explore model evidence and limitations", exact: true }).click();
   await expect(page.getByTestId("model-card-error")).toBeVisible();
   await page.unroute("**/v1/model-card");
   await page.getByRole("button", { name: "Retry", exact: true }).click();

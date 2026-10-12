@@ -4,7 +4,8 @@
 Each launch snapshots the read model, scopes only that copy, verifies the
 selected images and recorded-run artifacts, then serves the built UI on one
 local origin. Ctrl+C stops the app and removes the disposable workspace; run
-the same command again for a clean reset.
+the same command again for a clean reset. When present, the pinned local demo
+WSI is uploaded into that disposable workspace on every launch.
 """
 from __future__ import annotations
 
@@ -259,7 +260,8 @@ def seed_workspace(source_db: Path, workspace: Path, source_runtime: Path) -> tu
     return project_id, verified_runs, len(images)
 
 
-def preflight(base: str, project_id: str, image_count: int, replay_ids: list[str]) -> None:
+def preflight(base: str, project_id: str, image_count: int, replay_ids: list[str],
+              demo_wsi: Path | None = None) -> None:
     status, _headers, body = request(f"{base}/v1/health")
     if status != 200:
         raise RuntimeError(f"local API health check failed ({status})")
@@ -297,6 +299,41 @@ def preflight(base: str, project_id: str, image_count: int, replay_ids: list[str
         )
         if status != 200:
             raise RuntimeError(f"verified recorded run failed API preflight ({status}): {body[:200]!r}")
+
+    if demo_wsi is not None and demo_wsi.exists():
+        wsi = demo_wsi
+        if wsi.is_symlink() or not wsi.is_file():
+            raise RuntimeError(f"demo WSI is not a regular local file: {wsi.name}")
+        manifest = json.loads((wsi.parent / "provenance.json").read_text(encoding="utf-8"))
+        data = wsi.read_bytes()
+        digest = hashlib.sha256(data).hexdigest()
+        if manifest.get("filename") != wsi.name or manifest.get("sha256") != digest:
+            raise RuntimeError("demo WSI failed its local provenance SHA-256 check")
+        req = urllib.request.Request(
+            f"{base}/v1/slides",
+            data=data,
+            method="POST",
+            headers={
+                "Authorization": f"Bearer {token}",
+                "Content-Type": "application/octet-stream",
+                "X-File-Name": wsi.name,
+                "X-Project-Id": project_id,
+            },
+        )
+        try:
+            with urllib.request.urlopen(req, timeout=60) as response:
+                meta = json.loads(response.read())
+        except urllib.error.HTTPError as exc:
+            raise RuntimeError(f"demo WSI upload preflight failed ({exc.code}): {exc.read(200)!r}") from exc
+        if (meta.get("source_sha256"), meta.get("width"), meta.get("height"), meta.get("level_count")) != (
+            digest, 27887, 23554, 3,
+        ):
+            raise RuntimeError("uploaded demo WSI identity or pyramid metadata did not match its pinned source")
+        print(
+            f"Prepared local osteosarcoma demo WSI: {meta['filename']} "
+            f"({meta['width']} × {meta['height']}, {meta['level_count']} levels)",
+            flush=True,
+        )
 
 
 def main() -> int:
@@ -354,7 +391,8 @@ def main() -> int:
             else:
                 raise RuntimeError("local API did not become healthy within 60 seconds")
 
-            preflight(base, project_id, image_count, replay_ids)
+            preflight(base, project_id, image_count, replay_ids,
+                      source_runtime / "demo-local" / "wsi" / "SJOS001105_X1-16299.svs")
             if sha256_file(source_db) != source_hash:
                 raise RuntimeError("source review database changed while the disposable demo was starting")
             print(f"\nOsteoPatch local educational demo: {base}", flush=True)

@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { ImportPanel } from "../components/live/ImportPanel";
+import { LiveAttributionPanel } from "../components/LiveAttributionPanel";
 import { ReviewScreen } from "../components/ReviewScreen";
 import { VerdictCard } from "../components/live/VerdictCard";
 import { TileGrid, TileInspector, UncertainRank } from "../components/live/TileGrid";
@@ -283,5 +284,35 @@ describe("ProvenanceStrip — absent means absent", () => {
   it("reports truncation with both counts rather than a single total", () => {
     render(<ProvenanceStrip run={run({ tile_count: 100, tiles_available: 256, truncated: true })} />);
     expect(screen.getByText("100 of 256")).toBeInTheDocument();
+  });
+});
+
+describe("LiveAttributionPanel — Grad-CAM follows the focused class", () => {
+  it("requests that class against its highest-scoring alternative and shows the overlay", async () => {
+    const attribution = vi.spyOn(api, "blobUrl").mockResolvedValue("blob:grad-cam");
+    const originalRevoke = URL.revokeObjectURL;
+    const revoke = vi.fn();
+    Object.defineProperty(URL, "revokeObjectURL", { configurable: true, value: revoke });
+    const view = render(<LiveAttributionPanel
+      runId="live-abc123" tileIndex={7} sourceLabel="tile 7"
+      scores={{ NON_TUMOR: 0.05, VIABLE_TUMOR: 0.8, NECROSIS: 0.15 }} available
+    />);
+    try {
+      expect(screen.queryByTestId("live-attribution-overlay")).not.toBeInTheDocument();
+      const focus = screen.getByTestId("live-attribution-class");
+      expect(focus).toHaveValue("VIABLE_TUMOR");
+      expect(focus.querySelectorAll("option")).toHaveLength(3);
+      fireEvent.change(focus, { target: { value: "NON_TUMOR" } });
+      fireEvent.click(screen.getByRole("button", { name: "Generate Grad-CAM" }));
+      expect(await screen.findByTestId("live-attribution-overlay")).toHaveAttribute("src", "blob:grad-cam");
+      expect(attribution).toHaveBeenCalledWith(
+        "/v1/live/runs/live-abc123/tiles/7/attribution?target_a=NON_TUMOR&target_b=VIABLE_TUMOR",
+      );
+      expect(screen.getByTestId("live-attribution-disclosure")).toHaveTextContent(/not segmentation or diagnosis/i);
+    } finally {
+      view.unmount();
+      vi.restoreAllMocks();
+      Object.defineProperty(URL, "revokeObjectURL", { configurable: true, value: originalRevoke });
+    }
   });
 });

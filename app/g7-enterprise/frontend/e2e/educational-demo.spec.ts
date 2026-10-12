@@ -181,8 +181,16 @@ test("reader role and responsive themes stay usable", async ({ page }) => {
   await page.getByRole("button", { name: "Images", exact: true }).click();
   await page.locator(".recorded-results > summary").click();
   await expect(page.getByRole("heading", { name: "Saved results" })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Analyze this view", exact: true })).toBeDisabled();
-  await expect(page.getByRole("button", { name: "Scan slide", exact: true })).toBeDisabled();
+  await expect(page.getByText("Shared slides are read-only for your role.", { exact: true })).toBeVisible();
+  await expect(page.getByLabel("Upload WSI or image")).toHaveCount(0);
+  const analyze = page.getByRole("button", { name: "Analyze this view", exact: true });
+  const scan = page.getByRole("button", { name: "Scan slide", exact: true });
+  if (await analyze.count()) {
+    await expect(analyze).toBeDisabled();
+    await expect(scan).toBeDisabled();
+  } else {
+    await expect(scan).toHaveCount(0);
+  }
 
   for (const [width, label] of [[1440, "desktop"], [768, "tablet"], [390, "mobile"]] as const) {
     await page.setViewportSize({ width, height: 844 });
